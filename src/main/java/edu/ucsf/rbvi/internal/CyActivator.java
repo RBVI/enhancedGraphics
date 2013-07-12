@@ -58,6 +58,10 @@ public class CyActivator extends AbstractCyActivator {
 		Properties heatStripChartProps = new Properties();
 		registerService(bc, heatStripChartFactory, CyCustomGraphicsFactory.class, heatStripChartProps);
 
+		// CyCustomGraphicsFactory clearFactory = new ClearFactory();
+		// Properties clearProps = new Properties();
+		// registerService(bc, clearFactory, CyCustomGraphicsFactory.class, clearProps);
+
 		// CyCustomGraphicsFactory stripChartFactory = new StripChartCustomGraphicsFactory();
 		logger.info("Enhanced Custom Graphics started");
 	}
