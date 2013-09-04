@@ -143,7 +143,7 @@ public abstract class AbstractEnhancedCustomGraphics <T extends CustomGraphicLay
 				a = Integer.parseInt(components[3]);
 				stop = Float.parseFloat(components[4]);
 			} else {
-				stop = Float.parseFloat(components[4]);
+				stop = Float.parseFloat(components[3]);
 			}
 			colors.add(new Color(r,g,b,a));
 			stops.add(stop);
