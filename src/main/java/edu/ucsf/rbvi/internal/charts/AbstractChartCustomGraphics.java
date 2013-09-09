@@ -467,17 +467,28 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		return new Color(r, g, b);
 	}
 
+	// Zero-centered normalization.  Zero values must remain zero,
+	// negative values must be negative, and positive values must be
+	// positive.  Note that if the user gives us unbalanced ranges, this
+	// approach to normalization will inflate the smaller of the ranges
 	private double normalize(double v, double rangeMin, double rangeMax) {
 		if (rangeMin == 0.0 && rangeMax == 0.0) return v;
 		double range = rangeMax-rangeMin;
-		double val = (v-rangeMin)/range;
-		// Now make sure val is between 0 and 1
-		if (val < 0.0) 
-			val = 0.0;
-		if (val > 1.0)
-			val = 1.0;
+		double val = 0.0;
 
-		return (val*2-1.0); // Now val is between -1 and 1
+		// Clamp v
+		if (v < rangeMin) v = rangeMin;
+		if (v > rangeMax) v = rangeMax;
+
+		if ((rangeMin > 0.0 && rangeMax > 0.0) ||
+		    (rangeMin < 0.0 && rangeMax < 0.0))
+			val = (v - rangeMin) / range;
+		else if (v < 0.0 && rangeMin < 0.0)
+			val = -(v / rangeMin);
+		else if (v > 0.0 && rangeMax > 0.0)
+			val = (v / rangeMax);
+
+		return val;
 	}
 
 	private List<Double> normalize(List<Double> vList, double rangeMin, double rangeMax) {

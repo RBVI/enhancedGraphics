@@ -113,7 +113,9 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 		// Create all of our pie slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
+			// System.out.println("Getting data from attributes for node "+node);
 			values = getDataFromAttributes (network, node, attributes, labels);
+			// System.out.println("Data from attributes returns "+values.size()+" values");
 			colorList = convertInputToColor(colorString, values);
 		}
 
@@ -147,6 +149,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 				label = labels.get(bar);
 			if (values.get(bar) == 0.0) continue;
 
+			// System.out.println("Creating bar #"+bar);
 			// Create the slice
 			BarLayer bl = new BarLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, ybase,
 			                           colorList.get(bar));
@@ -154,6 +157,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			layers.add(bl);
 
 			if (label != null) {
+				// System.out.println("Creating label for bar #"+bar);
 				// Now, create the label
 				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, ybase,
 			                                     label, labelSize);
