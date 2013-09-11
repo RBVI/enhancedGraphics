@@ -14,6 +14,7 @@ import org.cytoscape.view.presentation.customgraphics.CyCustomGraphicsFactory;
 import edu.ucsf.rbvi.enhancedcg.internal.gradients.linear.LinearGradientCGFactory;
 import edu.ucsf.rbvi.enhancedcg.internal.gradients.radial.RadialGradientCGFactory;
 import edu.ucsf.rbvi.enhancedcg.internal.charts.bar.BarChartFactory;
+import edu.ucsf.rbvi.enhancedcg.internal.charts.circos.CircosChartFactory;
 import edu.ucsf.rbvi.enhancedcg.internal.charts.heatstrip.HeatStripFactory;
 import edu.ucsf.rbvi.enhancedcg.internal.charts.line.LineChartFactory;
 import edu.ucsf.rbvi.enhancedcg.internal.charts.pie.PieChartFactory;
@@ -57,6 +58,10 @@ public class CyActivator extends AbstractCyActivator {
 		CyCustomGraphicsFactory heatStripChartFactory = new HeatStripFactory();
 		Properties heatStripChartProps = new Properties();
 		registerService(bc, heatStripChartFactory, CyCustomGraphicsFactory.class, heatStripChartProps);
+
+		CyCustomGraphicsFactory circosChartFactory = new CircosChartFactory();
+		Properties circosChartProps = new Properties();
+		registerService(bc, circosChartFactory, CyCustomGraphicsFactory.class, circosChartProps);
 
 		// CyCustomGraphicsFactory clearFactory = new ClearFactory();
 		// Properties clearProps = new Properties();
