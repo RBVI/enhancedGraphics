@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -60,6 +61,7 @@ import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
 
 import edu.ucsf.rbvi.enhancedcg.internal.charts.AbstractChartCustomGraphics;
+import edu.ucsf.rbvi.enhancedcg.internal.charts.ViewUtils;
 
 /**
  * The CircosChart creates a list of custom graphics where each custom graphic represents
@@ -86,7 +88,9 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private List<Color> colors = null;
 	private boolean labelCircles = false;
 	private double arcStart = 0.0;
-	private int labelSize = 4;
+	private int labelSize = ViewUtils.DEFAULT_SIZE;
+	private String labelFont = ViewUtils.DEFAULT_FONT;
+	private int labelStyle = ViewUtils.DEFAULT_STYLE;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
 	private double firstArc = 0.2; // 20% out for first inner arc
@@ -125,6 +129,12 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 		if (args.containsKey(LABELSIZE))
 			labelSize = getIntegerValue(args.get(LABELSIZE));
+
+		if (args.containsKey(LABELFONT))
+			labelFont = args.get(LABELFONT);
+
+		if (args.containsKey(LABELSTYLE))
+			labelStyle = getFontStyle(args.get(LABELSTYLE));
 
 		if (args.containsKey(SORTSLICES))
 			sortSlices = getBooleanValue(args.get(SORTSLICES));
@@ -168,6 +178,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		List<List<Double>> valueList = null;
 		List<List<Color>> colorList = null;
 		int nCircles = 0;
+
+		Font font = new Font(labelFont, labelStyle, labelSize);
 
 		// Create all of our slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
@@ -241,7 +253,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				// Only create the labels for the last circle
 				if (label != null && circle == (nCircles-1)) {
 					// Now, create the label
-					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), label, labelSize, labelColor);
+					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), label, font, labelColor);
 					if (labelLayer != null)
 						labelList.add(labelLayer);
 				}
@@ -249,7 +261,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			}
 
 			if (labelCircles) {
-				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, labelSize, labelColor);
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

@@ -1,6 +1,7 @@
 package edu.ucsf.rbvi.enhancedcg.internal.charts;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -246,6 +247,16 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (input instanceof Boolean)
 			return ((Boolean)input).booleanValue();
 		return Boolean.parseBoolean(input.toString());
+	}
+
+	public int getFontStyle(String input) {
+		if (input.equalsIgnoreCase("italics"))
+			return Font.ITALIC;
+		if (input.equalsIgnoreCase("bold"))
+			return Font.BOLD;
+		if (input.equalsIgnoreCase("bolditalic"))
+			return Font.ITALIC|Font.BOLD;
+		return Font.PLAIN;
 	}
 
 	public Color getColorValue(String input) {

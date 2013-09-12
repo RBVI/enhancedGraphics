@@ -35,6 +35,7 @@ package edu.ucsf.rbvi.enhancedcg.internal.charts.circos;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -65,7 +66,7 @@ public class CircosLayer implements PaintedShape {
 	private double circleWidth; // % of bounds for distance between inner and outer arcs
 	private String label;
 	private Color color;
-	private int fontSize;
+	private Font font;
 	private boolean labelSlice = true;
 	protected Rectangle2D bounds;
 
@@ -79,13 +80,13 @@ public class CircosLayer implements PaintedShape {
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, String label, int fontSize, Color labelColor) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, String label, Font font, Color labelColor) {
 		labelLayer = true;
 		labelSlice = true;
 		this.arcStart = arcStart;
 		this.arc = arc;
 		this.label = label;
-		this.fontSize = fontSize;
+		this.font = font;
 		this.color = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
@@ -93,12 +94,12 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	// Special version to label circles (not slices)
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, int fontSize, Color labelColor) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, Color labelColor) {
 		labelLayer = true;
 		labelSlice = false;
 		this.arcStart = arcStart;
 		this.label = label;
-		this.fontSize = fontSize;
+		this.font = font;
 		this.color = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
@@ -144,9 +145,9 @@ public class CircosLayer implements PaintedShape {
 
 		CircosLayer pl;
 		if (labelLayer && labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, fontSize, color);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, font, color);
 		else if (labelLayer && !labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, fontSize, color);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color);
 		else
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color);
 		pl.bounds = newBounds;
@@ -196,7 +197,7 @@ public class CircosLayer implements PaintedShape {
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
 
-		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
+		Shape textShape = ViewUtils.getLabelShape(label, font);
 
 		// Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.0);
 		Point2D labelPosition = new Point2D.Double(x,y);
@@ -214,7 +215,7 @@ public class CircosLayer implements PaintedShape {
 
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
 
-		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
+		Shape textShape = ViewUtils.getLabelShape(label, font);
 
 		Point2D labelPosition = getLabelPosition(bounds, midpointAngle, 1.7);
 

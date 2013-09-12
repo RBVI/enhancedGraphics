@@ -126,22 +126,27 @@ public class ViewUtils {
 	}
 
 
-	private static final String DEFAULT_FONT=Font.SANS_SERIF;
-	private static final int DEFAULT_STYLE=Font.PLAIN;
-	private static final int DEFAULT_SIZE=8;
+	public static final String DEFAULT_FONT=Font.SANS_SERIF;
+	public static final int DEFAULT_STYLE=Font.PLAIN;
+	public static final int DEFAULT_SIZE=8;
 
 	public static enum TextAlignment {ALIGN_LEFT, ALIGN_CENTER_TOP, ALIGN_RIGHT, ALIGN_CENTER_BOTTOM, ALIGN_MIDDLE};
 
-	public static Shape getLabelShape(String label, String fontName, int fontStyle, int fontSize) {
+	public static Shape getLabelShape(String label, Font font) {
+		// Get the canvas so that we can find the graphics context
+		FontRenderContext frc = new FontRenderContext(null, false, false);
+		TextLayout tl = new TextLayout(label, font, frc);
+		return tl.getOutline(null);
+	}
+
+	public static Shape getLabelShape(String label, String fontName, 
+	                                  int fontStyle, int fontSize) {
 		if (fontName == null) fontName = DEFAULT_FONT;
 		if (fontStyle == 0) fontStyle = DEFAULT_STYLE;
 		if (fontSize == 0) fontSize = DEFAULT_SIZE;
 
 		Font font = new Font(fontName, fontStyle, fontSize);
-		// Get the canvas so that we can find the graphics context
-		FontRenderContext frc = new FontRenderContext(null, false, false);
-		TextLayout tl = new TextLayout(label, font, frc);
-		return tl.getOutline(null);
+		return getLabelShape(label, font);
 	}
 
 	public static Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign, 
