@@ -66,6 +66,7 @@ public class CircosLayer implements PaintedShape {
 	private String label;
 	private Color color;
 	private int fontSize;
+	private boolean labelSlice = true;
 	protected Rectangle2D bounds;
 
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, Color color) {
@@ -78,13 +79,27 @@ public class CircosLayer implements PaintedShape {
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, String label, int fontSize) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, String label, int fontSize, Color labelColor) {
 		labelLayer = true;
+		labelSlice = true;
 		this.arcStart = arcStart;
 		this.arc = arc;
 		this.label = label;
 		this.fontSize = fontSize;
-		this.color = Color.BLACK;
+		this.color = labelColor;
+		this.radiusStart = radiusStart;
+		this.circleWidth = circleWidth;
+		bounds = new Rectangle2D.Double(0,0,100,100);
+	}
+
+	// Special version to label circles (not slices)
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, int fontSize, Color labelColor) {
+		labelLayer = true;
+		labelSlice = false;
+		this.arcStart = arcStart;
+		this.label = label;
+		this.fontSize = fontSize;
+		this.color = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
 		bounds = new Rectangle2D.Double(0,0,100,100);
@@ -100,8 +115,10 @@ public class CircosLayer implements PaintedShape {
 
 	public Shape getShape() {
 		// create the slice or the label, as appropriate
-		if (labelLayer)
+		if (labelLayer && labelSlice)
 			return labelShape();
+		else if (labelLayer && !labelSlice)
+			return labelCircle();
 		else
 			return sliceShape();
 	}
@@ -125,24 +142,18 @@ public class CircosLayer implements PaintedShape {
 		Shape newShape = xform.createTransformedShape(bounds);
 		Rectangle2D newBounds = newShape.getBounds2D();
 
-		// Find the scale so we can transform our start and width values
-		double xScale = (newBounds.getX()-newBounds.getWidth())/(bounds.getX()-bounds.getWidth());
-		double yScale = (newBounds.getY()-newBounds.getHeight())/(bounds.getY()-bounds.getHeight());
-		double scale = yScale;
-		if (xScale < yScale)
-			scale = xScale;
-
 		CircosLayer pl;
-		if (labelLayer)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, fontSize);
-		else 
+		if (labelLayer && labelSlice)
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, fontSize, color);
+		else if (labelLayer && !labelSlice)
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, fontSize, color);
+		else
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color);
 		pl.bounds = newBounds;
 		return pl;
 	}
 
 	private Shape sliceShape() {
-
 		double x = bounds.getX()-bounds.getWidth()*radiusStart/2;
 		double y = bounds.getY()-bounds.getHeight()*radiusStart/2;
 		double width = bounds.getWidth();
@@ -171,6 +182,30 @@ public class CircosLayer implements PaintedShape {
 		path.closePath();
 		
 		return path;
+	}
+
+	private Shape labelCircle() {
+		double midpointAngle = 90.0;
+		// double x = bounds.getX()-bounds.getWidth()*radiusStart/2;
+		// double y = bounds.getY()-bounds.getHeight()*radiusStart/2;
+		double x = bounds.getX();
+		double y = bounds.getY() - bounds.getHeight()*radiusStart/2;
+		double width = bounds.getWidth();
+		double height = circleWidth;
+		Rectangle2D labelBounds = new Rectangle2D.Double(x, y, width, height);
+
+		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
+
+		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
+
+		// Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.0);
+		Point2D labelPosition = new Point2D.Double(x,y);
+
+		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
+		if (textShape == null) {
+			return null;
+		}
+		return textShape;
 	}
 
 	private Shape labelShape() {

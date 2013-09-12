@@ -248,6 +248,13 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		return Boolean.parseBoolean(input.toString());
 	}
 
+	public Color getColorValue(String input) {
+		String [] colorArray = new String[1];
+		colorArray[0] = input;
+		List<Color> colors = parseColorList(colorArray);
+		return colors.get(0);
+	}
+
 	/**
  	 * Return the double equivalent of the input
  	 *

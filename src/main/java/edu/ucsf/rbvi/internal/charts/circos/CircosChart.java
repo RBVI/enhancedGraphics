@@ -70,6 +70,8 @@ import edu.ucsf.rbvi.enhancedcg.internal.charts.AbstractChartCustomGraphics;
 public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String COLORS = "colorlist";
 	// TODO
+	private static final String LABELCIRCLES = "labelcircles";
+	private static final String LABELCOLOR = "labelcolor";
 	private static final String LABELFONT = "labelfont";
 	private static final String LABELSTYLE = "labelstyle";
 	private static final String LABELSIZE = "labelsize";
@@ -78,15 +80,19 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String MINIMUMSLICE = "minimumslice";
 	private static final String ARCSTART = "arcstart";
 	private static final String FIRSTARC = "firstarc";
+	private static final String FIRSTARCWIDTH = "firstarcwidth";
 	private static final String ARCWIDTH = "arcwidth";
 
 	private List<Color> colors = null;
+	private boolean labelCircles = false;
 	private double arcStart = 0.0;
 	private int labelSize = 4;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
 	private double firstArc = 0.2; // 20% out for first inner arc
 	private double arcWidth = 0.1; // 10% of node width for arcs
+	private double firstArcWidth = 0.1; // 10% of node width for arcs
+	private Color labelColor = Color.BLACK;
 
 	private String colorString = null;
 
@@ -135,6 +141,18 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		if (args.containsKey(ARCWIDTH)) {
 			arcWidth = getDoubleValue(args.get(ARCWIDTH));
 		}
+
+		if (args.containsKey(FIRSTARCWIDTH)) {
+			firstArcWidth = getDoubleValue(args.get(FIRSTARCWIDTH));
+		} else {
+			firstArcWidth = arcWidth;
+		}
+
+		if (args.containsKey(LABELCIRCLES))
+			labelCircles = getBooleanValue(args.get(LABELCIRCLES));
+
+		if (args.containsKey(LABELCOLOR))
+			labelColor = getColorValue(args.get(LABELCOLOR));
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
@@ -154,7 +172,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		// Create all of our slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
 			if (values == null || values.size() == 0) {
-				System.out.println("No values");
+				// System.out.println("No values");
 				// OK, the colors are constant, the slice width changes
 				valueList = new ArrayList<List<Double>>();
 				for (String attr: attributes) {
@@ -165,16 +183,16 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				colors = convertInputToColor(colorString, values);  // We only do this once
 				nCircles = valueList.size();
 			} else {
-				System.out.println("Got values");
+				// System.out.println("Got values");
 				// If we already have values, we must want to use the attributes to map our colors
 				colorList = new ArrayList<List<Color>>();
 				for (String attr: attributes) {
 					List<Double>attrValues = 
 						getDataFromAttributes (network, (CyNode)node, Collections.singletonList(attr), labels);
 					colors = convertInputToColor(colorString, attrValues);
-					System.out.println("convertInputToColor returns: "+colors);
+					// System.out.println("convertInputToColor returns: "+colors);
 					if (colors == null) return null;
-					System.out.println("Colors for "+attr+"="+colors);
+					// System.out.println("Colors for "+attr+"="+colors);
 					colorList.add(colors);
 				}
 				values = convertData(values);
@@ -193,7 +211,10 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 		List<CircosLayer> labelList = new ArrayList<CircosLayer>();
 
+		double rad = firstArc;
 		for (int circle = 0; circle < nCircles; circle++) {
+			String circleLabel = attributes.get(circle);
+
 			if (valueList != null)
 				values = valueList.get(circle);
 
@@ -201,8 +222,11 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				colors = colorList.get(circle);
 
 			int nSlices = values.size();
-			double rad = firstArc+circle*arcWidth;
 			double arc = arcStart;
+			double circleWidth = arcWidth;
+			if (circle == 0) 
+				circleWidth = firstArcWidth;
+
 			for (int slice = 0; slice < nSlices; slice++) {
 				String label = null;
 				if (labels != null && labels.size() > 0)
@@ -210,18 +234,33 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				if (values.get(slice) == 0.0) continue;
 	
 				// Create the slice
-				CircosLayer pl = new CircosLayer(rad, arcWidth, arc, values.get(slice), colors.get(slice));
+				CircosLayer pl = new CircosLayer(rad, circleWidth, arc, values.get(slice), colors.get(slice));
 				if (pl == null) continue;
 				layers.add(pl);
 	
 				// Only create the labels for the last circle
 				if (label != null && circle == (nCircles-1)) {
 					// Now, create the label
-					CircosLayer labelLayer = new CircosLayer(rad, arcWidth, arc, values.get(slice), label, labelSize);
+					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), label, labelSize, labelColor);
 					if (labelLayer != null)
 						labelList.add(labelLayer);
 				}
 				arc += values.get(slice).doubleValue();
+			}
+
+			if (labelCircles) {
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, labelSize, labelColor);
+				if (labelLayer != null)
+					labelList.add(labelLayer);
+			}
+
+			rad += circleWidth;
+		}
+
+		if (labelCircles) {
+			// Create a label for each circle based on the name of the attribute that
+			// we used for the data
+			for (int circle = 0; circle < nCircles; circle++) {
 			}
 		}
 
