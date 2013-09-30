@@ -160,6 +160,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 				List<Integer> iList = row.getList(column, Integer.class);
 				for (Integer i: iList) 
 					values.add(i.doubleValue());
+			} else if (type == Long.class) {
+				List<Long> lList = row.getList(column, Long.class);
+				for (Long l: lList) 
+					values.add(l.doubleValue());
 			} else if (type == Float.class) {
 				List<Float> fList = row.getList(column, Float.class);
 				for (Float f: fList) 
