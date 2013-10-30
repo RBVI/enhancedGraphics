@@ -69,6 +69,7 @@ public class HeatStripLayer implements PaintedShape {
 	private int bar;
 	private int nBars;
 	private int separation;
+	float strokeWidth = 0.5f;
 	float[] dist = {0.0f, 0.5f, 1.0f};
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -121,7 +122,7 @@ public class HeatStripLayer implements PaintedShape {
 	public Stroke getStroke() {
 		// We only stroke the slice
 		if (!labelLayer)
-			return new BasicStroke(0.5f);
+			return new BasicStroke(strokeWidth);
 		return null;
 	}
 
@@ -159,14 +160,14 @@ public class HeatStripLayer implements PaintedShape {
 
 	private Shape labelShape() {
 		// Get a bar that's in the right position and the maximum height
-		Rectangle2D bar = getHeatStrip(minValue);
+		Rectangle2D barShape = getHeatStrip(minValue);
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
-		Point2D labelPosition = new Point2D.Double(bar.getCenterX(), bar.getMaxY()+fontSize/2);
+		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+fontSize/2);
 
 		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
 
-		double maxHeight = bar.getWidth();
+		double maxHeight = barShape.getWidth();
 
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, maxHeight, 0.0, 70.0);
 		if (textShape == null) {
@@ -183,7 +184,15 @@ public class HeatStripLayer implements PaintedShape {
 		double height = bounds.getHeight();
 
 		double yMid = y + (0.5 * height);
-		double sliceSize = (width / nBars) - (nBars * separation) + separation; // only have n-1 separators
+		double sliceSize = (width - (nBars * separation) + separation)/nBars; // only have n-1 separators
+		if (sliceSize < 1.0 && separation > 0) {
+			sliceSize = width/nBars;
+			separation = 0;
+		} 
+
+		// Account for the stroke
+		sliceSize = sliceSize - sliceSize/10.0;
+		strokeWidth = (float)sliceSize/20.0f;
 
 		double min = minValue;
 		double max = maxValue;
@@ -193,7 +202,7 @@ public class HeatStripLayer implements PaintedShape {
 		else
 			max = -1.0 * min;
 
-		double px1 = x + bar*width/nBars;
+		double px1 = x + bar*sliceSize + bar*separation;
 		double py1 = y + (0.5 * height);
 
 		if (val > 0.0)

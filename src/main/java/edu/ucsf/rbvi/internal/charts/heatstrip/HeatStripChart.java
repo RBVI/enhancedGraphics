@@ -141,17 +141,21 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		double minValue = 0.000001;
 		double maxValue = -minValue;
-		for (double val: values) {
+		if (values == null) return null;
+		for (Double val: values) {
+			if (val == null) continue;
 			minValue = Math.min(minValue, val);
 			maxValue = Math.max(maxValue, val);
 		}
+		if (minValue == 0.000001 && maxValue == -minValue) 
+			return null;
 			
 		int nBars = values.size();
 		for (int bar = 0; bar < nBars; bar++) {
 			String label = null;
 			if (labels != null && labels.size() > 0)
 				label = labels.get(bar);
-			if (values.get(bar) == 0.0) continue;
+			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
 
 			// Create the slice
 			HeatStripLayer bl = new HeatStripLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, colorScale);

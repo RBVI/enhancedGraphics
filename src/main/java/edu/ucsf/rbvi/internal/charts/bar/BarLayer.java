@@ -66,6 +66,7 @@ public class BarLayer implements PaintedShape {
 	private int bar;
 	private int nBars;
 	private int separation;
+	float strokeWidth = 0.5f;
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
 	                double minValue, double maxValue, double ybase, Color color) {
@@ -117,7 +118,7 @@ public class BarLayer implements PaintedShape {
 	public Stroke getStroke() {
 		// We only stroke the slice
 		if (!labelLayer)
-			return new BasicStroke(0.5f);
+			return new BasicStroke(strokeWidth);
 		return null;
 	}
 
@@ -180,7 +181,13 @@ public class BarLayer implements PaintedShape {
 		double width = bounds.getWidth();
 		double height = bounds.getHeight();
 
-		double sliceSize = (width / nBars) - (nBars * separation) + separation; // only have n-1 separators
+		double sliceSize = (width - (nBars * separation) + separation)/nBars; // only have n-1 separators
+		if (sliceSize < 1.0 && separation > 0)
+			sliceSize = width/nBars;
+
+		// Account for the stroke
+		sliceSize = sliceSize - sliceSize/10.0;
+		strokeWidth = (float)sliceSize/20.0f;
 
 		double min = minValue;
 		double max = maxValue;
@@ -190,7 +197,7 @@ public class BarLayer implements PaintedShape {
 		else
 			max = -1.0 * min;
 
-		double px1 = x + bar*width/nBars;
+		double px1 = x + bar*sliceSize;
 		double py1 = y + (ybase * height);
 		// System.out.println("y = "+y+", py1 = "+py1);
 
