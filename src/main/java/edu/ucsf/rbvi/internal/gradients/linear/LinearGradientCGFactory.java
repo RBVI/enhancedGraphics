@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.gradients.linear;
+package edu.ucsf.rbvi.enhancedGraphics.internal.gradients.linear;
 
 import java.net.URL;
 

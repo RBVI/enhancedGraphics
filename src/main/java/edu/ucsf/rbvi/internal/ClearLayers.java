@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal;
+package edu.ucsf.rbvi.enhancedGraphics.internal;
 
 // System imports
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 
-import edu.ucsf.rbvi.enhancedcg.internal.charts.AbstractChartCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphics;
 
 public class ClearLayers extends AbstractEnhancedCustomGraphics<ClearLayer> {
 	public ClearLayers(String input) {

@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts.circos;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.circos;
 
 // System imports
 import java.util.ArrayList;
@@ -60,8 +60,8 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
 
-import edu.ucsf.rbvi.enhancedcg.internal.charts.AbstractChartCustomGraphics;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 /**
  * The CircosChart creates a list of custom graphics where each custom graphic represents

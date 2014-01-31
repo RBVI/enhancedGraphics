@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.charts.pie;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie;
 
 import java.net.URL;
 

@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts.heatstrip;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.heatstrip;
 
 // System imports
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 
-import edu.ucsf.rbvi.enhancedcg.internal.charts.AbstractChartCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphics;
 
 /**
  * The HeatStripChart creates a list of custom graphics where each custom graphic represents

@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.gradients.linear;
+package edu.ucsf.rbvi.enhancedGraphics.internal.gradients.linear;
 
 import java.awt.Color;
 import java.awt.LinearGradientPaint;
@@ -14,7 +14,7 @@ import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphicsFactory;
 import org.cytoscape.view.presentation.customgraphics.CustomGraphicLayer;
 
-import edu.ucsf.rbvi.enhancedcg.internal.gradients.GradientLayer;
+import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.GradientLayer;
 
 public class LinearGradientLayer extends GradientLayer {
 	Point2D start = null;

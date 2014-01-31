@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
 // System imports
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.charts.bar;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.bar;
 
 import java.net.URL;
 

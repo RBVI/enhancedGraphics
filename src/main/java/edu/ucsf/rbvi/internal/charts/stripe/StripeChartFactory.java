@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.charts.stripe;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe;
 
 import java.net.URL;
 

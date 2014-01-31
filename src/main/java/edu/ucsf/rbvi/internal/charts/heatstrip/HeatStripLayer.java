@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts.heatstrip;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.heatstrip;
 
 
 import java.awt.BasicStroke;
@@ -55,7 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 public class HeatStripLayer implements PaintedShape {
 	private boolean labelLayer = false;

@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.gradients.radial;
+package edu.ucsf.rbvi.enhancedGraphics.internal.gradients.radial;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -19,7 +19,7 @@ import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphicsFactory;
 import org.cytoscape.view.presentation.customgraphics.CustomGraphicLayer;
 
-import edu.ucsf.rbvi.enhancedcg.internal.AbstractEnhancedCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.AbstractEnhancedCustomGraphics;
 
 public class RadialGradientCustomGraphics extends AbstractEnhancedCustomGraphics <RadialGradientLayer> {
 

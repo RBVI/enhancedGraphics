@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal;
+package edu.ucsf.rbvi.enhancedGraphics.internal;
 
 import java.util.Properties;
 
@@ -11,18 +11,18 @@ import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphicsFactory;
 
-import edu.ucsf.rbvi.enhancedcg.internal.gradients.linear.LinearGradientCGFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.gradients.radial.RadialGradientCGFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.bar.BarChartFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.circos.CircosChartFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.heatstrip.HeatStripFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.line.LineChartFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.pie.PieChartFactory;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.stripe.StripeChartFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.linear.LinearGradientCGFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.radial.RadialGradientCGFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.bar.BarChartFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.circos.CircosChartFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.heatstrip.HeatStripFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.line.LineChartFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie.PieChartFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe.StripeChartFactory;
 
 
 public class CyActivator extends AbstractCyActivator {
-	private static Logger logger = LoggerFactory.getLogger(edu.ucsf.rbvi.enhancedcg.internal.CyActivator.class);
+	private static Logger logger = LoggerFactory.getLogger(edu.ucsf.rbvi.enhancedGraphics.internal.CyActivator.class);
 	public CyActivator() {
 		super();
 	}

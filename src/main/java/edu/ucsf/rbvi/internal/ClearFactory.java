@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal;
+package edu.ucsf.rbvi.enhancedGraphics.internal;
 
 import java.net.URL;
 

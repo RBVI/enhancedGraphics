@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.gradients.radial;
+package edu.ucsf.rbvi.enhancedGraphics.internal.gradients.radial;
 
 import java.net.URL;
 

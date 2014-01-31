@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts.bar;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.bar;
 
 
 import java.awt.BasicStroke;
@@ -51,7 +51,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 public class BarLayer implements PaintedShape {
 	private boolean labelLayer = false;

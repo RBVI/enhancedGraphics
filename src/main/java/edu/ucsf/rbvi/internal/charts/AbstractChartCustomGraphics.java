@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.charts;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -22,7 +22,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.view.presentation.customgraphics.CustomGraphicLayer;
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
-import edu.ucsf.rbvi.enhancedcg.internal.AbstractEnhancedCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.AbstractEnhancedCustomGraphics;
 
 abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer> 
                 extends AbstractEnhancedCustomGraphics<T> {

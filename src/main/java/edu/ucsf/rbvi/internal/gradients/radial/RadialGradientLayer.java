@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.gradients.radial;
+package edu.ucsf.rbvi.enhancedGraphics.internal.gradients.radial;
 
 import java.awt.Color;
 import java.awt.RadialGradientPaint;
@@ -14,7 +14,7 @@ import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphicsFactory;
 import org.cytoscape.view.presentation.customgraphics.CustomGraphicLayer;
 
-import edu.ucsf.rbvi.enhancedcg.internal.gradients.GradientLayer;
+import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.GradientLayer;
 
 public class RadialGradientLayer extends GradientLayer {
 	Point2D center = null;

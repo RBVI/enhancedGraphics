@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts.pie;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie;
 
 
 import java.awt.BasicStroke;
@@ -52,7 +52,7 @@ import java.util.List;
 
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
-import edu.ucsf.rbvi.enhancedcg.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 public class PieLayer implements PaintedShape {
 	private boolean labelLayer = false;

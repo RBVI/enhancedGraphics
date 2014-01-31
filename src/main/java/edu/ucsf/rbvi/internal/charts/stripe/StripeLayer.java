@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts.stripe;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe;
 
 
 import java.awt.BasicStroke;
@@ -49,7 +49,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
-import edu.ucsf.rbvi.enhancedcg.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 public class StripeLayer implements PaintedShape {
 	private boolean labelLayer = false;

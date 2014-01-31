@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.gradients;
+package edu.ucsf.rbvi.enhancedGraphics.internal.gradients;
 
 import java.awt.Color;
 import java.awt.Paint;

@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.charts.circos;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.circos;
 
 import java.net.URL;
 

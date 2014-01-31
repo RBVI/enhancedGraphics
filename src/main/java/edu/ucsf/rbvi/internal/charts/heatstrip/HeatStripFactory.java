@@ -1,4 +1,4 @@
-package edu.ucsf.rbvi.enhancedcg.internal.charts.heatstrip;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts.heatstrip;
 
 import java.net.URL;
 

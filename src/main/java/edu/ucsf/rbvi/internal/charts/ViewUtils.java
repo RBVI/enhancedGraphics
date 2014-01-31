@@ -30,7 +30,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-package edu.ucsf.rbvi.enhancedcg.internal.charts;
+package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
