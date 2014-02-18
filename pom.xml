@@ -2,8 +2,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<properties>
-		<bundle.symbolicName>enhancedcg</bundle.symbolicName>
-		<bundle.namespace>edu.ucsf.rbvi.enhancedcg.internal</bundle.namespace>
+		<bundle.symbolicName>enhancedGraphics</bundle.symbolicName>
+		<bundle.namespace>edu.ucsf.rbvi.enhancedGraphics.internal</bundle.namespace>
 		<cytoscape.api.version>3.0.0</cytoscape.api.version>
 		
 		<maven-bundle-plugin.version>2.3.4</maven-bundle-plugin.version>
@@ -11,11 +11,11 @@
 	</properties>
 
 	<groupId>edu.ucsf.rbvi</groupId>
-	<artifactId>enhancedcg</artifactId>
+	<artifactId>enhancedGraphics</artifactId>
 	<packaging>bundle</packaging>
 	<name>${bundle.symbolicName}</name>
 
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 
 	<build>
 		<plugins>
