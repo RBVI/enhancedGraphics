@@ -621,29 +621,18 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	// This is like rainbow, but we alternate sides of the color wheel
 	private List<Color> generateContrastingColors(int nColors) {
 		List<Color> values = new ArrayList<Color>();
-		// We need to special-case the situation where we only have two colors
-		if (nColors == 2) {
-			values.add(new Color(Color.HSBtoRGB(0.0f, 1.0f, 1.0f)));
-			values.add(new Color(Color.HSBtoRGB(0.5f, 1.0f, 1.0f)));
-			return values;
-		}
-
-		float divs = (float)nColors;
-		for (float i = 0.0f; i < divs; i += 1.0f) {
-			// System.out.println("HSBColor("+(i/divs)+","+1.0f+","+1.0f+")");
-			Color rgbColor = new Color(Color.HSBtoRGB(i/divs, 1.0f, 1.0f));
-			// System.out.println("RGBColor = "+rgbColor);
-			values.add(rgbColor);
-			i += 1.0f;
-			if (i >= divs) break;
-			float hue = (i/divs)+0.5f;	// This moves to the opposite side of the color wheel
-			if (hue >= 1.0f) hue = hue - 1.0f;
-			// System.out.println("HSBColor("+hue+","+1.0f+","+1.0f+")");
-			rgbColor = new Color(Color.HSBtoRGB(hue, 1.0f, 1.0f));
+		for (int i = 0; i < nColors; i++) {
+			float hue;
+			if (i%2 == 1)
+				hue = (float)i/(float)nColors + 0.5f;
+			else
+				hue = (float)i/(float)nColors;
+			Color rgbColor = new Color(Color.HSBtoRGB(hue, 1.0f, 1.0f));
 			// System.out.println("RGBColor = "+rgbColor);
 			values.add(rgbColor);
 		}
 		return values;
 	}
 
+	// TODO: add brewer colors
 }
