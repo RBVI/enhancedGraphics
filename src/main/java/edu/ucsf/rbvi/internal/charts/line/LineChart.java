@@ -83,6 +83,7 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 	//						[showlabels=true]
 	// 						[valuelist=value]
 	public LineChart(String input) {
+		// System.out.println("Linechart: "+input);
 		Map<String, String> args = parseInput(input);
 		// This will populate the values, attributes, and labels lists
 		populateValues(args);
@@ -112,7 +113,9 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 		// Create all of our pie slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
 			values = getDataFromAttributes (network, (CyNode)node, attributes, labels);
+			// System.out.println("linechart: values = "+values);
 			colorList = convertInputToColor(colorString, values);
+			// System.out.println("linechart: colorList = "+colorList);
 		}
 
 		List<LineLayer> labelList = new ArrayList<LineLayer>();

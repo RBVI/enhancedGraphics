@@ -482,9 +482,13 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (rangeMin == 0.0 && rangeMax == 0.0) return c;
 
 		// We want to scale our color to be between "zero" and "c"
-		int b = (int)(Math.abs(c.getBlue()-zero.getBlue())*v);
-		int r = (int)(Math.abs(c.getRed()-zero.getRed())*v);
-		int g = (int)(Math.abs(c.getGreen()-zero.getGreen())*v);
+		// v = 1-v;
+		int b = (int)(c.getBlue()*v + zero.getBlue()*(1-v));
+		int r = (int)(c.getRed()*v + zero.getRed()*(1-v));
+		int g = (int)(c.getGreen()*v + zero.getGreen()*(1-v));
+		//int b = (int)(Math.abs(c.getBlue()-zero.getBlue())*v)+c.getBlue();
+		//int r = (int)(Math.abs(c.getRed()-zero.getRed())*v)+c.getRed();
+		//int g = (int)(Math.abs(c.getGreen()-zero.getGreen())*v)+c.getGreen();
 		// System.out.println("scaleColor: v = "+v+" r="+r+" g="+g+" b="+b);
 		return new Color(r, g, b);
 	}
@@ -517,9 +521,11 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		// System.out.println("Normalize list");
 		for (int i = 0; i < vList.size(); i++) {
 			Double v = vList.get(i);
-			Double vn = normalize(v, rangeMin, rangeMax);
-			// System.out.println("Value = "+v+", Normalized value = "+vn);
-			vList.set(i, vn);
+			if (v != null) {
+				Double vn = normalize(v, rangeMin, rangeMax);
+				// System.out.println("Value = "+v+", Normalized value = "+vn);
+				vList.set(i, vn);
+			}
 		}
 		// System.out.println("Normalize list..done");
 		return vList;

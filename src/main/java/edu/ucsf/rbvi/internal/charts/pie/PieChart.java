@@ -35,6 +35,7 @@ package edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie;
 // System imports
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -139,9 +140,31 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				values = getDataFromAttributes (network, (CyNode)node, attributes, labels);
 				colorList = convertInputToColor(colorString, values);
 			} else {
+				boolean foundColors=false;
+				// System.out.println("Have both attributes and values");
 				// If we already have values, we must want to use the attributes to map our colors
 				List<Double>attrValues = getDataFromAttributes (network, (CyNode)node, attributes, labels);
-				colorList = convertInputToColor(colorString, attrValues);
+				if (colorString.indexOf(';') > 0) {
+					// System.out.println("Found semi-separated colors");
+					colorList = new ArrayList<Color>();
+					String[] colors = colorString.split(";");
+					if (colors.length != attrValues.size()) {
+							System.err.println("Number of colors must match the number of attributes");
+							return null;
+					}
+					int colorIndex = 0;
+					for (Double value: attrValues) {
+							if (value == null)
+								colorList.add(null);
+							else {
+								foundColors=true;
+								colorList.addAll(convertInputToColor(colors[colorIndex++], Collections.singletonList(value)));
+							}
+					}
+					if (!foundColors) return null;
+				} else {
+					colorList = convertInputToColor(colorString, attrValues);
+				}
 				if (colorList == null) return null;
 			}
 		}
