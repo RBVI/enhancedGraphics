@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -72,7 +73,6 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 	private List<Color> colorList = null;
 	private String colorString = null;
 	private int separation = 0;
-	private int labelSize = 4;
 	Color[] colorScale = null;
 
 	// Parse the input string, which is always of the form:
@@ -151,6 +151,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 		}
 			
 		int nBars = values.size();
+		Font font = getFont();
 		for (int bar = 0; bar < nBars; bar++) {
 			String label = null;
 			if (labels != null && labels.size() > 0)
@@ -164,7 +165,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 			if (label != null) {
 				// Now, create the label
-				HeatStripLayer labelLayer = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, label, labelSize);
+				HeatStripLayer labelLayer = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, label, font);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

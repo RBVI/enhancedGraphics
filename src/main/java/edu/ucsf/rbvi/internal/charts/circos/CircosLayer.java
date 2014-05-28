@@ -66,6 +66,7 @@ public class CircosLayer implements PaintedShape {
 	private double circleWidth; // % of bounds for distance between inner and outer arcs
 	private String label;
 	private Color color;
+	private Color strokeColor = Color.BLACK;
 	private Font font;
 	private boolean labelSlice = true;
 	protected Rectangle2D bounds;
@@ -88,6 +89,7 @@ public class CircosLayer implements PaintedShape {
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
+		this.strokeColor = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
 		bounds = new Rectangle2D.Double(0,0,100,100);
@@ -101,6 +103,7 @@ public class CircosLayer implements PaintedShape {
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
+		this.strokeColor = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
 		bounds = new Rectangle2D.Double(0,0,100,100);
@@ -132,7 +135,7 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	public Paint getStrokePaint() {
-		return Color.BLACK;
+		return strokeColor;
 	}
 
 	public Rectangle2D getBounds2D() {

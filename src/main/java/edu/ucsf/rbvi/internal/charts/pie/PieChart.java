@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -70,9 +71,6 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphic
 public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 	private static final String COLORS = "colorlist";
 	// TODO
-	private static final String LABELFONT = "labelfont";
-	private static final String LABELSTYLE = "labelstyle";
-	private static final String LABELSIZE = "labelsize";
 	private static final String LABELOFFSET = "labeloffset";
 	private static final String SORTSLICES = "sortslices";
 	private static final String MINIMUMSLICE = "minimumslice";
@@ -80,7 +78,6 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 
 	private List<Color> colorList = null;
 	private double arcStart = 0.0;
-	private int labelSize = 4;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
 	private String colorString = null;
@@ -111,9 +108,6 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			else
 				colorString = args.get(COLORS);
 		}
-
-		if (args.containsKey(LABELSIZE))
-			labelSize = getIntegerValue(args.get(LABELSIZE));
 
 		if (args.containsKey(SORTSLICES))
 			sortSlices = getBooleanValue(args.get(SORTSLICES));
@@ -181,6 +175,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 
 		List<PieLayer> labelList = new ArrayList<PieLayer>();
 
+		Font font = getFont();
 		int nSlices = values.size();
 		for (int slice = 0; slice < nSlices; slice++) {
 			String label = null;
@@ -195,7 +190,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 
 			if (label != null) {
 				// Now, create the label
-				PieLayer labelLayer = new PieLayer(arcStart, values.get(slice), label, labelSize);
+				PieLayer labelLayer = new PieLayer(arcStart, values.get(slice), label, font, labelColor);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

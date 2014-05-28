@@ -35,6 +35,7 @@ package edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -60,7 +61,8 @@ public class PieLayer implements PaintedShape {
 	private double arc;
 	private String label;
 	private Color color;
-	private int fontSize;
+	private Color strokeColor = Color.BLACK;
+	private Font font;
 	protected Rectangle2D bounds;
 
 	public PieLayer(double arcStart, double arc, Color color) {
@@ -71,13 +73,14 @@ public class PieLayer implements PaintedShape {
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
-	public PieLayer(double arcStart, double arc, String label, int fontSize) {
+	public PieLayer(double arcStart, double arc, String label, Font font, Color labelColor) {
 		labelLayer = true;
 		this.arcStart = arcStart;
 		this.arc = arc;
 		this.label = label;
-		this.fontSize = fontSize;
-		this.color = Color.BLACK;
+		this.font = font;
+		this.color = labelColor;
+		this.strokeColor = labelColor;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
@@ -105,7 +108,7 @@ public class PieLayer implements PaintedShape {
 	}
 
 	public Paint getStrokePaint() {
-		return Color.BLACK;
+		return strokeColor;
 	}
 
 	public Rectangle2D getBounds2D() {
@@ -116,7 +119,7 @@ public class PieLayer implements PaintedShape {
 		Shape newBounds = xform.createTransformedShape(bounds);
 		PieLayer pl;
 		if (labelLayer)
-			pl = new PieLayer(arcStart, arc, label, fontSize);
+			pl = new PieLayer(arcStart, arc, label, font, color);
 		else 
 			pl = new PieLayer(arcStart, arc, color);
 		pl.bounds = newBounds.getBounds2D();
@@ -139,7 +142,7 @@ public class PieLayer implements PaintedShape {
 
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
 
-		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
+		Shape textShape = ViewUtils.getLabelShape(label, font);
 
 		Point2D labelPosition = getLabelPosition(bounds, midpointAngle, 1.7);
 

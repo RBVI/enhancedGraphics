@@ -32,6 +32,11 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public static final String YBASE = "ybase";
 	public static final String CLEAR = "clear";
 	public static final String CURRENT = "current";
+	public static final String LABELCOLOR = "labelcolor";
+	public static final String LABELFONT = "labelfont";
+	public static final String LABELOFFSET = "labeloffset"; // TODO
+	public static final String LABELSTYLE = "labelstyle";
+	public static final String LABELSIZE = "labelsize";
 	public static final String LABELS = "labellist";
 	public static final String LIST = "list";
 	public static final String NETWORK = "network";
@@ -48,6 +53,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected double rangeMax = 0.0;
 	protected double rangeMin = 0.0;
 	protected	double ybase = 0.5;
+	protected Color labelColor = Color.BLACK;
+	protected int labelSize = ViewUtils.DEFAULT_SIZE;
+	protected String labelFont = ViewUtils.DEFAULT_FONT;
+	protected int labelStyle = ViewUtils.DEFAULT_STYLE;
 	protected boolean normalized = false;
 
 	protected void populateValues(Map<String, String> args) {
@@ -67,6 +76,19 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (args.containsKey(SHOWLABELS)) {
 			showLabels = getBooleanValue(args.get(SHOWLABELS));
 		}
+
+		// Font information
+		if (args.containsKey(LABELSIZE))
+			labelSize = getIntegerValue(args.get(LABELSIZE));
+
+		if (args.containsKey(LABELFONT))
+			labelFont = args.get(LABELFONT);
+
+		if (args.containsKey(LABELSTYLE))
+			labelStyle = getFontStyle(args.get(LABELSTYLE));
+
+		if (args.containsKey(LABELCOLOR))
+			labelColor = getColorValue(args.get(LABELCOLOR));
 
 		double scale = 0.90;
 		if (args.containsKey(SCALE)) {
@@ -348,6 +370,13 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			} 
 		}
 		return null;
+	}
+
+	/*
+	 * Return the font information
+	 */
+	public Font getFont() {
+		return new Font(labelFont, labelStyle, labelSize);
 	}
 
 	public List<Double> arrayMax(List<Double> maxValues, List<Double> values) {

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -69,7 +70,6 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 	private static final String SEPARATION = "separation";
 
 	private List<Color> colorList = null;
-	private int labelSize = 4;
 	private String colorString = null;
 	private int separation = 0;
 
@@ -143,6 +143,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		}
 			
 		int nBars = values.size();
+		Font font = getFont();
 		for (int bar = 0; bar < nBars; bar++) {
 			String label = null;
 			if (labels != null && labels.size() > 0)
@@ -160,7 +161,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 				// System.out.println("Creating label for bar #"+bar);
 				// Now, create the label
 				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, ybase,
-			                                     label, labelSize);
+			                                     label, font, labelColor);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

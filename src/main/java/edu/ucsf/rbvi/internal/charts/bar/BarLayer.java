@@ -35,6 +35,7 @@ package edu.ucsf.rbvi.enhancedGraphics.internal.charts.bar;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -57,7 +58,8 @@ public class BarLayer implements PaintedShape {
 	private boolean labelLayer = false;
 	private String label;
 	private Color color;
-	private int fontSize;
+	private Color strokeColor = Color.BLACK;
+	private Font font;
 	protected Rectangle2D bounds;
 	private double value;
 	private double maxValue;
@@ -84,14 +86,15 @@ public class BarLayer implements PaintedShape {
 	}
 
 	public BarLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                double ybase, String label, int fontSize) {
+	                double ybase, String label, Font font, Color labelColor) {
 		labelLayer = true;
 		this.bar = bar;
 		this.nBars = nbars;
 		this.separation = separation;
 		this.label = label;
-		this.fontSize = fontSize;
-		this.color = Color.BLACK;
+		this.font = font;
+		this.color = labelColor;
+		this.strokeColor = labelColor;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.ybase = ybase;
@@ -123,7 +126,7 @@ public class BarLayer implements PaintedShape {
 	}
 
 	public Paint getStrokePaint() {
-		return Color.BLACK;
+		return strokeColor;
 	}
 
 	public Rectangle2D getBounds2D() {
@@ -135,7 +138,7 @@ public class BarLayer implements PaintedShape {
 		// System.out.println("transformed bounds: "+newBounds.getBounds2D());
 		BarLayer bl;
 		if (labelLayer)
-			bl = new BarLayer(bar, nBars, separation, minValue, maxValue, ybase, label, fontSize);
+			bl = new BarLayer(bar, nBars, separation, minValue, maxValue, ybase, label, font, color);
 		else 
 			bl = new BarLayer(bar, nBars, separation, value, minValue, maxValue, ybase, color);
 		bl.bounds = newBounds.getBounds2D();
@@ -161,9 +164,9 @@ public class BarLayer implements PaintedShape {
 		Rectangle2D bar = getBar(minValue);
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
-		Point2D labelPosition = new Point2D.Double(bar.getCenterX(), bar.getMaxY()+fontSize/2);
+		Point2D labelPosition = new Point2D.Double(bar.getCenterX(), bar.getMaxY()+font.getSize()/2);
 
-		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
+		Shape textShape = ViewUtils.getLabelShape(label, font);
 
 		double maxHeight = bar.getWidth();
 

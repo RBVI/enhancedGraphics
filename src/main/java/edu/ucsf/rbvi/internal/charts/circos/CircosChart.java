@@ -73,11 +73,6 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String COLORS = "colorlist";
 	// TODO
 	private static final String LABELCIRCLES = "labelcircles";
-	private static final String LABELCOLOR = "labelcolor";
-	private static final String LABELFONT = "labelfont";
-	private static final String LABELSTYLE = "labelstyle";
-	private static final String LABELSIZE = "labelsize";
-	private static final String LABELOFFSET = "labeloffset";
 	private static final String SORTSLICES = "sortslices";
 	private static final String MINIMUMSLICE = "minimumslice";
 	private static final String ARCSTART = "arcstart";
@@ -88,15 +83,11 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private List<Color> colors = null;
 	private boolean labelCircles = false;
 	private double arcStart = 0.0;
-	private int labelSize = ViewUtils.DEFAULT_SIZE;
-	private String labelFont = ViewUtils.DEFAULT_FONT;
-	private int labelStyle = ViewUtils.DEFAULT_STYLE;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
 	private double firstArc = 0.2; // 20% out for first inner arc
 	private double arcWidth = 0.1; // 10% of node width for arcs
 	private double firstArcWidth = 0.1; // 10% of node width for arcs
-	private Color labelColor = Color.BLACK;
 
 	private String colorString = null;
 
@@ -127,15 +118,6 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				colorString = args.get(COLORS);
 		}
 
-		if (args.containsKey(LABELSIZE))
-			labelSize = getIntegerValue(args.get(LABELSIZE));
-
-		if (args.containsKey(LABELFONT))
-			labelFont = args.get(LABELFONT);
-
-		if (args.containsKey(LABELSTYLE))
-			labelStyle = getFontStyle(args.get(LABELSTYLE));
-
 		if (args.containsKey(SORTSLICES))
 			sortSlices = getBooleanValue(args.get(SORTSLICES));
 
@@ -160,9 +142,6 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 		if (args.containsKey(LABELCIRCLES))
 			labelCircles = getBooleanValue(args.get(LABELCIRCLES));
-
-		if (args.containsKey(LABELCOLOR))
-			labelColor = getColorValue(args.get(LABELCOLOR));
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
@@ -179,7 +158,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		List<List<Color>> colorList = null;
 		int nCircles = 0;
 
-		Font font = new Font(labelFont, labelStyle, labelSize);
+		Font font = getFont();
 
 		// Create all of our slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {

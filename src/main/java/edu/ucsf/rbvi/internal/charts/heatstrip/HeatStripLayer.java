@@ -35,6 +35,7 @@ package edu.ucsf.rbvi.enhancedGraphics.internal.charts.heatstrip;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.LinearGradientPaint;
 import java.awt.Paint;
 import java.awt.Rectangle;
@@ -61,7 +62,7 @@ public class HeatStripLayer implements PaintedShape {
 	private boolean labelLayer = false;
 	private String label;
 	private Color[] colorScale;
-	private int fontSize;
+	private Font font;
 	protected Rectangle2D bounds;
 	private double value;
 	private double maxValue;
@@ -88,13 +89,13 @@ public class HeatStripLayer implements PaintedShape {
 	}
 
 	public HeatStripLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                String label, int fontSize) {
+	                String label, Font font) {
 		labelLayer = true;
 		this.bar = bar;
 		this.nBars = nbars;
 		this.separation = separation;
 		this.label = label;
-		this.fontSize = fontSize;
+		this.font = font;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
@@ -139,7 +140,7 @@ public class HeatStripLayer implements PaintedShape {
 		Shape newBounds = xform.createTransformedShape(bounds);
 		HeatStripLayer bl;
 		if (labelLayer)
-			bl = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, label, fontSize);
+			bl = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, label, font);
 		else 
 			bl = new HeatStripLayer(bar, nBars, separation, value, minValue, maxValue, colorScale);
 		bl.bounds = newBounds.getBounds2D();
@@ -164,9 +165,9 @@ public class HeatStripLayer implements PaintedShape {
 		Rectangle2D barShape = getHeatStrip(minValue);
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
-		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+fontSize/2);
+		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+font.getSize()/2);
 
-		Shape textShape = ViewUtils.getLabelShape(label, null, 0, fontSize);
+		Shape textShape = ViewUtils.getLabelShape(label, font);
 
 		double maxHeight = barShape.getWidth();
 
