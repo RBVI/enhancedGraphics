@@ -57,6 +57,7 @@ import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ColorGradients;
 
 /**
  * The HeatStripChart creates a list of custom graphics where each custom graphic represents
@@ -67,16 +68,11 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphic
 public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> {
 	private static final String COLORS = "colorlist";
 	private static final String SEPARATION = "separation";
-	private static final String REDGREEN = "redgreen";
-	private static final String YELLOWCYAN = "yellowcyan";
 
 	private List<Color> colorList = null;
 	private String colorString = null;
 	private int separation = 0;
 	private int labelSize = 4;
-
-	Color[] redGreen = {Color.GREEN, Color.BLACK, Color.RED};
-	Color[] yellowCyan = {Color.CYAN, Color.BLACK, Color.YELLOW};
 	Color[] colorScale = null;
 
 	// Parse the input string, which is always of the form:
@@ -92,21 +88,23 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 		// This will populate the values, attributes, and labels lists
 		populateValues(args);
 
-		colorScale = yellowCyan;
+		colorScale = ColorGradients.YELLOWBLACKCYAN.getColors();
 		if (args.containsKey(COLORS)) {
 			// Get our colors
 			String colorSpec = args.get(COLORS).toString();
-			if (colorSpec.equalsIgnoreCase(YELLOWCYAN)) {
-				colorScale = yellowCyan;
-			} else if (colorSpec.equalsIgnoreCase(REDGREEN)) {
-				colorScale = redGreen;
+			if (ColorGradients.getGradient(colorSpec) != null) {
+				colorScale = ColorGradients.getGradient(colorSpec);
 			} else {
-				colorScale = new Color[3];
-				String [] colorArray = colorSpec.split(",");
-				List<Color> colors = parseUpDownColor(colorArray);
-				colorScale[1] = colors.get(2);
-				colorScale[0] = colors.get(1);
-				colorScale[2] = colors.get(0);
+				try {
+					String [] colorArray = colorSpec.split(",");
+					List<Color> colors = parseUpDownColor(colorArray);
+					colorScale[1] = colors.get(2);
+					colorScale[0] = colors.get(1);
+					colorScale[2] = colors.get(0);
+				} catch (Exception e) {
+					System.err.println("Unable to parse up/down color: "+colorSpec);
+					colorScale = ColorGradients.YELLOWBLACKCYAN.getColors();
+				}
 			}
 		}
 
@@ -141,14 +139,16 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		double minValue = 0.000001;
 		double maxValue = -minValue;
-		if (values == null) return null;
-		for (Double val: values) {
-			if (val == null) continue;
-			minValue = Math.min(minValue, val);
-			maxValue = Math.max(maxValue, val);
+		if (normalized) {
+			minValue = -1.0;
+			maxValue = 1.0;
+		} else {
+			for (Double val: values) {
+				if (val == null) continue;
+				minValue = Math.min(minValue, val);
+				maxValue = Math.max(maxValue, val);
+			}
 		}
-		if (minValue == 0.000001 && maxValue == -minValue) 
-			return null;
 			
 		int nBars = values.size();
 		for (int bar = 0; bar < nBars; bar++) {

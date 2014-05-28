@@ -37,7 +37,7 @@ public class CyActivator extends AbstractCyActivator {
 
 		CyCustomGraphicsFactory radGradFactory = new RadialGradientCGFactory();
 		Properties radGradProps = new Properties();
-		registerService(bc, radGradFactory, CyCustomGraphicsFactory.class, linGradProps);
+		registerService(bc, radGradFactory, CyCustomGraphicsFactory.class, radGradProps);
 
 		CyCustomGraphicsFactory pieChartFactory = new PieChartFactory();
 		Properties pieChartProps = new Properties();

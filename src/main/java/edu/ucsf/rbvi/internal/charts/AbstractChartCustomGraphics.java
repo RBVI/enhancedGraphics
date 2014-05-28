@@ -97,6 +97,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		}
 
 		// Get our size (if we have one)
+		// *not used anywhere*
 		Rectangle2D size = null;
 		if (args.containsKey(SIZE)) {
 			String sizeString = (String) args.get(SIZE);
@@ -108,6 +109,18 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			String yb = (String) args.get(YBASE);
 			if (yb.equalsIgnoreCase("bottom"))
 				ybase = 1.0;
+			else if (yb.equalsIgnoreCase("top"))
+				ybase = 0.0;
+			else if (yb.equalsIgnoreCase("middle"))
+				ybase = 0.5;
+			else {
+				try {
+					ybase = getDoubleValue(yb);
+				} catch (NumberFormatException e) {
+					System.err.println("Unable to parse ybase value: "+yb);
+					ybase = 0.5;
+				}
+			}
 		}
 
 		if (!showLabels)

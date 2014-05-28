@@ -70,7 +70,8 @@ public class HeatStripLayer implements PaintedShape {
 	private int nBars;
 	private int separation;
 	float strokeWidth = 0.5f;
-	float[] dist = {0.0f, 0.5f, 1.0f};
+	float[] dist3 = {0.0f, 0.5f, 1.0f};
+	float[] dist2 = {0.0f, 1.0f};
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public HeatStripLayer(int bar, int nbars, int separation, double value, 
@@ -219,7 +220,12 @@ public class HeatStripLayer implements PaintedShape {
 		double y = bounds.getY()-bounds.getHeight()/2;
 		double width = bounds.getWidth();
 		double height = bounds.getHeight();
-		return new LinearGradientPaint((float)x, (float)(y+height), (float)x, (float)y, dist, colorScale);
+		if (colorScale.length == 2)
+			return new LinearGradientPaint((float)x, (float)(y+height),
+			                               (float)x, (float)y, dist2, colorScale);
+		else
+			return new LinearGradientPaint((float)x, (float)(y+height),
+			                               (float)x, (float)y, dist3, colorScale);
 	}
 
 	private Area getAxes() {
