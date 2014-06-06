@@ -272,7 +272,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (input == null || input.length() == 0)
 			return new ArrayList<String>();
 
-		String[] inputArray = ((String)input).split(",");
+		String[] inputArray = ((String)input).split(",",-1);
 		return Arrays.asList(inputArray);
 	}
 
