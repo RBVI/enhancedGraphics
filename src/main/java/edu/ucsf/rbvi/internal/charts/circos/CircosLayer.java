@@ -64,6 +64,7 @@ public class CircosLayer implements PaintedShape {
 	private double arc;
 	private double radiusStart; // % of bounds for inner arc
 	private double circleWidth; // % of bounds for distance between inner and outer arcs
+	private double strokeWidth; 
 	private String label;
 	private Color color;
 	private Color strokeColor = Color.BLACK;
@@ -71,13 +72,14 @@ public class CircosLayer implements PaintedShape {
 	private boolean labelSlice = true;
 	protected Rectangle2D bounds;
 
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, Color color) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, Color color, double strokeWidth) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
 		this.color = color;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
+		this.strokeWidth = strokeWidth;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
@@ -129,8 +131,8 @@ public class CircosLayer implements PaintedShape {
 
 	public Stroke getStroke() {
 		// We only stroke the slice
-		if (!labelLayer)
-			return new BasicStroke(0.5f);
+		if (!labelLayer && strokeWidth > 0.0)
+			return new BasicStroke((float)strokeWidth);
 		return null;
 	}
 
@@ -152,7 +154,7 @@ public class CircosLayer implements PaintedShape {
 		else if (labelLayer && !labelSlice)
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color);
 		else
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth);
 		pl.bounds = newBounds;
 		return pl;
 	}
