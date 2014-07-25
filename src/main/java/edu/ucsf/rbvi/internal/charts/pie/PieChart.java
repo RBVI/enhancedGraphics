@@ -188,7 +188,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			if (pl == null) continue;
 			layers.add(pl);
 
-			if (label != null) {
+			if (label != null && label.length() > 0) {
 				// Now, create the label
 				PieLayer labelLayer = new PieLayer(arcStart, values.get(slice), label, font, labelColor);
 				if (labelLayer != null)
