@@ -120,6 +120,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				colorString = args.get(COLORS);
 		}
 
+		System.out.println("colorString = "+colorString);
+
 		if (args.containsKey(SORTSLICES))
 			sortSlices = getBooleanValue(args.get(SORTSLICES));
 
@@ -179,14 +181,14 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				colors = convertInputToColor(colorString, values);  // We only do this once
 				nCircles = valueList.size();
 			} else {
-				// System.out.println("Got values");
+				System.out.println("Got values");
 				// If we already have values, we must want to use the attributes to map our colors
 				colorList = new ArrayList<List<Color>>();
 				for (String attr: attributes) {
 					List<Double>attrValues = 
 						getDataFromAttributes (network, (CyNode)node, Collections.singletonList(attr), labels);
 					colors = convertInputToColor(colorString, attrValues);
-					// System.out.println("convertInputToColor returns: "+colors);
+					System.out.println("convertInputToColor returns: "+colors);
 					if (colors == null) return null;
 					// System.out.println("Colors for "+attr+"="+colors);
 					colorList.add(colors);
@@ -228,6 +230,10 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				if (labels != null && labels.size() > 0)
 					label = labels.get(slice);
 				if (values.get(slice) == 0.0) continue;
+
+				System.out.println("Slice: "+slice+", value: "+values.get(slice));
+				System.out.println("Slice: "+slice+", color: "+colors.get(slice));
+				System.out.println("Value: "+values.get(slice)+" color: "+colors.get(slice));
 	
 				// Create the slice
 				CircosLayer pl = new CircosLayer(rad, circleWidth, arc, values.get(slice), colors.get(slice), outlineWidth);
