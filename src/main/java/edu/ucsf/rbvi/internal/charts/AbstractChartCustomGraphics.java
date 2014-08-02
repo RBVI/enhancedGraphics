@@ -45,6 +45,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public static final String SCALE = "scale";
 	public static final String SIZE = "size";
 	public static final String SHOWLABELS = "showlabels";
+	public static final String SHOWYAXIS = "showyaxis";
 	public static final String VALUES = "valuelist";
 
 	protected List<Double> values = null;
@@ -60,10 +61,24 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected boolean normalized = false;
 
 	protected void populateValues(Map<String, String> args) {
+		if (args.containsKey(RANGE)) {
+			String split[] = args.get(RANGE).split(",");
+			try {
+				rangeMin = getDoubleValue(split[0]);
+				rangeMax = getDoubleValue(split[1]);
+			} catch (NumberFormatException e) {
+				return;
+			}
+		}
+
 		values = null;
 		if (args.containsKey(VALUES)) {
 			// Get our values.  convertData returns an array of values in degrees of arc
 			values = convertInputToDouble(args.get(VALUES));
+			if (rangeMax != 0.0 || rangeMin != 0.0) {
+				values = normalize(values, rangeMin, rangeMax);
+				normalized = true;
+			}
 		}
 
 		labels = new ArrayList<String>();
@@ -94,16 +109,6 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (args.containsKey(SCALE)) {
 			try {
 				scale = getDoubleValue(args.get(SCALE));
-			} catch (NumberFormatException e) {
-				return;
-			}
-		}
-
-		if (args.containsKey(RANGE)) {
-			String split[] = args.get(RANGE).split(",");
-			try {
-				rangeMin = getDoubleValue(split[0]);
-				rangeMax = getDoubleValue(split[1]);
 			} catch (NumberFormatException e) {
 				return;
 			}
@@ -248,7 +253,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			} catch (NumberFormatException e) {
 				return null;
 			}
-			System.out.println("");
+			// System.out.println("");
 		}
 		return values;
 	}
@@ -496,19 +501,19 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		Color up = upDownColors.get(0);
 		Color down = upDownColors.get(1);
 		Color zero = upDownColors.get(2);
-		System.out.println("up color = "+up);
-		System.out.println("down color = "+down);
-		System.out.println("zero color = "+zero);
+		// System.out.println("up color = "+up);
+		// System.out.println("down color = "+down);
+		// System.out.println("zero color = "+zero);
 
 		// System.out.println("values.size() = "+values.size());
 		List<Color> results = new ArrayList<Color>(values.size());
 		for (Double v: values) {
-			System.out.println("Looking at value "+v);
+			// System.out.println("Looking at value "+v);
 			if (v == null) return null;
 			double vn = v;
 			if (!normalized)
 				vn = normalize(v, rangeMin, rangeMax);
-			System.out.println("Value = "+v+", Normalized value = "+vn);
+			// System.out.println("Value = "+v+", Normalized value = "+vn);
 			if (vn < (-EPSILON)) 
 				results.add(scaleColor(-vn, zero, down));
 			else if (vn > EPSILON)

@@ -65,39 +65,64 @@ public class HeatStripLayer implements PaintedShape {
 	private Font font;
 	protected Rectangle2D bounds;
 	private double value;
+	private double rangeMax;
+	private double rangeMin;
 	private double maxValue;
 	private double minValue;
+	private double labelMin;
 	private int bar;
 	private int nBars;
 	private int separation;
+	private boolean showYAxis = false;
+	private boolean normalized = false;
 	float strokeWidth = 0.5f;
 	float[] dist3 = {0.0f, 0.5f, 1.0f};
 	float[] dist2 = {0.0f, 1.0f};
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public HeatStripLayer(int bar, int nbars, int separation, double value, 
-	                double minValue, double maxValue, Color[] colorScale) {
+	                      double minValue, double maxValue, boolean normalized, 
+	                      Color[] colorScale, boolean showAxes) {
 		labelLayer = false;
 		this.colorScale = colorScale;
 		this.bar = bar;
 		this.nBars = nbars;
 		this.separation = separation;
 		this.value = value;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+		this.rangeMax = maxValue;
+		this.rangeMin = minValue;
+		this.normalized = normalized;
+		if (normalized) {
+			this.minValue = -1.0;
+			this.maxValue = 1.0;
+		} else {
+			this.minValue = minValue;
+			this.maxValue = maxValue;
+		}
+		this.showYAxis = showAxes;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 	}
 
 	public HeatStripLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                String label, Font font) {
+	                      boolean normalized, double labelMin, String label, Font font, boolean showAxes) {
 		labelLayer = true;
 		this.bar = bar;
 		this.nBars = nbars;
 		this.separation = separation;
 		this.label = label;
 		this.font = font;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+		this.rangeMax = maxValue;
+		this.rangeMin = minValue;
+		this.normalized = normalized;
+		if (normalized) {
+			this.minValue = -1.0;
+			this.maxValue = 1.0;
+		} else {
+			this.minValue = minValue;
+			this.maxValue = maxValue;
+		}
+		this.showYAxis = showAxes;
+		this.labelMin = labelMin;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 	}
 
@@ -140,9 +165,9 @@ public class HeatStripLayer implements PaintedShape {
 		Shape newBounds = xform.createTransformedShape(bounds);
 		HeatStripLayer bl;
 		if (labelLayer)
-			bl = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, label, font);
+			bl = new HeatStripLayer(bar, nBars, separation, rangeMin, rangeMax, normalized, labelMin, label, font, showYAxis);
 		else 
-			bl = new HeatStripLayer(bar, nBars, separation, value, minValue, maxValue, colorScale);
+			bl = new HeatStripLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, colorScale, showYAxis);
 		bl.bounds = newBounds.getBounds2D();
 		return bl;
 	}
@@ -162,7 +187,7 @@ public class HeatStripLayer implements PaintedShape {
 
 	private Shape labelShape() {
 		// Get a bar that's in the right position and the maximum height
-		Rectangle2D barShape = getHeatStrip(minValue);
+		Rectangle2D barShape = getHeatStrip(labelMin);
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
 		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+font.getSize()/2);
@@ -172,8 +197,16 @@ public class HeatStripLayer implements PaintedShape {
 		double maxHeight = barShape.getWidth();
 
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, maxHeight, 0.0, 70.0);
-		if (textShape == null) {
-			return null;
+
+		// If we're showing the axis, add the labels
+		if (bar == 0 && showYAxis) {
+			Area a = new Area(axisLabelShape(minValue));
+			a.add(new Area(axisLabelShape(maxValue)));
+			if (minValue < 0.0 && maxValue > 0.0)
+				a.add(new Area(axisLabelShape(0.0)));
+			if (textShape != null)
+				a.add(new Area(textShape));
+			return a;
 		}
 
 		return textShape;
@@ -240,9 +273,38 @@ public class HeatStripLayer implements PaintedShape {
 		Path2D xAxes = new Path2D.Double();
 		xAxes.moveTo(firstBar.getX(), firstBar.getY());
 		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), lastBar.getY());
+		if (showYAxis) {
+			Rectangle2D bottom = getHeatStrip(minValue);
+			Rectangle2D top = getHeatStrip(maxValue);
+			xAxes.moveTo(bottom.getX(), bottom.getMaxY());
+			xAxes.lineTo(top.getX(), top.getMinY());
+		}
 		BasicStroke stroke = new BasicStroke(0.5f/2.0f);
 		return new Area(stroke.createStrokedShape(xAxes));
 
+	}
+
+	private Shape axisLabelShape(double value) {
+		Rectangle2D bar = getHeatStrip(value);
+		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_RIGHT;
+		double y = bar.getY();
+		if (value < 0.0)
+			y = bar.getMaxY();
+		Point2D labelPosition = new Point2D.Double(bar.getMinX()-font.getSize(), y);
+		Shape textShape = null;
+		if (normalized) {
+			if (value == minValue) {
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font);
+			} else if (value == maxValue) {
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font);
+			} else {
+				textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+			}
+		} else {
+			textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+		}
+		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
+		return textShape;
 	}
 
 }

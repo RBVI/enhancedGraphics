@@ -62,31 +62,46 @@ public class BarLayer implements PaintedShape {
 	private Font font;
 	protected Rectangle2D bounds;
 	private double value;
+	private double rangeMax;
+	private double rangeMin;
 	private double maxValue;
 	private double minValue;
+	private double labelMin;
 	private double ybase;
 	private int bar;
 	private int nBars;
 	private int separation;
+	private boolean showYAxis = false;
+	private boolean normalized = false;
 	float strokeWidth = 0.5f;
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
-	                double minValue, double maxValue, double ybase, Color color) {
+	                double minValue, double maxValue, boolean normalized, double ybase, Color color,
+									boolean showAxes) {
 		labelLayer = false;
 		this.color = color;
 		this.bar = bar;
 		this.nBars = nbars;
 		this.separation = separation;
 		this.value = value;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+		this.rangeMax = maxValue;
+		this.rangeMin = minValue;
+		if (normalized) {
+			this.minValue = -1.0;
+			this.maxValue = 1.0;
+		} else {
+			this.minValue = minValue;
+			this.maxValue = maxValue;
+		}
 		this.ybase = ybase;
+		this.showYAxis = showAxes;
+		this.normalized = normalized;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 		// System.out.println("bar #"+bar+", value: "+value+", color: "+color+", minValue: "+minValue+", maxValue: "+maxValue);
 	}
 
-	public BarLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                double ybase, String label, Font font, Color labelColor) {
+	public BarLayer(int bar, int nbars, int separation, double minValue, double maxValue, boolean normalized, 
+	                double labelMin, double ybase, String label, Font font, Color labelColor, boolean showAxes) {
 		labelLayer = true;
 		this.bar = bar;
 		this.nBars = nbars;
@@ -95,9 +110,19 @@ public class BarLayer implements PaintedShape {
 		this.font = font;
 		this.color = labelColor;
 		this.strokeColor = labelColor;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+		this.rangeMax = maxValue;
+		this.rangeMin = minValue;
+		this.labelMin = labelMin;
+		if (normalized) {
+			this.minValue = -1.0;
+			this.maxValue = 1.0;
+		} else {
+			this.minValue = minValue;
+			this.maxValue = maxValue;
+		}
 		this.ybase = ybase;
+		this.showYAxis = showAxes;
+		this.normalized = normalized;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 		// System.out.println("bar #"+bar+", value: "+value+", color: "+color+", minValue: "+minValue+", maxValue: "+maxValue);
 	}
@@ -138,9 +163,10 @@ public class BarLayer implements PaintedShape {
 		// System.out.println("transformed bounds: "+newBounds.getBounds2D());
 		BarLayer bl;
 		if (labelLayer)
-			bl = new BarLayer(bar, nBars, separation, minValue, maxValue, ybase, label, font, color);
+			bl = new BarLayer(bar, nBars, separation, rangeMin, rangeMax, normalized, labelMin, 
+			                  ybase, label, font, color, showYAxis);
 		else 
-			bl = new BarLayer(bar, nBars, separation, value, minValue, maxValue, ybase, color);
+			bl = new BarLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, ybase, color, showYAxis);
 		bl.bounds = newBounds.getBounds2D();
 		return bl;
 	}
@@ -161,20 +187,51 @@ public class BarLayer implements PaintedShape {
 
 	private Shape labelShape() {
 		// Get a bar that's in the right position and the maximum height
-		Rectangle2D bar = getBar(minValue);
+		Rectangle2D barShape = getBar(labelMin);
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
-		Point2D labelPosition = new Point2D.Double(bar.getCenterX(), bar.getMaxY()+font.getSize()/2);
+		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+font.getSize()/2);
 
 		Shape textShape = ViewUtils.getLabelShape(label, font);
 
-		double maxHeight = bar.getWidth();
+		double maxHeight = barShape.getWidth();
 
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, maxHeight, 0.0, 70.0);
-		if (textShape == null) {
-			return null;
+
+		// If we're showing the axis, add the labels
+		if (bar == 0 && showYAxis) {
+			Area a = new Area(axisLabelShape(minValue));
+			a.add(new Area(axisLabelShape(maxValue)));
+			if (minValue < 0.0 && maxValue > 0.0)
+				a.add(new Area(axisLabelShape(0.0)));
+			if (textShape != null)
+				a.add(new Area(textShape));
+			return a;
 		}
 
+		return textShape;
+	}
+
+	private Shape axisLabelShape(double value) {
+		Rectangle2D bar = getBar(value);
+		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_RIGHT;
+		double y = bar.getY();
+		if (value < 0.0)
+			y = bar.getMaxY();
+		Point2D labelPosition = new Point2D.Double(bar.getMinX()-font.getSize(), y);
+		Shape textShape = null;
+		if (normalized) {
+			if (value == minValue) {
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font);
+			} else if (value == maxValue) {
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font);
+			} else {
+				textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+			}
+		} else {
+			textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+		}
+		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		return textShape;
 	}
 
@@ -225,6 +282,12 @@ public class BarLayer implements PaintedShape {
 		Path2D xAxes = new Path2D.Double();
 		xAxes.moveTo(firstBar.getX(), firstBar.getY());
 		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), lastBar.getY());
+		if (showYAxis) {
+			Rectangle2D bottom = getBar(minValue);
+			Rectangle2D top = getBar(maxValue);
+			xAxes.moveTo(bottom.getX(), bottom.getMaxY());
+			xAxes.lineTo(top.getX(), top.getMinY());
+		}
 		BasicStroke stroke = new BasicStroke(0.5f/2.0f);
 		return new Area(stroke.createStrokedShape(xAxes));
 	}

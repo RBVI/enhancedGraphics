@@ -73,6 +73,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 	private List<Color> colorList = null;
 	private String colorString = null;
 	private int separation = 0;
+	private boolean showAxes = false;
 	Color[] colorScale = null;
 
 	// Parse the input string, which is always of the form:
@@ -111,6 +112,10 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 		if (args.containsKey(SEPARATION)) {
 			separation = Integer.parseInt(args.get(SEPARATION));
 		}
+
+		if (args.containsKey(SHOWYAXIS)) {
+			showAxes = getBooleanValue(args.get(SHOWYAXIS));
+		}
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
@@ -126,7 +131,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		// Create all of our pie slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
-			values = getDataFromAttributes (network, (CyNode)node, attributes, labels);
+			values = getDataFromAttributes (network, node, attributes, labels);
 		}
 
 		if (labels != null && labels.size() > 0 &&
@@ -139,15 +144,16 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		double minValue = 0.000001;
 		double maxValue = -minValue;
+		for (Double val: values) {
+			if (val == null) continue;
+			minValue = Math.min(minValue, val);
+			maxValue = Math.max(maxValue, val);
+		}
+		double labelMin = minValue;
+
 		if (normalized) {
-			minValue = -1.0;
-			maxValue = 1.0;
-		} else {
-			for (Double val: values) {
-				if (val == null) continue;
-				minValue = Math.min(minValue, val);
-				maxValue = Math.max(maxValue, val);
-			}
+			minValue = rangeMin;
+			maxValue = rangeMax;
 		}
 			
 		int nBars = values.size();
@@ -159,13 +165,15 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
 
 			// Create the slice
-			HeatStripLayer bl = new HeatStripLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, colorScale);
+			HeatStripLayer bl = new HeatStripLayer(bar, nBars, separation, values.get(bar), minValue, 
+			                                       maxValue, normalized, colorScale, showAxes);
 			if (bl == null) continue;
 			layers.add(bl);
 
 			if (label != null) {
 				// Now, create the label
-				HeatStripLayer labelLayer = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, label, font);
+				HeatStripLayer labelLayer = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, 
+				                                               normalized, labelMin, label, font, showAxes);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

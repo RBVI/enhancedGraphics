@@ -72,6 +72,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 	private List<Color> colorList = null;
 	private String colorString = null;
 	private int separation = 0;
+	private boolean showAxes = false;
 
 	// Parse the input string, which is always of the form:
 	// piechart:	[attributelist=value]
@@ -96,6 +97,10 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 		if (args.containsKey(SEPARATION)) {
 			separation = Integer.parseInt(args.get(SEPARATION));
+		}
+
+		if (args.containsKey(SHOWYAXIS)) {
+			showAxes = getBooleanValue(args.get(SHOWYAXIS));
 		}
 	}
 
@@ -132,18 +137,21 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 		double minValue = 0.000001;
 		double maxValue = -minValue;
-		if (normalized) {
-			minValue = -1.0;
-			maxValue = 1.0;
-		} else {
-			for (double val: values) {
-				minValue = Math.min(minValue, val);
-				maxValue = Math.max(maxValue, val);
-			}
+		for (Double val: values) {
+			if (val == null) continue;
+			minValue = Math.min(minValue, val);
+			maxValue = Math.max(maxValue, val);
 		}
-			
+		double labelMin = minValue;
+
+		if (normalized) {
+			minValue = rangeMin;
+			maxValue = rangeMax;
+		}
+
 		int nBars = values.size();
 		Font font = getFont();
+
 		for (int bar = 0; bar < nBars; bar++) {
 			String label = null;
 			if (labels != null && labels.size() > 0)
@@ -152,16 +160,16 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 			// System.out.println("Creating bar #"+bar);
 			// Create the slice
-			BarLayer bl = new BarLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, ybase,
-			                           colorList.get(bar));
+			BarLayer bl = new BarLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, 
+			                           normalized, ybase, colorList.get(bar), showAxes);
 			if (bl == null) continue;
 			layers.add(bl);
 
 			if (label != null) {
 				// System.out.println("Creating label for bar #"+bar);
 				// Now, create the label
-				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, ybase,
-			                                     label, font, labelColor);
+				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, normalized,
+			                                     labelMin, ybase, label, font, labelColor, showAxes);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}
