@@ -62,6 +62,7 @@ import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphics;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils.Position;
 
 /**
  * The CircosChart creates a list of custom graphics where each custom graphic represents
@@ -72,7 +73,8 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String COLORS = "colorlist";
 	// TODO
-	private static final String LABELCIRCLES = "labelcircles";
+	private static final String LABELCIRCLES = "labelcircles"; // Indicate whether to label the circles and where
+	private static final String CIRCLELABELS = "circlelabels"; // String list to provide actual labels
 	private static final String SORTSLICES = "sortslices";
 	private static final String MINIMUMSLICE = "minimumslice";
 	private static final String ARCSTART = "arcstart";
@@ -82,7 +84,9 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String STROKEWIDTH = "outlineWidth";
 
 	private List<Color> colors = null;
+	private List<String> circleLabels = null;
 	private boolean labelCircles = false;
+	private Position labelOffset = null;
 	private double arcStart = 0.0;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
@@ -144,8 +148,17 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			firstArcWidth = arcWidth;
 		}
 
-		if (args.containsKey(LABELCIRCLES))
-			labelCircles = getBooleanValue(args.get(LABELCIRCLES));
+		if (args.containsKey(LABELCIRCLES)) {
+			labelOffset = Position.getPosition((String)args.get(LABELCIRCLES));
+			if (labelOffset != null) {
+				labelCircles = true;
+			} else {
+				labelCircles = getBooleanValue(args.get(LABELCIRCLES));
+			}
+		}
+
+		if (args.containsKey(CIRCLELABELS))
+			circleLabels = getStringList(args.get(CIRCLELABELS));
 
 		if (args.containsKey(STROKEWIDTH))
 			outlineWidth = getDoubleValue(args.get(STROKEWIDTH));
@@ -198,6 +211,12 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			}
 		}
 
+		if (circleLabels != null && circleLabels.size() != nCircles) {
+			logger.error("number of circle labels (" + circleLabels.size()
+			             + "), doesn't match the number of circles ("+nCircles+")");
+			return null;
+		}
+
 
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
@@ -205,13 +224,18 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			logger.error("number of labels (" + labels.size()
 			             + "), values (" + values.size() + "), and colors ("
 			             + colors.size() + ") don't match");
+			return null;
 		}
 
 		List<CircosLayer> labelList = new ArrayList<CircosLayer>();
 
 		double rad = firstArc;
+		double maxRadius = firstArc + firstArcWidth + arcWidth*(nCircles-1);
 		for (int circle = 0; circle < nCircles; circle++) {
 			String circleLabel = attributes.get(circle);
+
+			if (circleLabels != null)
+				circleLabel = circleLabels.get(circle);
 
 			if (valueList != null)
 				values = valueList.get(circle);
@@ -250,7 +274,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				arc += values.get(slice).doubleValue();
 			}
 
-			if (labelCircles) {
+			if (labelCircles && labelOffset == null) {
 				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
@@ -259,11 +283,31 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			rad += circleWidth;
 		}
 
-		if (labelCircles) {
-			// Create a label for each circle based on the name of the attribute that
-			// we used for the data
-			for (int circle = 0; circle < nCircles; circle++) {
+		// For the offset labels, we want to add them here so we can control the order a little more
+		// rationally
+
+		// reset our starting radius
+		rad = maxRadius;
+		double yOffset = -.4;
+		for (int circle = nCircles-1; circle >= 0; circle--) {
+			String circleLabel = attributes.get(circle);
+
+			if (circleLabels != null)
+				circleLabel = circleLabels.get(circle);
+
+			double circleWidth = arcWidth;
+			if (circle == 0) 
+				circleWidth = firstArcWidth;
+
+			if (labelCircles && labelOffset != null) {
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor, 
+				                                         labelOffset, maxRadius, yOffset);
+				if (labelLayer != null)
+					labelList.add(labelLayer);
 			}
+
+			rad -= circleWidth;
+			yOffset -= arcWidth*1.5;
 		}
 
 		// Now add all of our labels so they will be on top of our slices

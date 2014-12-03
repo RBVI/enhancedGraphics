@@ -57,6 +57,7 @@ import java.util.List;
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils.Position;
 
 public class CircosLayer implements PaintedShape {
 	private boolean labelLayer = false;
@@ -70,6 +71,9 @@ public class CircosLayer implements PaintedShape {
 	private Color strokeColor = Color.BLACK;
 	private Font font;
 	private boolean labelSlice = true;
+	private Position labelOffset = null;
+	private double maxRadius = 0;
+	private double labelY = 0;
 	protected Rectangle2D bounds;
 
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, Color color, double strokeWidth) {
@@ -108,6 +112,25 @@ public class CircosLayer implements PaintedShape {
 		this.strokeColor = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
+		this.labelOffset = null;
+		this.maxRadius = 0.0;
+	}
+
+	// Special version to label circles (not slices) but offset the labels to the left or right
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, 
+	                   Color labelColor, Position labelOffset, double maxRadius, double labelY) {
+		labelLayer = true;
+		labelSlice = false;
+		this.arcStart = arcStart;
+		this.label = label;
+		this.font = font;
+		this.color = labelColor;
+		this.strokeColor = labelColor;
+		this.radiusStart = radiusStart;
+		this.circleWidth = circleWidth;
+		this.labelOffset = labelOffset;
+		this.maxRadius = maxRadius;
+		this.labelY = labelY;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
@@ -123,9 +146,11 @@ public class CircosLayer implements PaintedShape {
 		// create the slice or the label, as appropriate
 		if (labelLayer && labelSlice)
 			return labelShape();
+		else if (labelLayer && labelOffset != null)
+			return labelCircleWithOffset();
 		else if (labelLayer && !labelSlice)
 			return labelCircle();
-		else
+		else 
 			return sliceShape();
 	}
 
@@ -152,7 +177,7 @@ public class CircosLayer implements PaintedShape {
 		if (labelLayer && labelSlice)
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, font, color);
 		else if (labelLayer && !labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, labelOffset, maxRadius, labelY);
 		else
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth);
 		pl.bounds = newBounds;
@@ -190,27 +215,82 @@ public class CircosLayer implements PaintedShape {
 		return path;
 	}
 
+	private Shape labelCircleWithOffset() {
+		double width = bounds.getWidth();
+		double height = circleWidth*bounds.getHeight();
+		double x = bounds.getX();
+		double yCircle = bounds.getY() - bounds.getHeight()*radiusStart/2;
+		double yLabel = labelY*bounds.getHeight()/2;
+
+		// System.out.println("labelCircleWithOffset ("+label+"): x="+x+", y="+yLabel+" maxRadius="+maxRadius+", radiusStart = "+radiusStart);
+
+		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER;
+
+		if (labelOffset == Position.WEST) {
+			x = x - (maxRadius - circleWidth)*bounds.getWidth()/2;
+			tAlign = ViewUtils.TextAlignment.ALIGN_RIGHT;
+		} else if (labelOffset == Position.EAST) {
+			x = x + (maxRadius + circleWidth)*bounds.getWidth()/2;
+			tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
+		}
+
+		Shape textShape = ViewUtils.getLabelShape(label, font);
+
+		Rectangle2D labelBounds = new Rectangle2D.Double(x, yLabel, width, height);
+		Point2D labelPosition = new Point2D.Double(x,yLabel);
+		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
+
+		x = bounds.getX()-bounds.getWidth()*(radiusStart-circleWidth)/2;
+		double y = bounds.getY()-bounds.getHeight()*(radiusStart-circleWidth)/2;
+
+		// Draw label lines
+		// We want to draw from the end of the label to the circle we're labeling.  We do this by
+		// calculating the unit vector from the label to the center of the circle and then get
+		// the endpoint of a vector of the desire length
+		Point2D labelLineStart = ViewUtils.getLabelLineStart(textShape.getBounds2D(), tAlign);
+
+		// Calculate the length of the line to the origin
+		double length = Math.sqrt(Math.pow(labelLineStart.getX()-bounds.getX(), 2)+Math.pow(labelLineStart.getY()-bounds.getY(), 2));
+
+		// Calculate the unit vector
+		Point2D unitVector = new Point2D.Double((labelLineStart.getX()-bounds.getX())/length, 
+		                                        (labelLineStart.getY()-bounds.getY())/length);
+
+		// Get the adjusted length
+		length = (radiusStart-circleWidth/2)*bounds.getWidth()/2;
+
+		// Get the position of the end or our line
+		Point2D lineEnd = new Point2D.Double(unitVector.getX()*length, unitVector.getY()*length);
+
+		// Create the line
+		Shape labelLine = ViewUtils.getLabelLine(textShape.getBounds2D(), lineEnd, tAlign);
+
+		// Combine the shapes
+		Area textArea = new Area(textShape);
+		textArea.add(new Area(labelLine));
+
+		return textArea;
+	}
+
 	private Shape labelCircle() {
 		double midpointAngle = 90.0;
 		// double x = bounds.getX()-bounds.getWidth()*radiusStart/2;
 		// double y = bounds.getY()-bounds.getHeight()*radiusStart/2;
+		double width = bounds.getWidth();
+		double height = circleWidth*bounds.getHeight();
 		double x = bounds.getX();
 		double y = bounds.getY() - bounds.getHeight()*radiusStart/2;
-		double width = bounds.getWidth();
-		double height = circleWidth;
 		Rectangle2D labelBounds = new Rectangle2D.Double(x, y, width, height);
 
-		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
+		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER;
 
 		Shape textShape = ViewUtils.getLabelShape(label, font);
 
 		// Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.0);
 		Point2D labelPosition = new Point2D.Double(x,y);
 
+		// textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
-		if (textShape == null) {
-			return null;
-		}
 		return textShape;
 	}
 

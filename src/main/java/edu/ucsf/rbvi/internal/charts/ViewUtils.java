@@ -90,7 +90,7 @@ public class ViewUtils {
 			pMap.put(pos.getLabel(), pos);
 		}
 	
-		static Position getPosition(String label) {
+		static public Position getPosition(String label) {
 			if (pMap.containsKey(label))
 				return pMap.get(label);
 			return null;
@@ -130,7 +130,8 @@ public class ViewUtils {
 	public static final int DEFAULT_STYLE=Font.PLAIN;
 	public static final int DEFAULT_SIZE=8;
 
-	public static enum TextAlignment {ALIGN_LEFT, ALIGN_CENTER_TOP, ALIGN_RIGHT, ALIGN_CENTER_BOTTOM, ALIGN_MIDDLE};
+	public static enum TextAlignment {ALIGN_NONE, ALIGN_LEFT, ALIGN_CENTER, ALIGN_CENTER_TOP, 
+	                                  ALIGN_RIGHT, ALIGN_CENTER_BOTTOM, ALIGN_MIDDLE};
 
 	public static Shape getLabelShape(String label, Font font) {
 		// Get the canvas so that we can find the graphics context
@@ -190,12 +191,12 @@ public class ViewUtils {
 		case ALIGN_CENTER_TOP:
 			// System.out.println("  Align = CENTER_TOP");
 			textStartX = pointX - textWidth/2;
-			textStartY = pointY - textHeight/2;
+			textStartY = pointY + textHeight/2;
 			break;
 		case ALIGN_CENTER_BOTTOM:
 			// System.out.println("  Align = CENTER_BOTTOM");
 			textStartX = pointX - textWidth/2;
-			textStartY = pointY + textHeight;
+			textStartY = pointY - textHeight;
 			break;
 		case ALIGN_RIGHT:
 			// System.out.println("  Align = RIGHT");
@@ -209,7 +210,10 @@ public class ViewUtils {
 			break;
 		case ALIGN_MIDDLE:
 			textStartX = pointX - textWidth/2;;
-			textStartY = pointY + textHeight/2;
+			textStartY = pointY - textHeight/2;
+			break;
+		case ALIGN_CENTER:
+			textStartX = pointX - textWidth/2;;
 			break;
 		default:
 			// System.out.println("  Align = "+tAlign);
@@ -236,6 +240,14 @@ public class ViewUtils {
  	 * the pie slice itself.
  	 */
 	public static Shape getLabelLine(Rectangle2D textBounds, Point2D labelPosition, TextAlignment tAlign) {
+
+		Point2D start = getLabelLineStart(textBounds, tAlign);
+
+		BasicStroke stroke = new BasicStroke(0.5f);
+		return stroke.createStrokedShape(new Line2D.Double(start.getX(), start.getY(), labelPosition.getX(), labelPosition.getY()));
+	}
+
+	public static Point2D getLabelLineStart(Rectangle2D textBounds, TextAlignment tAlign) {
 		double lineStartX = 0;
 		double lineStartY = 0;
 		switch (tAlign) {
@@ -256,9 +268,7 @@ public class ViewUtils {
 				lineStartX = textBounds.getMinX()-1;
 			break;
 		}
-
-		BasicStroke stroke = new BasicStroke(0.5f);
-		return stroke.createStrokedShape(new Line2D.Double(lineStartX, lineStartY, labelPosition.getX(), labelPosition.getY()));
+		return new Point2D.Double(lineStartX, lineStartY);
 	}
 
 	private static Rectangle2D positionAdjust(Rectangle2D bbox, double nodeHeight, double nodeWidth, Object pos) {
