@@ -53,6 +53,7 @@ import java.awt.geom.Rectangle2D;
 
 
 // Cytoscape imports
+import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -176,6 +177,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 		List<List<Double>> valueList = null;
 		List<List<Color>> colorList = null;
+		List<String> cLabels = circleLabels;
 		int nCircles = 0;
 
 		Font font = getFont();
@@ -211,10 +213,24 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			}
 		}
 
-		if (circleLabels != null && circleLabels.size() != nCircles) {
-			logger.error("number of circle labels (" + circleLabels.size()
-			             + "), doesn't match the number of circles ("+nCircles+")");
-			return null;
+		if (cLabels != null && cLabels.size() != nCircles) {
+			// First, see if circleLabels actually points to an attribute
+			if (cLabels.size() == 1) {
+				CyColumn column = network.getDefaultNodeTable().getColumn(cLabels.get(0));
+				if (column != null) {
+					// OK, we found the attribute
+					if (column.getType().equals(List.class) && column.getListElementType().equals(String.class)) {
+						cLabels = new ArrayList<String>(network.getRow(node).getList(cLabels.get(0), String.class));
+					} else if (column.getType().equals(String.class)) {
+						cLabels = getStringList(network.getRow(node).get(cLabels.get(0), String.class));
+					}
+				}
+			}
+			if (cLabels.size() != nCircles) {
+				logger.error("number of circle labels (" + circleLabels.size()
+				             + "), doesn't match the number of circles ("+nCircles+")");
+				return null;
+			}
 		}
 
 
@@ -234,8 +250,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		for (int circle = 0; circle < nCircles; circle++) {
 			String circleLabel = attributes.get(circle);
 
-			if (circleLabels != null)
-				circleLabel = circleLabels.get(circle);
+			if (cLabels != null)
+				circleLabel = cLabels.get(circle);
 
 			if (valueList != null)
 				values = valueList.get(circle);
@@ -292,8 +308,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		for (int circle = nCircles-1; circle >= 0; circle--) {
 			String circleLabel = attributes.get(circle);
 
-			if (circleLabels != null)
-				circleLabel = circleLabels.get(circle);
+			if (cLabels != null)
+				circleLabel = cLabels.get(circle);
 
 			double circleWidth = arcWidth;
 			if (circle == 0) 
