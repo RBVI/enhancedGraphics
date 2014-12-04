@@ -185,14 +185,14 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 		CyTable table = row.getTable();
 
-		// If this is a single attribute, we assume it's a list
-		if (attributeList.size() == 1) {
-			String column = attributeList.get(0);
-			if (column == null || table.getColumn(column) == null ||
-			    table.getColumn(column).getType() != List.class) {
-				return values;
-			}
+		// Get the first attribute
+		String column = attributeList.get(0);
+		if (column == null || table.getColumn(column) == null) return values;
 
+		Class columnType = table.getColumn(column).getType();
+
+		// If this is a single attribute, we assume it's a list
+		if (attributeList.size() == 1 && columnType.equals(List.class)) {
 			Class type = table.getColumn(column).getListElementType();
 			if (type == Double.class) {
 				values.addAll(row.getList(column, Double.class));
@@ -214,21 +214,21 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 					values.add(Double.valueOf(s));
 			}
 		} else {
-			for (String column: attributeList) {
-				if (table.getColumn(column) == null)
+			for (String col: attributeList) {
+				if (table.getColumn(col) == null)
 					continue;
 
-				Class type = table.getColumn(column).getType();
+				Class type = table.getColumn(col).getType();
 				if (type == Double.class) {
-					values.add(row.get(column, Double.class));
+					values.add(row.get(col, Double.class));
 				} else if (type == Integer.class) {
-					Integer i = row.get(column, Integer.class);
+					Integer i = row.get(col, Integer.class);
 					values.add(i.doubleValue());
 				} else if (type == Float.class) {
-					Float f = row.get(column, Float.class);
+					Float f = row.get(col, Float.class);
 					values.add(f.doubleValue());
 				} else if (type == String.class) {
-					String s = row.get(column, String.class);
+					String s = row.get(col, String.class);
 					values.add(Double.valueOf(s));
 				}
 			}

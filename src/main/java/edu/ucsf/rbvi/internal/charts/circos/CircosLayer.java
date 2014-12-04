@@ -73,7 +73,8 @@ public class CircosLayer implements PaintedShape {
 	private boolean labelSlice = true;
 	private Position labelOffset = null;
 	private double maxRadius = 0;
-	private double labelY = 0;
+	private int circle = 0;
+	private int nCircles = 0;
 	protected Rectangle2D bounds;
 
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, Color color, double strokeWidth) {
@@ -118,7 +119,7 @@ public class CircosLayer implements PaintedShape {
 
 	// Special version to label circles (not slices) but offset the labels to the left or right
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, 
-	                   Color labelColor, Position labelOffset, double maxRadius, double labelY) {
+	                   Color labelColor, Position labelOffset, double maxRadius, int circle, int nCircles) {
 		labelLayer = true;
 		labelSlice = false;
 		this.arcStart = arcStart;
@@ -130,7 +131,8 @@ public class CircosLayer implements PaintedShape {
 		this.circleWidth = circleWidth;
 		this.labelOffset = labelOffset;
 		this.maxRadius = maxRadius;
-		this.labelY = labelY;
+		this.circle = circle;
+		this.nCircles = nCircles;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
@@ -177,7 +179,8 @@ public class CircosLayer implements PaintedShape {
 		if (labelLayer && labelSlice)
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, font, color);
 		else if (labelLayer && !labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, labelOffset, maxRadius, labelY);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, 
+			                     labelOffset, maxRadius, circle, nCircles);
 		else
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth);
 		pl.bounds = newBounds;
@@ -220,7 +223,8 @@ public class CircosLayer implements PaintedShape {
 		double height = circleWidth*bounds.getHeight();
 		double x = bounds.getX();
 		double yCircle = bounds.getY() - bounds.getHeight()*radiusStart/2;
-		double yLabel = labelY*bounds.getHeight()/2;
+		double offset = nCircles/2-circle;
+		double yLabel = offset*circleWidth*1.5*bounds.getHeight();
 
 		// System.out.println("labelCircleWithOffset ("+label+"): x="+x+", y="+yLabel+" maxRadius="+maxRadius+", radiusStart = "+radiusStart);
 
