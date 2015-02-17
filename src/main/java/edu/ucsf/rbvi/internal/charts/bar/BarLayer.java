@@ -73,7 +73,7 @@ public class BarLayer implements PaintedShape {
 	private int separation;
 	private boolean showYAxis = false;
 	private boolean normalized = false;
-	float strokeWidth = 0.5f;
+	float strokeWidth = 0.1f;
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
 	                double minValue, double maxValue, boolean normalized, double ybase, Color color,
@@ -145,8 +145,9 @@ public class BarLayer implements PaintedShape {
 
 	public Stroke getStroke() {
 		// We only stroke the slice
-		if (!labelLayer)
+		if (!labelLayer) {
 			return new BasicStroke(strokeWidth);
+		}
 		return null;
 	}
 
@@ -245,9 +246,11 @@ public class BarLayer implements PaintedShape {
 		if (sliceSize < 1.0 && separation > 0)
 			sliceSize = width/nBars;
 
+		// FIXME: really don't want to hard-code the stroke!
+		strokeWidth = (float)sliceSize/100.0f;
+
 		// Account for the stroke
-		sliceSize = sliceSize - sliceSize/10.0;
-		strokeWidth = (float)sliceSize/20.0f;
+		sliceSize = sliceSize - strokeWidth*2;
 
 		double min = minValue;
 		double max = maxValue;
@@ -257,18 +260,21 @@ public class BarLayer implements PaintedShape {
 		else
 			max = -1.0 * min;
 
-		double px1 = x + bar*sliceSize;
-		double py1 = y + (ybase * height);
+		double px1 = x + bar*sliceSize + strokeWidth;
 		// System.out.println("y = "+y+", py1 = "+py1);
+		double py1;
+		double h;
 
-		if (val > 0.0)
-			py1 = py1 - ((ybase * height) * (val / max));
-		else
-			val = -val;
+		if (val > 0.0) {
+			py1 = y + (ybase * height) - ((ybase * height) * (val / max)) - strokeWidth;
+			h = (ybase * height) * (val/max) + strokeWidth/4;
+		} else {
+			py1 = y + (ybase * height) - strokeWidth/4;
+			h = (ybase * height) * (-val/max) - strokeWidth;
+		}
 
-		double h = (ybase * height) * (val/max);
-		// System.out.println("px1 = "+px1+", py1 = "+py1+", sliceSize = "+sliceSize+", h = "+h);
-		return new Rectangle2D.Double(px1, py1, sliceSize, h);
+		// System.out.println("px1 = "+px1+", py1 = "+py1+", sliceSize = "+sliceSize+", h = "+h+", strokeWidth = "+strokeWidth);
+		return new Rectangle2D.Double(px1, py1, sliceSize-strokeWidth, h);
 	}
 
 	private Area getAxes() {
@@ -279,17 +285,30 @@ public class BarLayer implements PaintedShape {
 		Rectangle2D lastBar = getBar(0.0);
 		bar = saveBar;
 
+		/*
+		double x = firstBar.getX();
+		double y = 0.0;
+		double w = lastBar.getX()+lastBar.getWidth()-firstBar.getX();
+		double h = 0.0;
+
+		Rectangle2D xAxes = new Rectangle2D.Double(x, y, w, h);
+		return new Area(xAxes);
+		*/
+
 		Path2D xAxes = new Path2D.Double();
-		xAxes.moveTo(firstBar.getX(), firstBar.getY());
-		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), lastBar.getY());
+		xAxes.moveTo(firstBar.getX(), 0.0);
+		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), 0.0);
+		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), 0.0);
+		xAxes.lineTo(firstBar.getX(), 0.0);
+		xAxes.closePath();
+
 		if (showYAxis) {
 			Rectangle2D bottom = getBar(minValue);
 			Rectangle2D top = getBar(maxValue);
 			xAxes.moveTo(bottom.getX(), bottom.getMaxY());
 			xAxes.lineTo(top.getX(), top.getMinY());
 		}
-		BasicStroke stroke = new BasicStroke(0.5f/2.0f);
-		return new Area(stroke.createStrokedShape(xAxes));
+		return new Area(xAxes);
 	}
 
 }

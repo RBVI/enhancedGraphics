@@ -124,6 +124,9 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			colorList = convertInputToColor(colorString, values);
 		}
 
+		// Protect against missing values in the input stream
+		if (values == null || colorList == null) return layers;
+
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
 			   labels.size() != colorList.size())) {
