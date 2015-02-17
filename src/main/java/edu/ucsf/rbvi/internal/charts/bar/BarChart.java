@@ -110,6 +110,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 	@Override 
 	public List<BarLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
+		try {
 		CyNetwork network = networkView.getModel();
 		if (!(nodeView.getModel() instanceof CyNode))
 			return null;
@@ -125,7 +126,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		}
 
 		// Protect against missing values in the input stream
-		if (values == null || colorList == null) return layers;
+		// if (values == null || colorList == null) return layers;
 
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
@@ -159,12 +160,12 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			String label = null;
 			if (labels != null && labels.size() > 0)
 				label = labels.get(bar);
-			if (values.get(bar) == 0.0) continue;
+			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
 
 			// System.out.println("Creating bar #"+bar);
 			// Create the slice
 			BarLayer bl = new BarLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, 
-			                           normalized, ybase, colorList.get(bar), showAxes);
+			                           normalized, ybase, colorList.get(bar), showAxes, borderWidth);
 			if (bl == null) continue;
 			layers.add(bl);
 
@@ -182,6 +183,10 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
 		return layers; 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return layers;
+		}
 	}
 
 }

@@ -29,7 +29,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	// Standard command strings
 	public static final String ALL = "all";
 	public static final String ATTRIBUTELIST = "attributelist";
-	public static final String YBASE = "ybase";
+	public static final String BORDERWIDTH = "borderwidth";
 	public static final String CLEAR = "clear";
 	public static final String CURRENT = "current";
 	public static final String LABELCOLOR = "labelcolor";
@@ -43,10 +43,12 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public static final String POSITION = "position";
 	public static final String RANGE = "range";
 	public static final String SCALE = "scale";
-	public static final String SIZE = "size";
 	public static final String SHOWLABELS = "showlabels";
 	public static final String SHOWYAXIS = "showyaxis";
+	public static final String SHOWXAXIS = "showxaxis";
+	public static final String SIZE = "size";
 	public static final String VALUES = "valuelist";
+	public static final String YBASE = "ybase";
 
 	protected List<Double> values = null;
 	protected List<String> labels = null;
@@ -54,6 +56,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected double rangeMax = 0.0;
 	protected double rangeMin = 0.0;
 	protected	double ybase = 0.5;
+	protected	double borderWidth = 0.1;
 	protected Color labelColor = Color.BLACK;
 	protected int labelSize = ViewUtils.DEFAULT_SIZE;
 	protected String labelFont = ViewUtils.DEFAULT_FONT;
@@ -69,6 +72,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			} catch (NumberFormatException e) {
 				return;
 			}
+		}
+
+		if (args.containsKey(BORDERWIDTH)) {
+			borderWidth = getDoubleValue(args.get(BORDERWIDTH));
 		}
 
 		values = null;
@@ -509,7 +516,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		List<Color> results = new ArrayList<Color>(values.size());
 		for (Double v: values) {
 			// System.out.println("Looking at value "+v);
-			if (v == null) return null;
+			if (v == null) v = 0.0;
 			double vn = v;
 			if (!normalized)
 				vn = normalize(v, rangeMin, rangeMax);

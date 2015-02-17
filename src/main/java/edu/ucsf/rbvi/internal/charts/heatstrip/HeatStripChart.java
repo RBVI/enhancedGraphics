@@ -166,7 +166,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 			// Create the slice
 			HeatStripLayer bl = new HeatStripLayer(bar, nBars, separation, values.get(bar), minValue, 
-			                                       maxValue, normalized, colorScale, showAxes);
+			                                       maxValue, normalized, colorScale, showAxes, borderWidth);
 			if (bl == null) continue;
 			layers.add(bl);
 

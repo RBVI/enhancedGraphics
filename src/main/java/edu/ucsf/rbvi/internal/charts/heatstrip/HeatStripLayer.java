@@ -75,14 +75,14 @@ public class HeatStripLayer implements PaintedShape {
 	private int separation;
 	private boolean showYAxis = false;
 	private boolean normalized = false;
-	float strokeWidth = 0.5f;
+	double strokeWidth = 0.5f;
 	float[] dist3 = {0.0f, 0.5f, 1.0f};
 	float[] dist2 = {0.0f, 1.0f};
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public HeatStripLayer(int bar, int nbars, int separation, double value, 
 	                      double minValue, double maxValue, boolean normalized, 
-	                      Color[] colorScale, boolean showAxes) {
+	                      Color[] colorScale, boolean showAxes, double borderWidth) {
 		labelLayer = false;
 		this.colorScale = colorScale;
 		this.bar = bar;
@@ -92,6 +92,7 @@ public class HeatStripLayer implements PaintedShape {
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
 		this.normalized = normalized;
+		this.strokeWidth = borderWidth;
 		if (normalized) {
 			this.minValue = -1.0;
 			this.maxValue = 1.0;
@@ -149,7 +150,7 @@ public class HeatStripLayer implements PaintedShape {
 	public Stroke getStroke() {
 		// We only stroke the slice
 		if (!labelLayer)
-			return new BasicStroke(strokeWidth);
+			return new BasicStroke((float)strokeWidth);
 		return null;
 	}
 
@@ -167,7 +168,7 @@ public class HeatStripLayer implements PaintedShape {
 		if (labelLayer)
 			bl = new HeatStripLayer(bar, nBars, separation, rangeMin, rangeMax, normalized, labelMin, label, font, showYAxis);
 		else 
-			bl = new HeatStripLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, colorScale, showYAxis);
+			bl = new HeatStripLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, colorScale, showYAxis, strokeWidth);
 		bl.bounds = newBounds.getBounds2D();
 		return bl;
 	}
@@ -227,7 +228,7 @@ public class HeatStripLayer implements PaintedShape {
 
 		// Account for the stroke
 		sliceSize = sliceSize - sliceSize/10.0;
-		strokeWidth = (float)sliceSize/20.0f;
+		// strokeWidth = (float)sliceSize/20.0f;
 
 		double min = minValue;
 		double max = maxValue;
@@ -271,16 +272,19 @@ public class HeatStripLayer implements PaintedShape {
 		bar = saveBar;
 
 		Path2D xAxes = new Path2D.Double();
-		xAxes.moveTo(firstBar.getX(), firstBar.getY());
-		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), lastBar.getY());
+		xAxes.moveTo(firstBar.getX(), 0.0);
+		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), 0.0);
+		xAxes.lineTo(lastBar.getX()+lastBar.getWidth(), 0.0);
+		xAxes.lineTo(firstBar.getX(), 0.0);
+		xAxes.closePath();
+
 		if (showYAxis) {
 			Rectangle2D bottom = getHeatStrip(minValue);
 			Rectangle2D top = getHeatStrip(maxValue);
 			xAxes.moveTo(bottom.getX(), bottom.getMaxY());
 			xAxes.lineTo(top.getX(), top.getMinY());
 		}
-		BasicStroke stroke = new BasicStroke(0.5f/2.0f);
-		return new Area(stroke.createStrokedShape(xAxes));
+		return new Area(xAxes);
 
 	}
 

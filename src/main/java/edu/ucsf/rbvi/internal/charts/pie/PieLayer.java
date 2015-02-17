@@ -63,14 +63,16 @@ public class PieLayer implements PaintedShape {
 	private Color color;
 	private Color strokeColor = Color.BLACK;
 	private Font font;
+	private double borderWidth;
 	protected Rectangle2D bounds;
 
-	public PieLayer(double arcStart, double arc, Color color) {
+	public PieLayer(double arcStart, double arc, Color color, double borderWidth) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
 		this.color = color;
 		bounds = new Rectangle2D.Double(0,0,100,100);
+		this.borderWidth = borderWidth;
 	}
 
 	public PieLayer(double arcStart, double arc, String label, Font font, Color labelColor) {
@@ -103,7 +105,7 @@ public class PieLayer implements PaintedShape {
 	public Stroke getStroke() {
 		// We only stroke the slice
 		if (!labelLayer)
-			return new BasicStroke(0.5f);
+			return new BasicStroke((float) borderWidth);
 		return null;
 	}
 
@@ -121,7 +123,7 @@ public class PieLayer implements PaintedShape {
 		if (labelLayer)
 			pl = new PieLayer(arcStart, arc, label, font, color);
 		else 
-			pl = new PieLayer(arcStart, arc, color);
+			pl = new PieLayer(arcStart, arc, color, borderWidth);
 		pl.bounds = newBounds.getBounds2D();
 		return pl;
 	}

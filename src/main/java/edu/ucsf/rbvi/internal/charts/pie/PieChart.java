@@ -184,7 +184,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			if (values.get(slice) == 0.0) continue;
 
 			// Create the slice
-			PieLayer pl = new PieLayer(arcStart, values.get(slice), colorList.get(slice));
+			PieLayer pl = new PieLayer(arcStart, values.get(slice), colorList.get(slice), borderWidth);
 			if (pl == null) continue;
 			layers.add(pl);
 

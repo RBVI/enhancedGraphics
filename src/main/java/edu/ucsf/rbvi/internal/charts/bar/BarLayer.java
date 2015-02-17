@@ -73,11 +73,11 @@ public class BarLayer implements PaintedShape {
 	private int separation;
 	private boolean showYAxis = false;
 	private boolean normalized = false;
-	float strokeWidth = 0.1f;
+	double strokeWidth = 0.01f;
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
 	                double minValue, double maxValue, boolean normalized, double ybase, Color color,
-									boolean showAxes) {
+									boolean showAxes, double borderWidth) {
 		labelLayer = false;
 		this.color = color;
 		this.bar = bar;
@@ -96,6 +96,7 @@ public class BarLayer implements PaintedShape {
 		this.ybase = ybase;
 		this.showYAxis = showAxes;
 		this.normalized = normalized;
+		this.strokeWidth = borderWidth;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 		// System.out.println("bar #"+bar+", value: "+value+", color: "+color+", minValue: "+minValue+", maxValue: "+maxValue);
 	}
@@ -146,7 +147,7 @@ public class BarLayer implements PaintedShape {
 	public Stroke getStroke() {
 		// We only stroke the slice
 		if (!labelLayer) {
-			return new BasicStroke(strokeWidth);
+			return new BasicStroke((float)strokeWidth);
 		}
 		return null;
 	}
@@ -167,7 +168,7 @@ public class BarLayer implements PaintedShape {
 			bl = new BarLayer(bar, nBars, separation, rangeMin, rangeMax, normalized, labelMin, 
 			                  ybase, label, font, color, showYAxis);
 		else 
-			bl = new BarLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, ybase, color, showYAxis);
+			bl = new BarLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, ybase, color, showYAxis, strokeWidth);
 		bl.bounds = newBounds.getBounds2D();
 		return bl;
 	}
@@ -247,7 +248,7 @@ public class BarLayer implements PaintedShape {
 			sliceSize = width/nBars;
 
 		// FIXME: really don't want to hard-code the stroke!
-		strokeWidth = (float)sliceSize/100.0f;
+		// strokeWidth = (float)sliceSize/100.0f;
 
 		// Account for the stroke
 		sliceSize = sliceSize - strokeWidth*2;

@@ -163,6 +163,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 		if (args.containsKey(STROKEWIDTH))
 			outlineWidth = getDoubleValue(args.get(STROKEWIDTH));
+		else if (args.containsKey(BORDERWIDTH))
+			outlineWidth = getDoubleValue(args.get(BORDERWIDTH));
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
