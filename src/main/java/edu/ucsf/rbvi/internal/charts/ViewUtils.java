@@ -153,8 +153,6 @@ public class ViewUtils {
 	public static Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign, 
 	                                  double maxHeight, double maxWidth, double rotation) {
 
-		// System.out.println("  Label = "+label);
-
 		// Figure out how to move the text to center it on the bbox
 		double textWidth = lShape.getBounds2D().getWidth(); 
 		double textHeight = lShape.getBounds2D().getHeight();
@@ -173,6 +171,10 @@ public class ViewUtils {
 			// We don't want to scale down too far.  If scale < 20% of the font size, skip the label
 			if (scale < 0.20)
 				return null;
+
+			if (scale == 1.0)
+				return lShape;
+
 			// System.out.println("scale = "+scale);
 			AffineTransform sTransform = new AffineTransform();
 			sTransform.scale(scale, scale);
@@ -209,10 +211,12 @@ public class ViewUtils {
 			textStartY = pointY + textHeight/2;
 			break;
 		case ALIGN_MIDDLE:
+			// System.out.println("  Align = MIDDLE");
 			textStartX = pointX - textWidth/2;;
 			textStartY = pointY - textHeight/2;
 			break;
 		case ALIGN_CENTER:
+			// System.out.println("  Align = CENTER");
 			textStartX = pointX - textWidth/2;;
 			break;
 		default:

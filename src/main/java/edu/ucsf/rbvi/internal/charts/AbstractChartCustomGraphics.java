@@ -56,6 +56,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected double rangeMax = 0.0;
 	protected double rangeMin = 0.0;
 	protected	double ybase = 0.5;
+	protected	double scale = 1.0;
 	protected	double borderWidth = 0.1;
 	protected Color labelColor = Color.BLACK;
 	protected int labelSize = ViewUtils.DEFAULT_SIZE;
@@ -112,7 +113,6 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (args.containsKey(LABELCOLOR))
 			labelColor = getColorValue(args.get(LABELCOLOR));
 
-		double scale = 0.90;
 		if (args.containsKey(SCALE)) {
 			try {
 				scale = getDoubleValue(args.get(SCALE));

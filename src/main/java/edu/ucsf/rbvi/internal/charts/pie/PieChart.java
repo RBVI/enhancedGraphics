@@ -177,6 +177,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 
 		Font font = getFont();
 		int nSlices = values.size();
+		double arc = arcStart;
 		for (int slice = 0; slice < nSlices; slice++) {
 			String label = null;
 			if (labels != null && labels.size() > 0)
@@ -184,17 +185,17 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			if (values.get(slice) == 0.0) continue;
 
 			// Create the slice
-			PieLayer pl = new PieLayer(arcStart, values.get(slice), colorList.get(slice), borderWidth);
+			PieLayer pl = new PieLayer(arc, values.get(slice), colorList.get(slice), borderWidth);
 			if (pl == null) continue;
 			layers.add(pl);
 
 			if (label != null && label.length() > 0) {
 				// Now, create the label
-				PieLayer labelLayer = new PieLayer(arcStart, values.get(slice), label, font, labelColor);
+				PieLayer labelLayer = new PieLayer(arc, values.get(slice), label, font, labelColor);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}
-			arcStart += values.get(slice).doubleValue();
+			arc += values.get(slice).doubleValue();
 		}
 
 		// Now add all of our labels so they will be on top of our slices

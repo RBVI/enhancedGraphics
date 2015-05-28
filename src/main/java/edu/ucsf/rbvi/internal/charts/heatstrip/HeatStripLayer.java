@@ -70,9 +70,10 @@ public class HeatStripLayer implements PaintedShape {
 	private double maxValue;
 	private double minValue;
 	private double labelMin;
-	private int bar;
-	private int nBars;
-	private int separation;
+	private double scale;
+	private double bar;
+	private double nBars;
+	private double separation;
 	private boolean showYAxis = false;
 	private boolean normalized = false;
 	double strokeWidth = 0.5f;
@@ -82,17 +83,18 @@ public class HeatStripLayer implements PaintedShape {
 
 	public HeatStripLayer(int bar, int nbars, int separation, double value, 
 	                      double minValue, double maxValue, boolean normalized, 
-	                      Color[] colorScale, boolean showAxes, double borderWidth) {
+	                      Color[] colorScale, boolean showAxes, double borderWidth, double scale) {
 		labelLayer = false;
 		this.colorScale = colorScale;
-		this.bar = bar;
-		this.nBars = nbars;
-		this.separation = separation;
+		this.bar = (double)bar;
+		this.nBars = (double)nbars;
+		this.separation = (double)separation;
 		this.value = value;
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
 		this.normalized = normalized;
 		this.strokeWidth = borderWidth;
+		this.scale = scale;
 		if (normalized) {
 			this.minValue = -1.0;
 			this.maxValue = 1.0;
@@ -105,7 +107,8 @@ public class HeatStripLayer implements PaintedShape {
 	}
 
 	public HeatStripLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                      boolean normalized, double labelMin, String label, Font font, boolean showAxes) {
+	                      boolean normalized, double labelMin, String label, Font font, boolean showAxes, 
+												double scale) {
 		labelLayer = true;
 		this.bar = bar;
 		this.nBars = nbars;
@@ -115,6 +118,7 @@ public class HeatStripLayer implements PaintedShape {
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
 		this.normalized = normalized;
+		this.scale = scale;
 		if (normalized) {
 			this.minValue = -1.0;
 			this.maxValue = 1.0;
@@ -164,13 +168,8 @@ public class HeatStripLayer implements PaintedShape {
 
 	public HeatStripLayer transform(AffineTransform xform) {
 		Shape newBounds = xform.createTransformedShape(bounds);
-		HeatStripLayer bl;
-		if (labelLayer)
-			bl = new HeatStripLayer(bar, nBars, separation, rangeMin, rangeMax, normalized, labelMin, label, font, showYAxis);
-		else 
-			bl = new HeatStripLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, colorScale, showYAxis, strokeWidth);
-		bl.bounds = newBounds.getBounds2D();
-		return bl;
+		this.bounds = newBounds.getBounds2D();
+		return this;
 	}
 
 	private Shape barShape() {
@@ -214,10 +213,10 @@ public class HeatStripLayer implements PaintedShape {
 	}
 
 	private Rectangle2D getHeatStrip(double val) {
-		double x = bounds.getX()-bounds.getWidth()/2;
-		double y = bounds.getY()-bounds.getHeight()/2;
-		double width = bounds.getWidth();
-		double height = bounds.getHeight();
+		double x = (bounds.getX()-bounds.getWidth()/2)*scale;
+		double y = (bounds.getY()-bounds.getHeight()/2)*scale;
+		double width = bounds.getWidth()*scale;
+		double height = bounds.getHeight()*scale;
 
 		double yMid = y + (0.5 * height);
 		double sliceSize = (width - (nBars * separation) + separation)/nBars; // only have n-1 separators
@@ -227,8 +226,7 @@ public class HeatStripLayer implements PaintedShape {
 		} 
 
 		// Account for the stroke
-		sliceSize = sliceSize - sliceSize/10.0;
-		// strokeWidth = (float)sliceSize/20.0f;
+		sliceSize = sliceSize - strokeWidth;
 
 		double min = minValue;
 		double max = maxValue;
@@ -238,15 +236,18 @@ public class HeatStripLayer implements PaintedShape {
 		else
 			max = -1.0 * min;
 
-		double px1 = x + bar*sliceSize + bar*separation;
-		double py1 = y + (0.5 * height);
+		double px1 = x + bar*(sliceSize + strokeWidth + separation);
+		double py1;
+		double h;
 
-		if (val > 0.0)
-			py1 = py1 - ((0.5 * height) * (val / max));
-		else
-			val = -val;
+		if (val > 0.0) {
+			py1 = y + (0.5 * height) - ((0.5 * height) * (val / max)) - strokeWidth;
+			h = (0.5 * height) * (val/max) + strokeWidth/4;
+		} else {
+			py1 = y + (0.5 * height) - strokeWidth/4;
+			h = (0.5 * height) * (-val/max) - strokeWidth;
+		}
 
-		double h = (0.5 * height) * (val/max);
 		return new Rectangle2D.Double(px1, py1, sliceSize, h);
 	}
 
@@ -266,7 +267,7 @@ public class HeatStripLayer implements PaintedShape {
 	private Area getAxes() {
 		// At this point, make it simple -- a line at 0.0
 		Rectangle2D firstBar = getHeatStrip(0.0);
-		int saveBar = bar;
+		double saveBar = bar;
 		bar = nBars-1;
 		Rectangle2D lastBar = getHeatStrip(0.0);
 		bar = saveBar;

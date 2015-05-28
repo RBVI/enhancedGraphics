@@ -68,21 +68,22 @@ public class BarLayer implements PaintedShape {
 	private double minValue;
 	private double labelMin;
 	private double ybase;
-	private int bar;
-	private int nBars;
-	private int separation;
+	private double bar;
+	private double nBars;
+	private double separation;
+	private double scale;
 	private boolean showYAxis = false;
 	private boolean normalized = false;
 	double strokeWidth = 0.01f;
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
 	                double minValue, double maxValue, boolean normalized, double ybase, Color color,
-									boolean showAxes, double borderWidth) {
+									boolean showAxes, double borderWidth, double scale) {
 		labelLayer = false;
 		this.color = color;
-		this.bar = bar;
-		this.nBars = nbars;
-		this.separation = separation;
+		this.bar = (double)bar;
+		this.nBars = (double)nbars;
+		this.separation = (double)separation;
 		this.value = value;
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
@@ -97,16 +98,18 @@ public class BarLayer implements PaintedShape {
 		this.showYAxis = showAxes;
 		this.normalized = normalized;
 		this.strokeWidth = borderWidth;
+		this.scale = scale;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 		// System.out.println("bar #"+bar+", value: "+value+", color: "+color+", minValue: "+minValue+", maxValue: "+maxValue);
 	}
 
 	public BarLayer(int bar, int nbars, int separation, double minValue, double maxValue, boolean normalized, 
-	                double labelMin, double ybase, String label, Font font, Color labelColor, boolean showAxes) {
+	                double labelMin, double ybase, String label, Font font, Color labelColor, boolean showAxes,
+									double scale) {
 		labelLayer = true;
-		this.bar = bar;
-		this.nBars = nbars;
-		this.separation = separation;
+		this.bar = (double)bar;
+		this.nBars = (double)nbars;
+		this.separation = (double)separation;
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
@@ -124,6 +127,7 @@ public class BarLayer implements PaintedShape {
 		this.ybase = ybase;
 		this.showYAxis = showAxes;
 		this.normalized = normalized;
+		this.scale = scale;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 		// System.out.println("bar #"+bar+", value: "+value+", color: "+color+", minValue: "+minValue+", maxValue: "+maxValue);
 	}
@@ -162,15 +166,8 @@ public class BarLayer implements PaintedShape {
 
 	public BarLayer transform(AffineTransform xform) {
 		Shape newBounds = xform.createTransformedShape(bounds);
-		// System.out.println("transformed bounds: "+newBounds.getBounds2D());
-		BarLayer bl;
-		if (labelLayer)
-			bl = new BarLayer(bar, nBars, separation, rangeMin, rangeMax, normalized, labelMin, 
-			                  ybase, label, font, color, showYAxis);
-		else 
-			bl = new BarLayer(bar, nBars, separation, value, rangeMin, rangeMax, normalized, ybase, color, showYAxis, strokeWidth);
-		bl.bounds = newBounds.getBounds2D();
-		return bl;
+		this.bounds = newBounds.getBounds2D();
+		return this;
 	}
 
 	private Shape barShape() {
@@ -238,12 +235,15 @@ public class BarLayer implements PaintedShape {
 	}
 
 	private Rectangle2D getBar(double val) {
-		double x = bounds.getX()-bounds.getWidth()/2;
-		double y = bounds.getY()-bounds.getHeight()/2;
-		double width = bounds.getWidth();
-		double height = bounds.getHeight();
+		double x = (bounds.getX()-bounds.getWidth()/2)*scale;
+		double y = (bounds.getY()-bounds.getHeight()/2)*scale;
+		double width = bounds.getWidth()*scale;
+		double height = bounds.getHeight()*scale;
+
+		// System.out.println("bar: "+bar+" is at "+x+","+y+" "+width+"x"+height);
 
 		double sliceSize = (width - (nBars * separation) + separation)/nBars; // only have n-1 separators
+		// System.out.println("sliceSize = "+sliceSize);
 		if (sliceSize < 1.0 && separation > 0)
 			sliceSize = width/nBars;
 
@@ -251,7 +251,7 @@ public class BarLayer implements PaintedShape {
 		// strokeWidth = (float)sliceSize/100.0f;
 
 		// Account for the stroke
-		sliceSize = sliceSize - strokeWidth*2;
+		sliceSize = sliceSize - strokeWidth;
 
 		double min = minValue;
 		double max = maxValue;
@@ -261,8 +261,7 @@ public class BarLayer implements PaintedShape {
 		else
 			max = -1.0 * min;
 
-		double px1 = x + bar*sliceSize + strokeWidth;
-		// System.out.println("y = "+y+", py1 = "+py1);
+		double px1 = x + bar*(sliceSize + strokeWidth + separation);
 		double py1;
 		double h;
 
@@ -275,13 +274,13 @@ public class BarLayer implements PaintedShape {
 		}
 
 		// System.out.println("px1 = "+px1+", py1 = "+py1+", sliceSize = "+sliceSize+", h = "+h+", strokeWidth = "+strokeWidth);
-		return new Rectangle2D.Double(px1, py1, sliceSize-strokeWidth, h);
+		return new Rectangle2D.Double(px1, py1, sliceSize, h);
 	}
 
 	private Area getAxes() {
 		// At this point, make it simple -- a line at 0.0
 		Rectangle2D firstBar = getBar(0.0);
-		int saveBar = bar;
+		double saveBar = bar;
 		bar = nBars-1;
 		Rectangle2D lastBar = getBar(0.0);
 		bar = saveBar;

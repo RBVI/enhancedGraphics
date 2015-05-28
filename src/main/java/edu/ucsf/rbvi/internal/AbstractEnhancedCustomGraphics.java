@@ -28,7 +28,7 @@ public abstract class AbstractEnhancedCustomGraphics <T extends CustomGraphicLay
                 implements CyCustomGraphics <T> {
 
 	protected Long id = null;
-	protected float fitRatio = 0.9f;
+	protected float fitRatio = 1.0f;
 	protected List<T> layers;
 	protected String displayName;
 	protected int width = 50;

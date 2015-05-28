@@ -119,13 +119,8 @@ public class PieLayer implements PaintedShape {
 
 	public PieLayer transform(AffineTransform xform) {
 		Shape newBounds = xform.createTransformedShape(bounds);
-		PieLayer pl;
-		if (labelLayer)
-			pl = new PieLayer(arcStart, arc, label, font, color);
-		else 
-			pl = new PieLayer(arcStart, arc, color, borderWidth);
-		pl.bounds = newBounds.getBounds2D();
-		return pl;
+		this.bounds = newBounds.getBounds2D();
+		return this;
 	}
 
 	private Shape sliceShape() {
@@ -142,6 +137,7 @@ public class PieLayer implements PaintedShape {
 		// System.out.println("labelShape: bounds = "+bounds);
 		double midpointAngle = arcStart + arc/2;
 
+		// System.out.println("Label = "+label);
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
 
 		Shape textShape = ViewUtils.getLabelShape(label, font);
