@@ -120,8 +120,6 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
 
-	public Image getRenderedImage() { return null; }
-
 	@Override 
 	public List<HeatStripLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -182,6 +180,8 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 		// Now add all of our labels so they will be on top of our slices
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
+
+		shapeLayers = layers;
 		return layers; 
 	}
 

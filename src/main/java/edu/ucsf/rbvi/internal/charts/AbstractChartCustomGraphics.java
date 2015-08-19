@@ -2,9 +2,13 @@ package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +67,29 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected String labelFont = ViewUtils.DEFAULT_FONT;
 	protected int labelStyle = ViewUtils.DEFAULT_STYLE;
 	protected boolean normalized = false;
+	protected List<? extends PaintedShape> shapeLayers = null;
+
+	@Override
+	public Image getRenderedImage() {
+		if (shapeLayers == null) return null;
+		Rectangle2D bounds = new Rectangle2D.Double(0.0, 0.0, getWidth(), getHeight());
+		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = image.createGraphics();
+
+		for (PaintedShape ps: shapeLayers) {
+			Shape shape = ps.getShape();
+			if (ps.getStroke() != null) {
+				Paint strokePaint = ps.getStrokePaint();
+				if (strokePaint == null) strokePaint = Color.BLACK;
+				g2.setPaint(strokePaint);
+				g2.setStroke(ps.getStroke());
+				g2.draw(shape);
+			}
+			g2.setPaint(ps.getPaint());
+			g2.fill(shape);
+		}
+		return image;
+	}
 
 	protected void populateValues(Map<String, String> args) {
 		if (args.containsKey(RANGE)) {
@@ -164,7 +191,6 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			attributes = getStringList(args.get(ATTRIBUTELIST));
 		}
 	}
-
 
 	public List<Double> convertInputToDouble(String input) {
 		return parseStringList((String)input);

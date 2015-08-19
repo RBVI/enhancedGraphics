@@ -120,7 +120,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
 
-	public Image getRenderedImage() { return null; }
+	// public Image getRenderedImage() { return null; }
 
 	public List<PieLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -201,6 +201,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 		// Now add all of our labels so they will be on top of our slices
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
+		shapeLayers = layers;
 		return layers; 
 	}
 
