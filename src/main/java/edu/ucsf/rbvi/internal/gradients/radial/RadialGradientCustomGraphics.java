@@ -37,18 +37,25 @@ public class RadialGradientCustomGraphics extends AbstractEnhancedCustomGraphics
 
 		if (inputMap.containsKey("center")) {
 			center = parsePoint(inputMap.get("center"));
+			if (center == null) {
+				logger.error("Not able to parse center point from '"+inputMap.get("center")+"'");
+				return;
+			}
 		}
 		if (inputMap.containsKey("radius")) {
-			radius = Float.parseFloat(inputMap.get("radius"));
+			try {
+				radius = Float.parseFloat(inputMap.get("radius"));
+			} catch (NumberFormatException nfe) {
+				logger.error("Not able to parse radius from '"+inputMap.get("radius")+"'");
+				return;
+			}
 		}
 		if (inputMap.containsKey("stoplist")) {
 			nStops = parseStopList(inputMap.get("stoplist"), colorList, stopList);
-		}
-		if (nStops == 0) {
-			colorList.add(new Color(255,255,255,255));
-			stopList.add(0.0f);
-			colorList.add(new Color(100,100,100,100));
-			stopList.add(1.0f);
+			if (nStops == 0) {
+				logger.error("Not able to stop list from '"+inputMap.get("stoplist")+"'");
+				return;
+			}
 		}
 		RadialGradientLayer cg = new RadialGradientLayer(colorList, stopList, center, radius);
 		layers.add(cg);

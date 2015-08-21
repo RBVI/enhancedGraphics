@@ -172,13 +172,12 @@ public class ViewUtils {
 			if (scale < 0.20)
 				return null;
 
-			if (scale == 1.0)
-				return lShape;
-
-			// System.out.println("scale = "+scale);
-			AffineTransform sTransform = new AffineTransform();
-			sTransform.scale(scale, scale);
-			lShape = sTransform.createTransformedShape(lShape);
+			if (scale != 1.0) {
+				// System.out.println("scale = "+scale);
+				AffineTransform sTransform = new AffineTransform();
+				sTransform.scale(scale, scale);
+				lShape = sTransform.createTransformedShape(lShape);
+			}
 		}
 
 		// System.out.println("  Text size = ("+textWidth+","+textHeight+")");

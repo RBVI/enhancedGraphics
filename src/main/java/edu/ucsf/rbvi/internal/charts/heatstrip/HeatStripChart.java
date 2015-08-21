@@ -103,7 +103,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 					colorScale[0] = colors.get(1);
 					colorScale[2] = colors.get(0);
 				} catch (Exception e) {
-					System.err.println("Unable to parse up/down color: "+colorSpec);
+					logger.warn("heatstripchart: Unable to parse up/down color: "+colorSpec);
 					colorScale = ColorGradients.YELLOWBLACKCYAN.getColors();
 				}
 			}
@@ -120,8 +120,6 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
 
-	public Image getRenderedImage() { return null; }
-
 	@Override 
 	public List<HeatStripLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -136,8 +134,9 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		if (labels != null && labels.size() > 0 &&
 		    labels.size() != values.size()) {
-			logger.error("number of labels (" + labels.size()
+			logger.error("heatstripchart: number of labels (" + labels.size()
 			             + "), values (" + values.size() + ") don't match");
+			return null;
 		}
 
 		List<HeatStripLayer> labelList = new ArrayList<HeatStripLayer>();
@@ -182,6 +181,8 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 		// Now add all of our labels so they will be on top of our slices
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
+
+		shapeLayers = layers;
 		return layers; 
 	}
 

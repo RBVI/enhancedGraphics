@@ -96,7 +96,11 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		}
 
 		if (args.containsKey(SEPARATION)) {
-			separation = Integer.parseInt(args.get(SEPARATION));
+			try {
+				separation = Integer.parseInt(args.get(SEPARATION));
+			} catch (NumberFormatException nfe) {
+				logger.warn("Value for "+SEPARATION+" is not an integer");
+			}
 		}
 
 		if (args.containsKey(SHOWYAXIS)) {
@@ -106,11 +110,8 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
 
-	public Image getRenderedImage() { return null; }
-
 	@Override 
 	public List<BarLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
-		try {
 		CyNetwork network = networkView.getModel();
 		if (!(nodeView.getModel() instanceof CyNode))
 			return null;
@@ -131,9 +132,10 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
 			   labels.size() != colorList.size())) {
-			logger.error("number of labels (" + labels.size()
+			logger.error("barchart: number of labels (" + labels.size()
 			             + "), values (" + values.size() + "), and colors ("
 			             + colorList.size() + ") don't match");
+			return null;
 		}
 
 		List<BarLayer> labelList = new ArrayList<BarLayer>();
@@ -183,11 +185,9 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		// Now add all of our labels so they will be on top of our slices
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
+
+		shapeLayers = layers;
 		return layers; 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return layers;
-		}
 	}
 
 }

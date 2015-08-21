@@ -89,8 +89,6 @@ public class StripeChart extends AbstractChartCustomGraphics<StripeLayer> {
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
 
-	public Image getRenderedImage() { return null; }
-
 	@Override 
 	public List<StripeLayer> getLayers(CyNetworkView networkView, View nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -105,6 +103,7 @@ public class StripeChart extends AbstractChartCustomGraphics<StripeLayer> {
 
 		}
 
+		shapeLayers = layers;
 		return layers; 
 	}
 

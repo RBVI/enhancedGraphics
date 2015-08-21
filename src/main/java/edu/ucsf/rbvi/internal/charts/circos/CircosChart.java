@@ -150,7 +150,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		}
 
 		if (args.containsKey(LABELCIRCLES)) {
-			labelOffset = Position.getPosition((String)args.get(LABELCIRCLES));
+			labelOffset = Position.getPosition(args.get(LABELCIRCLES));
 			if (labelOffset != null) {
 				labelCircles = true;
 			} else {
@@ -168,8 +168,6 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
-
-	public Image getRenderedImage() { return null; }
 
 	public List<CircosLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -191,7 +189,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				// OK, the colors are constant, the slice width changes
 				valueList = new ArrayList<List<Double>>();
 				for (String attr: attributes) {
-					values = getDataFromAttributes (network, (CyNode)node, Collections.singletonList(attr), labels);
+					values = getDataFromAttributes (network, node, Collections.singletonList(attr), labels);
 					values = convertData(values);
 					valueList.add(values);
 				}
@@ -203,12 +201,14 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				colorList = new ArrayList<List<Color>>();
 				for (String attr: attributes) {
 					List<Double>attrValues = 
-						getDataFromAttributes (network, (CyNode)node, Collections.singletonList(attr), labels);
+						getDataFromAttributes (network, node, Collections.singletonList(attr), labels);
 					// System.out.println("Found "+attrValues.size()+" values in '"+attr+"'");
 					// System.out.println("colorString = "+colorString);
 					colors = convertInputToColor(colorString, attrValues);
 					// System.out.println("convertInputToColor returns: "+colors);
-					if (colors == null) return null;
+					if (colors == null) {
+						return null;
+					}
 					// System.out.println("Colors for "+attr+"="+colors);
 					colorList.add(colors);
 				}
@@ -234,7 +234,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			}
 			if (cLabels.size() != nCircles) {
 				// System.out.println("Wrong circle label size");
-				logger.error("number of circle labels (" + circleLabels.size()
+				logger.error("circoschart: number of circle labels (" + circleLabels.size()
 				             + "), doesn't match the number of circles ("+nCircles+")");
 				return null;
 			} else {
@@ -246,7 +246,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
 			   labels.size() != colors.size())) {
-			logger.error("number of labels (" + labels.size()
+			logger.error("circoschart: number of labels (" + labels.size()
 			             + "), values (" + values.size() + "), and colors ("
 			             + colors.size() + ") don't match");
 			return null;
@@ -339,6 +339,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		// Now add all of our labels so they will be on top of our slices
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
+
+		shapeLayers = layers;
 		return layers; 
 	}
 

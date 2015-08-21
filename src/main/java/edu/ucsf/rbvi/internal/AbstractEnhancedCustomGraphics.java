@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.cytoscape.application.CyUserLog;
+import org.apache.log4j.Logger;
 
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
@@ -37,7 +37,7 @@ public abstract class AbstractEnhancedCustomGraphics <T extends CustomGraphicLay
 
 	protected AbstractEnhancedCustomGraphics() {
 		layers = new ArrayList<T>();
-		logger = LoggerFactory.getLogger(this.getClass());
+		logger = Logger.getLogger(CyUserLog.NAME);
 	}
 
 	public Long getIdentifier() { return id; }
@@ -83,7 +83,7 @@ public abstract class AbstractEnhancedCustomGraphics <T extends CustomGraphicLay
 		st.wordChars('.', '.');
 		st.wordChars('0', '9');
 
-		List<String> tokenList = new ArrayList();
+		List<String> tokenList = new ArrayList<>();
 		int tokenIndex = 0;
 		int i;
 		try {
@@ -117,9 +117,15 @@ public abstract class AbstractEnhancedCustomGraphics <T extends CustomGraphicLay
 		if (point == null || point.length() == 0) return null;
 
 		String tokens[] = point.split(",");
-		float x = Float.parseFloat(tokens[0].trim());
-		float y = Float.parseFloat(tokens[1].trim());
-		return new Point2D.Float(x,y);
+		if (tokens.length != 2)
+			return null;
+		try {
+			float x = Float.parseFloat(tokens[0].trim());
+			float y = Float.parseFloat(tokens[1].trim());
+			return new Point2D.Float(x,y);
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
 	}
 
 	// Parse out a stop list.  The stoplist is of the form:
@@ -131,8 +137,10 @@ public abstract class AbstractEnhancedCustomGraphics <T extends CustomGraphicLay
 		String[] tokens = stoplist.split("\\|");
 		for (String token: tokens) {
 			String[] components = token.split(",");
-			if (components.length != 4 && components.length != 5)
+			if (components.length != 4 && components.length != 5) {
+				logger.warn("Unable to get stop from '"+token+"'.  Skipping this stop");
 				continue;
+			}
 
 			int r = Integer.parseInt(components[0]);
 			int g = Integer.parseInt(components[1]);

@@ -102,8 +102,6 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
 
-	public Image getRenderedImage() { return null; }
-
 	@Override 
 	public List<LineLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -158,6 +156,7 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 		// Now add all of our labels so they will be on top of our slices
 		// if (labelList != null && labelList.size() > 0)
 		// 	layers.addAll(labelList);
+		shapeLayers = layers;
 		return layers; 
 	}
 
