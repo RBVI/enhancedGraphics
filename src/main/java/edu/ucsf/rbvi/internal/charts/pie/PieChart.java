@@ -131,19 +131,19 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 		// Create all of our pie slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
 			if (values == null || values.size() == 0) {
-				values = getDataFromAttributes (network, (CyNode)node, attributes, labels);
+				values = getDataFromAttributes (network, node, attributes, labels);
 				colorList = convertInputToColor(colorString, values);
 			} else {
 				boolean foundColors=false;
 				// System.out.println("Have both attributes and values");
 				// If we already have values, we must want to use the attributes to map our colors
-				List<Double>attrValues = getDataFromAttributes (network, (CyNode)node, attributes, labels);
+				List<Double>attrValues = getDataFromAttributes (network, node, attributes, labels);
 				if (colorString.indexOf(';') > 0) {
 					// System.out.println("Found semi-separated colors");
 					colorList = new ArrayList<Color>();
 					String[] colors = colorString.split(";");
 					if (colors.length != attrValues.size()) {
-							System.err.println("Number of colors must match the number of attributes");
+							logger.error("piechart: number of colors must match the number of attributes");
 							return null;
 					}
 					int colorIndex = 0;
@@ -155,11 +155,17 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 								colorList.addAll(convertInputToColor(colors[colorIndex++], Collections.singletonList(value)));
 							}
 					}
-					if (!foundColors) return null;
+					if (!foundColors) {
+						logger.error("piechart: no colors found");
+						return null;
+					}
 				} else {
 					colorList = convertInputToColor(colorString, attrValues);
 				}
-				if (colorList == null) return null;
+				if (colorList == null) {
+					logger.error("piechart: no colors found");
+					return null;
+				}
 			}
 		}
 
@@ -168,9 +174,10 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
 			   labels.size() != colorList.size())) {
-			logger.error("number of labels (" + labels.size()
+			logger.error("piechart: number of labels (" + labels.size()
 			             + "), values (" + values.size() + "), and colors ("
 			             + colorList.size() + ") don't match");
+			return null;
 		}
 
 		List<PieLayer> labelList = new ArrayList<PieLayer>();

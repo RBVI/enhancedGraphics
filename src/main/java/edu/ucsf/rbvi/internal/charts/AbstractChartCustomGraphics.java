@@ -72,10 +72,20 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	@Override
 	public Image getRenderedImage() {
 		if (shapeLayers == null) return null;
-		Rectangle2D bounds = new Rectangle2D.Double(0.0, 0.0, getWidth(), getHeight());
-		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = image.createGraphics();
 
+		// First, get our bounding box
+		Rectangle2D bounds = new Rectangle2D.Double();
+		for (PaintedShape ps: shapeLayers) {
+			Shape shape = ps.getShape();
+			bounds = bounds.createUnion(shape.getBounds2D());
+		}
+
+		// Now, create the image
+		BufferedImage image = new BufferedImage((int)bounds.getWidth()*4, (int)bounds.getHeight()*4, 
+		                                        BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = image.createGraphics();
+		g2.translate(-bounds.getX()*4, -bounds.getY()*4);
+		g2.scale(4.0,4.0);
 		for (PaintedShape ps: shapeLayers) {
 			Shape shape = ps.getShape();
 			if (ps.getStroke() != null) {
@@ -93,23 +103,39 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 	protected void populateValues(Map<String, String> args) {
 		if (args.containsKey(RANGE)) {
+			rangeMin = 0.0;
+			rangeMax = 0.0;
 			String split[] = args.get(RANGE).split(",");
 			try {
-				rangeMin = getDoubleValue(split[0]);
-				rangeMax = getDoubleValue(split[1]);
+				if (split.length == 2) {
+					rangeMin = getDoubleValue(split[0]);
+					rangeMax = getDoubleValue(split[1]);
+				}
 			} catch (NumberFormatException e) {
-				return;
+				rangeMin = 0.0;
+				rangeMax = 0.0;
+			}
+			if (rangeMin == 0.0 && rangeMax == 0.0) {
+				logger.warn("Unable to parse min/max values from '"+args.get(RANGE)+"'");	
 			}
 		}
 
 		if (args.containsKey(BORDERWIDTH)) {
-			borderWidth = getDoubleValue(args.get(BORDERWIDTH));
+			try {
+				borderWidth = getDoubleValue(args.get(BORDERWIDTH));
+			} catch (NumberFormatException e) {
+				logger.warn("Unable to parse border width from '"+args.get(BORDERWIDTH)+"'");	
+			}
 		}
 
 		values = null;
 		if (args.containsKey(VALUES)) {
 			// Get our values.  convertData returns an array of values in degrees of arc
 			values = convertInputToDouble(args.get(VALUES));
+			if (values == null) {
+				logger.error("Cannot parse "+VALUES+" from input '"+args.get(VALUES)+"'");
+				return;
+			}
 			if (rangeMax != 0.0 || rangeMin != 0.0) {
 				values = normalize(values, rangeMin, rangeMax);
 				normalized = true;
@@ -120,6 +146,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (args.containsKey(LABELS)) {
 			// Get our labels.  These may or may not be printed depending on options
 			labels = getStringList(args.get(LABELS));
+			if (labels == null) {
+				logger.error("Cannot parse "+LABELS+" from input '"+args.get(LABELS)+"'");
+				return;
+			}
 		}
 
 		boolean showLabels = true;
@@ -151,23 +181,25 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		// Get our position
 		Object pos = null;
 		if (args.containsKey(POSITION)) {
-			String position = (String) args.get(POSITION);
+			String position = args.get(POSITION);
 			pos = ViewUtils.getPosition(position);
-			if (pos == null)
+			if (pos == null) {
+				logger.warn("Cannot parse "+POSITION+" from input '"+args.get(POSITION)+"'");
 				return;
+			}
 		}
 
 		// Get our size (if we have one)
 		// *not used anywhere*
 		Rectangle2D size = null;
 		if (args.containsKey(SIZE)) {
-			String sizeString = (String) args.get(SIZE);
+			String sizeString = args.get(SIZE);
 			size = getSize(sizeString);
 		} 
 
 		// Get the base of the chart
 		if (args.containsKey(YBASE)) {
-			String yb = (String) args.get(YBASE);
+			String yb = args.get(YBASE);
 			if (yb.equalsIgnoreCase("bottom"))
 				ybase = 1.0;
 			else if (yb.equalsIgnoreCase("top"))
@@ -178,7 +210,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 				try {
 					ybase = getDoubleValue(yb);
 				} catch (NumberFormatException e) {
-					System.err.println("Unable to parse ybase value: "+yb);
+					logger.warn("Cannot parse "+YBASE+" from input '"+args.get(YBASE)+"'");
 					ybase = 0.5;
 				}
 			}
@@ -189,11 +221,14 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 		if (args.containsKey(ATTRIBUTELIST)) {
 			attributes = getStringList(args.get(ATTRIBUTELIST));
+			if (attributes == null || attributes.size() == 0) {
+				logger.error("Cannot parse "+ATTRIBUTELIST+" from input '"+args.get(ATTRIBUTELIST)+"'");
+			}
 		}
 	}
 
 	public List<Double> convertInputToDouble(String input) {
-		return parseStringList((String)input);
+		return parseStringList(input);
 	}
 
 	/**
@@ -214,19 +249,25 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 		// Get the row
 		CyRow row = network.getRow(node);
-		if (row == null) return values;
+		if (row == null) {
+			logger.warn("Cannot find row for node "+node);
+			return values;
+		}
 
 		CyTable table = row.getTable();
 
 		// Get the first attribute
 		String column = attributeList.get(0);
-		if (column == null || table.getColumn(column) == null) return values;
+		if (column == null || table.getColumn(column) == null) {
+			logger.warn("Cannot find node attribute column "+attributeList.get(0));
+			return values;
+		}
 
-		Class columnType = table.getColumn(column).getType();
+		Class<?> columnType = table.getColumn(column).getType();
 
 		// If this is a single attribute, we assume it's a list
 		if (attributeList.size() == 1 && columnType.equals(List.class)) {
-			Class type = table.getColumn(column).getListElementType();
+			Class<?> type = table.getColumn(column).getListElementType();
 			if (type == Double.class) {
 				values.addAll(row.getList(column, Double.class));
 			} else if (type == Integer.class) {
@@ -251,7 +292,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 				if (table.getColumn(col) == null)
 					continue;
 
-				Class type = table.getColumn(col).getType();
+				Class<?> type = table.getColumn(col).getType();
 				if (type == Double.class) {
 					values.add(row.get(col, Double.class));
 				} else if (type == Integer.class) {
@@ -303,7 +344,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public List<Double> parseStringList(String input)  {
 		if (input == null)
 			return null;
-		String[] inputArray = ((String)input).split(",");
+		String[] inputArray = input.split(",");
 		return convertStringList(Arrays.asList(inputArray));
 	}
 
@@ -311,7 +352,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (input == null || input.length() == 0)
 			return new ArrayList<String>();
 
-		String[] inputArray = ((String)input).split(",",-1);
+		String[] inputArray = input.split(",",-1);
 		return Arrays.asList(inputArray);
 	}
 
@@ -512,8 +553,9 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	}
 
 	public List<Color> parseUpDownColor(String[] colorArray)  {
-		if (colorArray.length < 2)
+		if (colorArray.length < 2) {
 			return null;
+		}
 
 		String [] colors = new String[3];
 		colors[2] = "black";
@@ -646,8 +688,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			} else {
 				// Check for color string
 				Color c = ColorKeyword.getColor(colorString);
-				if (c == null)
+				if (c == null) {
+					logger.warn("Can't find color '"+colorString+"'");
 					return null;
+				}
 				colors.add(c);
 			}
 		}

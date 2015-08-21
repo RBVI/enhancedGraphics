@@ -103,7 +103,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 					colorScale[0] = colors.get(1);
 					colorScale[2] = colors.get(0);
 				} catch (Exception e) {
-					System.err.println("Unable to parse up/down color: "+colorSpec);
+					logger.warn("heatstripchart: Unable to parse up/down color: "+colorSpec);
 					colorScale = ColorGradients.YELLOWBLACKCYAN.getColors();
 				}
 			}
@@ -134,8 +134,9 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		if (labels != null && labels.size() > 0 &&
 		    labels.size() != values.size()) {
-			logger.error("number of labels (" + labels.size()
+			logger.error("heatstripchart: number of labels (" + labels.size()
 			             + "), values (" + values.size() + ") don't match");
+			return null;
 		}
 
 		List<HeatStripLayer> labelList = new ArrayList<HeatStripLayer>();

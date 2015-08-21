@@ -36,18 +36,24 @@ public class LinearGradientCustomGraphics extends AbstractEnhancedCustomGraphics
 
 		if (inputMap.containsKey("start")) {
 			start = parsePoint(inputMap.get("start"));
+			if (start == null) {
+				logger.error("Not able to parse start point from '"+inputMap.get("start")+"'");
+				return;
+			}
 		}
 		if (inputMap.containsKey("end")) {
 			end = parsePoint(inputMap.get("end"));
+			if (end == null) {
+				logger.error("Not able to parse end point from '"+inputMap.get("end")+"'");
+				return;
+			}
 		}
 		if (inputMap.containsKey("stoplist")) {
 			nStops = parseStopList(inputMap.get("stoplist"), colorList, stopList);
-		}
-		if (nStops == 0) {
-			colorList.add(new Color(255,255,255,255));
-			stopList.add(0.0f);
-			colorList.add(new Color(100,100,100,100));
-			stopList.add(1.0f);
+			if (nStops == 0) {
+				logger.error("Not able to stop list from '"+inputMap.get("stoplist")+"'");
+				return;
+			}
 		}
 		LinearGradientLayer cg = new LinearGradientLayer(colorList, stopList, start, end);
 		layers.add(cg);

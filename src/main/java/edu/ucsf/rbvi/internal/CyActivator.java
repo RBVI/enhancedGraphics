@@ -4,8 +4,8 @@ import java.util.Properties;
 
 import org.osgi.framework.BundleContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.cytoscape.application.CyUserLog;
+import org.apache.log4j.Logger;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.service.util.AbstractCyActivator;
@@ -22,7 +22,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe.StripeChartFactory;
 
 
 public class CyActivator extends AbstractCyActivator {
-	private static Logger logger = LoggerFactory.getLogger(edu.ucsf.rbvi.enhancedGraphics.internal.CyActivator.class);
+	final Logger logger = Logger.getLogger(CyUserLog.NAME);
 	public CyActivator() {
 		super();
 	}
