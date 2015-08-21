@@ -450,6 +450,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 	private static final String	CONTRASTING = "contrasting";
 	private static final String	DOWN = "down:";
+	private static final String	MISSING = "missing";
 	private static final String	MODULATED = "modulated";
 	private static final String	RAINBOW = "rainbow";
 	private static final String RANDOM = "random";
@@ -479,6 +480,12 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		     colorArray[0].toLowerCase().startsWith(DOWN) ||
 	     colorArray[0].toLowerCase().startsWith(ZERO))) {
 			return parseUpDownColor(colorArray, values);
+		} else if (colorArray.length == 4 &&
+		    (colorArray[0].toLowerCase().startsWith(UP) ||
+		     colorArray[0].toLowerCase().startsWith(DOWN) ||
+	       colorArray[0].toLowerCase().startsWith(ZERO) ||
+			   colorArray[0].toLowerCase().startsWith(MISSING))) {
+			return parseUpDownColor(colorArray, values);
 		} else if (colorArray.length > 1)
 			return parseColorList(colorArray);
 		else
@@ -489,7 +496,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (colorArray.length < 2)
 			return null;
 
-		String [] colors = new String[3];
+		String [] colors = new String[4];
 		colors[2] = "black";
 		for (int index = 0; index < colorArray.length; index++) {
 			if (colorArray[index].toLowerCase().startsWith(UP)) {
@@ -498,6 +505,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 				colors[1] = colorArray[index].substring(DOWN.length());
 			} else if (colorArray[index].toLowerCase().startsWith(ZERO)) {
 				colors[2] = colorArray[index].substring(ZERO.length());
+			} else if (colorArray[index].toLowerCase().startsWith(MISSING)) {
+				colors[3] = colorArray[index].substring(MISSING.length());
 			}
 		} 
 		return parseColorList(colors);
@@ -508,6 +517,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		Color up = upDownColors.get(0);
 		Color down = upDownColors.get(1);
 		Color zero = upDownColors.get(2);
+		Color missing = upDownColors.get(3);
 		// System.out.println("up color = "+up);
 		// System.out.println("down color = "+down);
 		// System.out.println("zero color = "+zero);
@@ -516,7 +526,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		List<Color> results = new ArrayList<Color>(values.size());
 		for (Double v: values) {
 			// System.out.println("Looking at value "+v);
-			if (v == null) v = 0.0;
+			if (v == null) {
+				results.add(missing);
+				continue;
+			}
 			double vn = v;
 			if (!normalized)
 				vn = normalize(v, rangeMin, rangeMax);
