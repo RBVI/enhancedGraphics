@@ -566,6 +566,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 		String [] colors = new String[4];
 		colors[2] = "black";
+		colors[3] = "grey";
 		for (int index = 0; index < colorArray.length; index++) {
 			if (colorArray[index].toLowerCase().startsWith(UP)) {
 				colors[0] = colorArray[index].substring(UP.length());
@@ -589,6 +590,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		// System.out.println("up color = "+up);
 		// System.out.println("down color = "+down);
 		// System.out.println("zero color = "+zero);
+		// System.out.println("missing color = "+missing);
 
 		// System.out.println("values.size() = "+values.size());
 		List<Color> results = new ArrayList<Color>(values.size());
@@ -686,6 +688,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		List<Color> colors = new ArrayList<Color>();
 		// A color in the array can either be a hex value or a text color
 		for (String colorString: inputArray) {
+			if (colorString == null) continue;
 			colorString = colorString.trim();
 			if (colorString.matches("^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6})$")) {
 				// We have a hex value with either 6 (rgb) or 8 (rgba) digits

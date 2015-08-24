@@ -93,6 +93,7 @@ public class StripeChart extends AbstractChartCustomGraphics<StripeLayer> {
 	public List<StripeLayer> getLayers(CyNetworkView networkView, View nodeView) { 
 		CyNetwork network = networkView.getModel();
 		int nStripes = colorList.size();
+		layers = new ArrayList<>();
 		for (int stripe = 0; stripe < nStripes; stripe++) {
 			Color color = colorList.get(stripe);
 

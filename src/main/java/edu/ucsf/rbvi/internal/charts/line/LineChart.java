@@ -116,6 +116,8 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 			// System.out.println("linechart: colorList = "+colorList);
 		}
 
+		layers = new ArrayList<>();
+
 		List<LineLayer> labelList = new ArrayList<LineLayer>();
 
 		double minValue = 0.000001;

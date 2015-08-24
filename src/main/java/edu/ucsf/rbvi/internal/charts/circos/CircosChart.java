@@ -173,6 +173,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		CyNetwork network = networkView.getModel();
 		if (!(nodeView.getModel() instanceof CyNode))
 				return null;
+		layers = new ArrayList<>();
 		CyNode node = (CyNode)nodeView.getModel();
 
 		List<List<Double>> valueList = null;

@@ -116,6 +116,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		if (!(nodeView.getModel() instanceof CyNode))
 			return null;
 
+		layers = new ArrayList<>();
 		CyNode node = (CyNode)nodeView.getModel();
 
 		// Create all of our pie slices. Each slice becomes a layer
@@ -182,9 +183,13 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			}
 		}
 
+		// System.out.println("Created "+layers.size()+" bar layers");
+
 		// Now add all of our labels so they will be on top of our slices
 		if (labelList != null && labelList.size() > 0)
 			layers.addAll(labelList);
+
+		// System.out.println("Created "+layers.size()+" total layers");
 
 		shapeLayers = layers;
 		return layers; 

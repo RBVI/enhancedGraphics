@@ -125,6 +125,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 		CyNetwork network = networkView.getModel();
 		if (!(nodeView.getModel() instanceof CyNode))
 				return null;
+		layers = new ArrayList<>();
 		CyNode node = (CyNode)nodeView.getModel();
 
 		// Create all of our pie slices. Each slice becomes a layer
