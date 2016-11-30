@@ -212,7 +212,7 @@ public class ViewUtils {
 		case ALIGN_MIDDLE:
 			// System.out.println("  Align = MIDDLE");
 			textStartX = pointX - textWidth/2;;
-			textStartY = pointY - textHeight/2;
+			textStartY = pointY + textHeight/2;
 			break;
 		case ALIGN_CENTER:
 			// System.out.println("  Align = CENTER");
@@ -274,14 +274,20 @@ public class ViewUtils {
 		return new Point2D.Double(lineStartX, lineStartY);
 	}
 
-	private static Rectangle2D positionAdjust(Rectangle2D bbox, double nodeHeight, double nodeWidth, Object pos) {
+	public static Point2D positionAdjust(Rectangle2D bbox, Rectangle2D textBox, 
+	                                     Object pos, Object anchor) {
 		if (pos == null)
-			return bbox;
+			return null;
 
-		double height = bbox.getHeight();
-		double width = bbox.getWidth();
+		Point2D anchorOffset = new Point2D.Double(0.0, 0.0);
+		if (anchor != null) {
+			anchorOffset = anchorOffset(textBox, anchor);
+		}
+
 		double x = bbox.getX();
 		double y = bbox.getY();
+		double nodeWidth = bbox.getWidth();
+		double nodeHeight = bbox.getHeight();
 
 		if (pos instanceof Position) {
 			Position p = (Position) pos;
@@ -291,28 +297,28 @@ public class ViewUtils {
 				x = nodeWidth/2;
 				break;
 			case WEST:
-				x = -nodeWidth*1.5;
+				x = -nodeWidth/2;
 				break;
 			case NORTH:
-				y = -nodeHeight*1.5;
+				y = -nodeHeight/2;
 				break;
 			case SOUTH:
 				y = nodeHeight/2;
 				break;
 			case NORTHEAST:
 				x = nodeWidth/2;
-				y = -nodeHeight*1.5;
+				y = -nodeHeight/2;
 				break;
 			case NORTHWEST:
-				x = -nodeWidth*1.5;
-				y = -nodeHeight*1.5;
+				x = -nodeWidth/2;
+				y = -nodeHeight/2;
 				break;
 			case SOUTHEAST:
 				x = nodeWidth/2;
 				y = nodeHeight/2;
 				break;
 			case SOUTHWEST:
-				x = -nodeWidth*1.5;
+				x = -nodeWidth/2;
 				y = nodeHeight/2;
 				break;
 			case CENTER:
@@ -323,7 +329,55 @@ public class ViewUtils {
 			y += ((Point2D.Double)pos).getY();
 		}
 
-		return new Rectangle2D.Double(x,y,width,height);
+		return new Point2D.Double(x+anchorOffset.getX(), y+anchorOffset.getY());
+	}
+
+	public static Point2D anchorOffset(Rectangle2D textBox, Object anchor) {
+		double x = textBox.getX();
+		double y = textBox.getY();
+		double textWidth = textBox.getWidth();
+		double textHeight = textBox.getHeight();
+
+		if (anchor instanceof Position) {
+			Position p = (Position) anchor;
+
+			switch (p) {
+			case EAST:
+				x = -textWidth/2;
+				break;
+			case WEST:
+				x = textWidth/2;
+				break;
+			case NORTH:
+				y = textHeight/2;
+				break;
+			case SOUTH:
+				y = -textHeight/2;
+				break;
+			case NORTHEAST:
+				x = -textWidth/2;
+				y = textHeight/2;
+				break;
+			case NORTHWEST:
+				x = textWidth/2;
+				y = textHeight/2;
+				break;
+			case SOUTHEAST:
+				x = -textWidth/2;
+				y = -textHeight/2;
+				break;
+			case SOUTHWEST:
+				x = textWidth/2;
+				y = -textHeight/2;
+				break;
+			case CENTER:
+			default:
+			}
+		} else if (anchor instanceof Point2D.Double) {
+			x += ((Point2D.Double)anchor).getX();
+			y += ((Point2D.Double)anchor).getY();
+		}
+		return new Point2D.Double(x,y);
 	}
 
 }

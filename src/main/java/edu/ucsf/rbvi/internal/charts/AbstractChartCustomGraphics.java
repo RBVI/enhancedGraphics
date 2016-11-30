@@ -31,6 +31,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.AbstractEnhancedCustomGraphics;
 abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer> 
                 extends AbstractEnhancedCustomGraphics<T> {
 	// Standard command strings
+	public static final String ANCHOR = "anchor";
 	public static final String ALL = "all";
 	public static final String ATTRIBUTELIST = "attributelist";
 	public static final String BORDERWIDTH = "borderwidth";
@@ -68,6 +69,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected int labelStyle = ViewUtils.DEFAULT_STYLE;
 	protected boolean normalized = false;
 	protected List<? extends PaintedShape> shapeLayers = null;
+	protected Object position = null;
+	protected Object anchor = null;
 
 	@Override
 	public Image getRenderedImage() {
@@ -179,12 +182,30 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		}
 
 		// Get our position
-		Object pos = null;
 		if (args.containsKey(POSITION)) {
-			String position = args.get(POSITION);
-			pos = ViewUtils.getPosition(position);
-			if (pos == null) {
-				logger.warn("Cannot parse "+POSITION+" from input '"+args.get(POSITION)+"'");
+			String pos = args.get(POSITION);
+			position = ViewUtils.getPosition(pos);
+			if (position == null) {
+				if (pos.indexOf(",") > 0) {
+					String[] point = pos.split(",");
+					if (point.length == 2) {
+						double x = Double.parseDouble(point[0]);
+						double y = Double.parseDouble(point[1]);
+						position = new Point2D.Double(x, y);
+					}
+				}
+				if (position == null) {
+					logger.warn("Cannot parse "+POSITION+" from input '"+pos+"'");
+					return;
+				}
+			}
+		}
+
+		if (args.containsKey(ANCHOR)) {
+			String a = args.get(ANCHOR);
+			anchor = ViewUtils.getPosition(a);
+			if (anchor == null) {
+				logger.warn("Cannot parse "+ANCHOR+" from input '"+a+"'");
 				return;
 			}
 		}
@@ -229,6 +250,22 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 	public List<Double> convertInputToDouble(String input) {
 		return parseStringList(input);
+	}
+
+	public String getLabelFromAttribute (CyNetwork network, CyNode node, 
+	                                     String attribute) {
+		if (attribute == null) return null;
+		CyRow row = network.getRow(node);
+		if (row == null) {
+			logger.warn("Cannot find row for node "+node);
+			return null;
+		}
+		Object label = row.getRaw(attribute);
+		if (label == null) {
+			logger.warn("Cannot find attribute '"+attribute+"' for node "+node);
+			return null;
+		}
+		return label.toString();
 	}
 
 	/**
@@ -684,7 +721,32 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		}
 	}
 
-	private List<Color> parseColorList(String[] inputArray)  {
+	public Color parseColor(String colorString)  {
+		if (colorString == null) return null;
+		colorString = colorString.trim();
+		if (colorString.matches("^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6})$")) {
+			// We have a hex value with either 6 (rgb) or 8 (rgba) digits
+			int r = Integer.parseInt(colorString.substring(1,3), 16);
+			int g = Integer.parseInt(colorString.substring(3,5), 16);
+			int b = Integer.parseInt(colorString.substring(5,7), 16);
+			if (colorString.length() > 7) {
+				int a = Integer.parseInt(colorString.substring(7,9), 16);
+				return new Color(r,g,b,a);
+			} else {
+				return new Color(r,g,b);
+			}
+		} else {
+			// Check for color string
+			Color c = ColorKeyword.getColor(colorString);
+			if (c == null) {
+				logger.warn("Can't find color '"+colorString+"'");
+				return null;
+			}
+			return c;
+		}
+	}
+
+	public List<Color> parseColorList(String[] inputArray)  {
 		List<Color> colors = new ArrayList<Color>();
 		// A color in the array can either be a hex value or a text color
 		for (String colorString: inputArray) {

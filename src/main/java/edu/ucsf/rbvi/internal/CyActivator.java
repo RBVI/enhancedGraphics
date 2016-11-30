@@ -16,6 +16,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.radial.RadialGradientCG
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.bar.BarChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.circos.CircosChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.heatstrip.HeatStripFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.label.LabelFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.line.LineChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie.PieChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe.StripeChartFactory;
@@ -46,6 +47,10 @@ public class CyActivator extends AbstractCyActivator {
 		CyCustomGraphicsFactory barChartFactory = new BarChartFactory();
 		Properties barChartProps = new Properties();
 		registerService(bc, barChartFactory, CyCustomGraphicsFactory.class, barChartProps);
+
+		CyCustomGraphicsFactory labelFactory = new LabelFactory();
+		Properties labelProps = new Properties();
+		registerService(bc, labelFactory, CyCustomGraphicsFactory.class, labelProps);
 
 		CyCustomGraphicsFactory lineChartFactory = new LineChartFactory();
 		Properties lineChartProps = new Properties();
