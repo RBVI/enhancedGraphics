@@ -125,8 +125,12 @@ public class LabelLayer implements PaintedShape {
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_MIDDLE;
 
 		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Rectangle2D textBounds = textShape.getBounds2D();
+		double pad = textBounds.getHeight()*.3;
+		Rectangle2D paddedBounds = new Rectangle2D.Double(textBounds.getX()-pad, textBounds.getY()-pad,
+			                                                textBounds.getWidth()+pad*2,textBounds.getHeight()+pad*2);
 
-		Point2D textBox = ViewUtils.positionAdjust(nodeBox, textShape.getBounds2D(), position, anchor);
+		Point2D textBox = ViewUtils.positionAdjust(nodeBox, paddedBounds, position, anchor);
 		if (textBox == null)
 			textBox = new Point2D.Double(0.0,0.0);
 
@@ -136,15 +140,14 @@ public class LabelLayer implements PaintedShape {
 		}
 
 		if (shadow) {
-			// Create a rounded rectangle 10% larger than the bounds
-			Rectangle2D bounds = textShape.getBounds2D();
-			double dw = bounds.getWidth()*0.1;
-			double dh = bounds.getHeight()*0.1;
-			double curve = Math.max(dw,dh);
-			RoundRectangle2D shadow = new RoundRectangle2D.Double(bounds.getX()-curve, bounds.getY()-curve,
-			                                                      bounds.getWidth()+curve*2,bounds.getHeight()+curve*2,
-			                                                      curve,curve);
-			color = new Color(255,255,255,100);
+			textBounds = textShape.getBounds2D();
+			pad = textBounds.getHeight()*.3;
+			RoundRectangle2D shadow = new RoundRectangle2D.Double(textBounds.getX()-pad, 
+			                                                      textBounds.getY()-pad,
+			                                                      textBounds.getWidth()+pad*2,
+			                                                      textBounds.getHeight()+pad*2,
+			                                                      pad*2,pad*2);
+			color = new Color(255,255,255,125);
 			return shadow;
 		}
 
