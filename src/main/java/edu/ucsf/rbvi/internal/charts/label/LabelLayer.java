@@ -63,13 +63,14 @@ public class LabelLayer implements PaintedShape {
 	private Font font;
 	private boolean shadow,outline;
 	private double angle;
+	private float strokeSize;
 	protected Rectangle2D bounds;
 	protected Rectangle2D nodeBox;
 	private Object position;
 	private Object anchor;
 
 	public LabelLayer(String label, Rectangle2D bbox, Object position, Object anchor,
-	                  Font font, Color labelColor, Color outlineColor, 
+	                  Font font, Color labelColor, Color outlineColor,
 	                  boolean shadow, boolean outline, double angle) {
 		this.label = label;
 		this.font = font;
@@ -79,11 +80,18 @@ public class LabelLayer implements PaintedShape {
 		this.anchor = anchor;
 		this.outlineColor = outlineColor;
 		this.shadow = shadow;
+
 		this.outline = outline;
 		this.angle = angle;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 		if (outline && outlineColor == null)
 			outlineColor = Color.BLACK;
+
+		if (outline) {
+			strokeSize = font.getSize2D()/12f;
+			// float size = font.getSize2D() - strokeSize*2f;
+			// this.font = font.deriveFont(size);
+		}
 	}
 
 	public Paint getPaint() {
@@ -99,13 +107,14 @@ public class LabelLayer implements PaintedShape {
 	}
 
 	public Stroke getStroke() {
-		if (outline)
-			return new BasicStroke(0.2f);
+		if (outline) {
+			return new BasicStroke(strokeSize);
+		}
 		return null;
 	}
 
 	public Paint getStrokePaint() {
-		return Color.BLACK;
+		return outlineColor;
 	}
 
 	public Rectangle2D getBounds2D() {
@@ -147,7 +156,6 @@ public class LabelLayer implements PaintedShape {
 			                                                      textBounds.getWidth()+pad*2,
 			                                                      textBounds.getHeight()+pad*2,
 			                                                      pad*2,pad*2);
-			color = new Color(255,255,255,125);
 			return shadow;
 		}
 

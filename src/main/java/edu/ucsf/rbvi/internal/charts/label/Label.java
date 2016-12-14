@@ -80,6 +80,7 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 	private static final String OUTLINE = "outline";
 	private static final String OUTLINECOLOR = "outlineColor";
 	private static final String SHADOW = "shadow";
+	private static final String SHADOWCOLOR = "shadowColor";
 
 	private Color color = null;
 	private double labelAngle = 0.0;
@@ -88,6 +89,7 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 	private boolean shadowLabel = false;
 	private boolean outlineLabel = false;
 	private Color outlineColor = null;
+	private Color shadowColor = null;
 
 	// Parse the input string, which is always of the form:
 	// label:
@@ -121,6 +123,18 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 
 		if (args.containsKey(SHADOW)) {
 			shadowLabel = getBooleanValue(args.get(SHADOW));
+		}
+
+		if (args.containsKey(SHADOWCOLOR)) {
+			shadowColor = parseColor(args.get(SHADOWCOLOR));
+			// Is the color opaque?  If so, make it translucent
+			if (shadowColor.getAlpha() == 255) {
+				shadowColor = new Color(shadowColor.getRed(), 
+				                        shadowColor.getGreen(), 
+				                        shadowColor.getBlue(), 125);
+			}
+		} else {
+			shadowColor = new Color(255,255,255,125);
 		}
 
 		if (args.containsKey(OUTLINE)) {
@@ -165,12 +179,14 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 			LabelLayer shadowLayer = null;
 
 			// Create the label
-			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, color, outlineColor,
+			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, 
+			                                       color, outlineColor,
 			                                       false, outlineLabel, labelAngle);
 
 			// Create the shadow
 			if (shadowLabel) {
-				shadowLayer = new LabelLayer(label, initialBox, position, anchor, font, color, outlineColor,
+				shadowLayer = new LabelLayer(label, initialBox, position, anchor, font, 
+				                             shadowColor, outlineColor,
 			                               true, false, labelAngle);
 			}
 
