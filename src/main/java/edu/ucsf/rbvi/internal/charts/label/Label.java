@@ -59,9 +59,11 @@ import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
+import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.AbstractChartCustomGraphics;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ShadowLayer;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 /**
@@ -70,26 +72,28 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
  * where value is numeric and the color is optional, but if specified, it must be one of
  * the named Java colors, hex RGB values, or hex RGBA values.
  */
-public class Label extends AbstractChartCustomGraphics<LabelLayer> {
+public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 	private static final String COLOR = "color";
 	// TODO
 	private static final String ANGLE = "angle";
 	private static final String ATTRIBUTE = "attribute";
+	private static final String BACKGROUND = "background";
+	private static final String BGCOLOR = "bgColor";
+	private static final String DROPSHADOW = "dropShadow";
 	private static final String LABEL = "label";
 	private static final String LABELOFFSET = "labeloffset";
 	private static final String OUTLINE = "outline";
 	private static final String OUTLINECOLOR = "outlineColor";
-	private static final String SHADOW = "shadow";
-	private static final String SHADOWCOLOR = "shadowColor";
 
 	private Color color = null;
 	private double labelAngle = 0.0;
 	private String labelAttribute = null;
 	private String label = null;
-	private boolean shadowLabel = false;
+	private boolean background = false;
+	private Color bgColor = null;
+	private boolean dropShadow = false;
 	private boolean outlineLabel = false;
 	private Color outlineColor = null;
-	private Color shadowColor = null;
 
 	// Parse the input string, which is always of the form:
 	// label:
@@ -121,20 +125,24 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 			label = args.get(LABEL);
 		}
 
-		if (args.containsKey(SHADOW)) {
-			shadowLabel = getBooleanValue(args.get(SHADOW));
+		if (args.containsKey(DROPSHADOW)) {
+			dropShadow = getBooleanValue(args.get(DROPSHADOW));
 		}
 
-		if (args.containsKey(SHADOWCOLOR)) {
-			shadowColor = parseColor(args.get(SHADOWCOLOR));
+		if (args.containsKey(BACKGROUND)) {
+			background = getBooleanValue(args.get(BACKGROUND));
+		}
+
+		if (args.containsKey(BGCOLOR)) {
+			bgColor = parseColor(args.get(BGCOLOR));
 			// Is the color opaque?  If so, make it translucent
-			if (shadowColor.getAlpha() == 255) {
-				shadowColor = new Color(shadowColor.getRed(), 
-				                        shadowColor.getGreen(), 
-				                        shadowColor.getBlue(), 125);
+			if (bgColor.getAlpha() == 255) {
+				bgColor = new Color(bgColor.getRed(), 
+				                    bgColor.getGreen(), 
+				                    bgColor.getBlue(), 125);
 			}
 		} else {
-			shadowColor = new Color(255,255,255,125);
+			bgColor = new Color(255,255,255,125);
 		}
 
 		if (args.containsKey(OUTLINE)) {
@@ -155,7 +163,7 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 
 	// public Image getRenderedImage() { return null; }
 
-	public List<LabelLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
+	public List<PaintedShape> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
 		if (!(nodeView.getModel() instanceof CyNode))
 				return null;
@@ -174,27 +182,34 @@ public class Label extends AbstractChartCustomGraphics<LabelLayer> {
 		}
 
 		Font font = getFont();
-		List<LabelLayer> labelLayers = new ArrayList<>();
+		List<PaintedShape> labelLayers = new ArrayList<>();
 		if (label != null && label.length() > 0) {
-			LabelLayer shadowLayer = null;
-
-			// Create the label
+			// Create the label (we'll add it at the end)
 			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, 
 			                                       color, outlineColor,
 			                                       false, outlineLabel, labelAngle);
 
-			// Create the shadow
-			if (shadowLabel) {
-				shadowLayer = new LabelLayer(label, initialBox, position, anchor, font, 
-				                             shadowColor, outlineColor,
-			                               true, false, labelAngle);
+			// Create the background
+			if (background) {
+				LabelLayer bgLayer = new LabelLayer(label, initialBox, position, anchor, font, 
+				                                    bgColor, outlineColor,
+			                                      true, false, labelAngle);
+				if (bgLayer != null)
+					labelLayers.add(bgLayer);
 			}
 
-			if (shadowLayer != null)
+			// Create the drop shadow
+			if (dropShadow) {
+				Shape textShape = labelLayer.getShape();
+				ShadowLayer shadowLayer = new ShadowLayer(textShape, (int)(textShape.getBounds2D().getHeight()*0.05));
 				labelLayers.add(shadowLayer);
+			}
 
 			if (labelLayer != null)
 				labelLayers.add(labelLayer);
+
+
+
 		}
 		shapeLayers = labelLayers;
 

@@ -32,6 +32,7 @@
  */
 package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -43,6 +44,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 
 // System imports
 import java.util.ArrayList;
@@ -378,6 +382,76 @@ public class ViewUtils {
 			y += ((Point2D.Double)anchor).getY();
 		}
 		return new Point2D.Double(x,y);
+	}
+
+	public static Shape copyShape(Shape shape) {
+		AffineTransform identity = new AffineTransform();
+		return identity.createTransformedShape(shape);
+	}
+
+	public static BufferedImage getShadow(Shape shape, int size) {
+		Rectangle2D shapeBounds = shape.getBounds2D();
+		BufferedImage image = new BufferedImage((int)shapeBounds.getWidth(),
+		                                        (int)shapeBounds.getHeight(),
+		                                        BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = image.createGraphics();
+		g2d.draw(shape);
+		g2d.dispose();
+		return createDropShadow(image, size);
+	}
+
+	public static BufferedImage createDropShadow(BufferedImage image, int size) {
+		BufferedImage shadow = new BufferedImage(image.getWidth() + 4 * size,
+		                                         image.getHeight() + 4 * size,
+		                                         BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g2 = shadow.createGraphics();
+		g2.drawImage(image, size * 2, size * 2, null);
+
+		g2.setComposite(AlphaComposite.SrcIn);
+		g2.setColor(Color.BLACK);
+		g2.fillRect(0, 0, shadow.getWidth(), shadow.getHeight()); 
+
+		g2.dispose();
+
+		shadow = getGaussianBlurFilter(size, true).filter(shadow, null);
+		shadow = getGaussianBlurFilter(size, false).filter(shadow, null);
+
+		return shadow;
+	}
+
+	public static ConvolveOp getGaussianBlurFilter(int radius, boolean horizontal) 
+	{
+		if (radius < 1) {
+			throw new IllegalArgumentException("Radius must be >= 1");
+		}
+
+		int size = radius * 2 + 1;
+		float[] data = new float[size];
+
+		float sigma = radius / 3.0f;
+		float twoSigmaSquare = 2.0f * sigma * sigma;
+		float sigmaRoot = (float) Math.sqrt(twoSigmaSquare * Math.PI);
+		float total = 0.0f;
+
+		for (int i = -radius; i <= radius; i++) {
+			float distance = i * i;
+			int index = i + radius;
+			data[index] = (float) Math.exp(-distance / twoSigmaSquare) / sigmaRoot;
+			total += data[index];
+		}
+
+		for (int i = 0; i < data.length; i++) {
+			data[i] /= total;
+		}
+
+		Kernel kernel = null;
+		if (horizontal) {
+			kernel = new Kernel(size, 1, data);
+		} else {
+			kernel = new Kernel(1, size, data);
+		}
+		return new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
 	}
 
 }
