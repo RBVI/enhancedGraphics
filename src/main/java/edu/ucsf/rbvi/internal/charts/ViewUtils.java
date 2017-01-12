@@ -391,13 +391,19 @@ public class ViewUtils {
 
 	public static BufferedImage getShadow(Shape shape, int size) {
 		Rectangle2D shapeBounds = shape.getBounds2D();
+		System.out.println("Shape bounds = "+shapeBounds);
+
 		BufferedImage image = new BufferedImage((int)shapeBounds.getWidth(),
 		                                        (int)shapeBounds.getHeight(),
 		                                        BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = image.createGraphics();
-		g2d.draw(shape);
+		g2d.translate(1+(int)(shapeBounds.getWidth()/2),1+(int)(shapeBounds.getHeight()/2));
+		g2d.setColor(Color.BLACK);
+		// g2d.draw(shape);
+		g2d.fill(shape);
 		g2d.dispose();
-		return createDropShadow(image, size);
+		return image;
+		// return createDropShadow(image, size);
 	}
 
 	public static BufferedImage createDropShadow(BufferedImage image, int size) {

@@ -66,6 +66,7 @@ public class LabelLayer implements PaintedShape {
 	private float strokeSize;
 	protected Rectangle2D bounds;
 	protected Rectangle2D nodeBox;
+	private Shape labelShape;
 	private Object position;
 	private Object anchor;
 
@@ -83,15 +84,21 @@ public class LabelLayer implements PaintedShape {
 
 		this.outline = outline;
 		this.angle = angle;
-		bounds = new Rectangle2D.Double(0,0,100,100);
+		bounds = new Rectangle2D.Double(0,0,50,50);
 		if (outline && outlineColor == null)
 			outlineColor = Color.BLACK;
 
 		if (outline) {
-			strokeSize = font.getSize2D()/12f;
-			// float size = font.getSize2D() - strokeSize*2f;
-			// this.font = font.deriveFont(size);
+			strokeSize = font.getSize2D()/20f;
 		}
+
+		labelShape = labelShape();
+	}
+
+	public LabelLayer copy() {
+		LabelLayer copy = new LabelLayer(label, nodeBox, position, anchor, font, 
+		                                 color, outlineColor, shadow, outline, angle);
+		return copy;
 	}
 
 	public Paint getPaint() {
@@ -103,7 +110,7 @@ public class LabelLayer implements PaintedShape {
 	}
 
 	public Shape getShape() {
-		return labelShape();
+		return labelShape;
 	}
 
 	public Stroke getStroke() {
@@ -122,8 +129,8 @@ public class LabelLayer implements PaintedShape {
 	}
 
 	public LabelLayer transform(AffineTransform xform) {
-		Shape newBounds = xform.createTransformedShape(bounds);
-		this.bounds = newBounds.getBounds2D();
+		labelShape = xform.createTransformedShape(labelShape);
+		bounds = xform.createTransformedShape(bounds).getBounds2D();
 		return this;
 	}
 

@@ -33,6 +33,7 @@
 package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -42,33 +43,31 @@ import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-import java.awt.image.BufferedImage;
-
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
 public class ShadowLayer implements PaintedShape {
 	protected Rectangle2D bounds;
-	protected BufferedImage image;
-	protected Shape shape;
+	protected Shape pShape;
 
-	public ShadowLayer(Shape shape, int size) {
-		this.bounds = shape.getBounds2D();
-		this.shape = ViewUtils.copyShape(shape);
-		this.image = ViewUtils.getShadow(this.shape, (int)(bounds.getHeight()*0.05));
+	public ShadowLayer(Shape shape, double offset) {
+		// Translate the shape (a little)
+		AffineTransform trans = AffineTransform.getTranslateInstance(offset,offset);
+		pShape = trans.createTransformedShape(shape);
+		bounds = new Rectangle2D.Double(0,0,50,50);
 	}
 
 	public Paint getPaint() {
-		return new TexturePaint(image, bounds);
+		return new Color(0,0,0,150);
 	}
 
 	public Paint getPaint(Rectangle2D bounds) {
-		return new TexturePaint(image, bounds);
+		return new Color(0,0,0,150);
 	}
 
 	public Shape getShape() {
-		return bounds;
+		return pShape;
 	}
 
 	public Stroke getStroke() {
@@ -84,10 +83,8 @@ public class ShadowLayer implements PaintedShape {
 	}
 
 	public ShadowLayer transform(AffineTransform xform) {
-		Shape newShape = xform.createTransformedShape(shape);
-		this.bounds = newShape.getBounds2D();
-		this.image = ViewUtils.getShadow(newShape, (int)(bounds.getHeight()*0.05));
-		this.shape = newShape;
+		pShape = xform.createTransformedShape(pShape);
+		bounds = xform.createTransformedShape(bounds).getBounds2D();
 		return this;
 	}
 }

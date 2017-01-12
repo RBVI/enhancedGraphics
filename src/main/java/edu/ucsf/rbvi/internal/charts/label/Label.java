@@ -200,15 +200,13 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 
 			// Create the drop shadow
 			if (dropShadow) {
-				Shape textShape = labelLayer.getShape();
-				ShadowLayer shadowLayer = new ShadowLayer(textShape, (int)(textShape.getBounds2D().getHeight()*0.05));
+				double offset = font.getSize2D()/15.0;
+				ShadowLayer shadowLayer = new ShadowLayer(labelLayer.getShape(), offset);
 				labelLayers.add(shadowLayer);
 			}
 
 			if (labelLayer != null)
 				labelLayers.add(labelLayer);
-
-
 
 		}
 		shapeLayers = labelLayers;
