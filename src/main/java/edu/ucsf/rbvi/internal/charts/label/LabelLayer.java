@@ -61,7 +61,7 @@ public class LabelLayer implements PaintedShape {
 	private Color color;
 	private Color outlineColor;
 	private Font font;
-	private boolean shadow,outline;
+	private boolean shadow,outline,rescale;
 	private double angle;
 	private float strokeSize;
 	protected Rectangle2D bounds;
@@ -72,7 +72,7 @@ public class LabelLayer implements PaintedShape {
 
 	public LabelLayer(String label, Rectangle2D bbox, Object position, Object anchor,
 	                  Font font, Color labelColor, Color outlineColor,
-	                  boolean shadow, boolean outline, double angle) {
+	                  boolean shadow, boolean outline, double angle, boolean rescale) {
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
@@ -81,6 +81,7 @@ public class LabelLayer implements PaintedShape {
 		this.anchor = anchor;
 		this.outlineColor = outlineColor;
 		this.shadow = shadow;
+		this.rescale = rescale;
 
 		this.outline = outline;
 		this.angle = angle;
@@ -97,7 +98,7 @@ public class LabelLayer implements PaintedShape {
 
 	public LabelLayer copy() {
 		LabelLayer copy = new LabelLayer(label, nodeBox, position, anchor, font, 
-		                                 color, outlineColor, shadow, outline, angle);
+		                                 color, outlineColor, shadow, outline, angle, rescale);
 		return copy;
 	}
 
@@ -129,8 +130,24 @@ public class LabelLayer implements PaintedShape {
 	}
 
 	public LabelLayer transform(AffineTransform xform) {
-		labelShape = xform.createTransformedShape(labelShape);
 		bounds = xform.createTransformedShape(bounds).getBounds2D();
+		if (!rescale) return this;
+
+		double[] matrix = new double[6];
+		xform.getMatrix(matrix);
+
+		// Make sure the scale factors are equal (no weird stretched text!)
+		double scale = matrix[0];
+		if (matrix[0] != matrix[3]) {
+			scale = Math.min(matrix[0], matrix[3]);
+		}
+
+		matrix[0] = scale;
+		matrix[3] = scale;
+
+		AffineTransform newXform = new AffineTransform(matrix);
+
+		labelShape = newXform.createTransformedShape(labelShape);
 		return this;
 	}
 

@@ -84,6 +84,7 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 	private static final String LABELOFFSET = "labeloffset";
 	private static final String OUTLINE = "outline";
 	private static final String OUTLINECOLOR = "outlineColor";
+	private static final String RESCALE = "rescale";
 
 	private Color color = null;
 	private double labelAngle = 0.0;
@@ -94,6 +95,7 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 	private boolean dropShadow = false;
 	private boolean outlineLabel = false;
 	private Color outlineColor = null;
+	private boolean rescale = false;
 
 	// Parse the input string, which is always of the form:
 	// label:
@@ -131,6 +133,10 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 
 		if (args.containsKey(BACKGROUND)) {
 			background = getBooleanValue(args.get(BACKGROUND));
+		}
+
+		if (args.containsKey(RESCALE)) {
+			rescale = getBooleanValue(args.get(RESCALE));
 		}
 
 		if (args.containsKey(BGCOLOR)) {
@@ -187,13 +193,13 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 			// Create the label (we'll add it at the end)
 			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, 
 			                                       color, outlineColor,
-			                                       false, outlineLabel, labelAngle);
+			                                       false, outlineLabel, labelAngle, rescale);
 
 			// Create the background
 			if (background) {
 				LabelLayer bgLayer = new LabelLayer(label, initialBox, position, anchor, font, 
 				                                    bgColor, outlineColor,
-			                                      true, false, labelAngle);
+			                                      true, false, labelAngle, rescale);
 				if (bgLayer != null)
 					labelLayers.add(bgLayer);
 			}
@@ -201,7 +207,7 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 			// Create the drop shadow
 			if (dropShadow) {
 				double offset = font.getSize2D()/15.0;
-				ShadowLayer shadowLayer = new ShadowLayer(labelLayer.getShape(), offset);
+				ShadowLayer shadowLayer = new ShadowLayer(labelLayer.getShape(), offset, rescale);
 				labelLayers.add(shadowLayer);
 			}
 

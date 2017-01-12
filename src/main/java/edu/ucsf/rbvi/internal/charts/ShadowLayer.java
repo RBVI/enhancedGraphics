@@ -50,12 +50,14 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 public class ShadowLayer implements PaintedShape {
 	protected Rectangle2D bounds;
 	protected Shape pShape;
+	protected boolean rescale;
 
-	public ShadowLayer(Shape shape, double offset) {
+	public ShadowLayer(Shape shape, double offset, boolean rescale) {
 		// Translate the shape (a little)
 		AffineTransform trans = AffineTransform.getTranslateInstance(offset,offset);
 		pShape = trans.createTransformedShape(shape);
 		bounds = new Rectangle2D.Double(0,0,50,50);
+		this.rescale = rescale;
 	}
 
 	public Paint getPaint() {
@@ -83,8 +85,25 @@ public class ShadowLayer implements PaintedShape {
 	}
 
 	public ShadowLayer transform(AffineTransform xform) {
-		pShape = xform.createTransformedShape(pShape);
 		bounds = xform.createTransformedShape(bounds).getBounds2D();
+		if (!rescale)
+			return this;
+
+		double[] matrix = new double[6];
+		xform.getMatrix(matrix);
+
+		// Make sure the scale factors are equal (no weird stretched text!)
+		double scale = matrix[0];
+		if (matrix[0] != matrix[3]) {
+			scale = Math.min(matrix[0], matrix[3]);
+		}
+
+		matrix[0] = scale;
+		matrix[3] = scale;
+
+		AffineTransform newXform = new AffineTransform(matrix);
+
+		pShape = newXform.createTransformedShape(pShape);
 		return this;
 	}
 }
