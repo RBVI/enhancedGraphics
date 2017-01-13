@@ -1,5 +1,7 @@
 package edu.ucsf.rbvi.enhancedGraphics.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.osgi.framework.BundleContext;
@@ -10,6 +12,11 @@ import org.apache.log4j.Logger;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphicsFactory;
+import org.cytoscape.work.TaskFactory;
+
+import static org.cytoscape.work.ServiceProperties.COMMAND;
+import static org.cytoscape.work.ServiceProperties.COMMAND_DESCRIPTION;
+import static org.cytoscape.work.ServiceProperties.COMMAND_NAMESPACE;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.linear.LinearGradientCGFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.gradients.radial.RadialGradientCGFactory;
@@ -20,6 +27,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.label.LabelFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.line.LineChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie.PieChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe.StripeChartFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.tasks.ListChartsTaskFactory;
 
 
 public class CyActivator extends AbstractCyActivator {
@@ -32,47 +40,40 @@ public class CyActivator extends AbstractCyActivator {
 		// We'll eventually need the CyApplicationManager to get current network, etc.
 		CyApplicationManager cyApplicationManagerServiceRef = getService(bc,CyApplicationManager.class);
 
-		CyCustomGraphicsFactory linGradFactory = new LinearGradientCGFactory();
-		Properties linGradProps = new Properties();
-		registerService(bc, linGradFactory, CyCustomGraphicsFactory.class, linGradProps);
+		List<CyCustomGraphicsFactory> charts = new ArrayList<CyCustomGraphicsFactory>();
+		charts.add(new LinearGradientCGFactory());
 
-		CyCustomGraphicsFactory radGradFactory = new RadialGradientCGFactory();
-		Properties radGradProps = new Properties();
-		registerService(bc, radGradFactory, CyCustomGraphicsFactory.class, radGradProps);
+		charts.add(new RadialGradientCGFactory());
 
-		CyCustomGraphicsFactory pieChartFactory = new PieChartFactory();
-		Properties pieChartProps = new Properties();
-		registerService(bc, pieChartFactory, CyCustomGraphicsFactory.class, pieChartProps);
+		charts.add(new PieChartFactory());
 
-		CyCustomGraphicsFactory barChartFactory = new BarChartFactory();
-		Properties barChartProps = new Properties();
-		registerService(bc, barChartFactory, CyCustomGraphicsFactory.class, barChartProps);
+		charts.add(new BarChartFactory());
 
-		CyCustomGraphicsFactory labelFactory = new LabelFactory();
-		Properties labelProps = new Properties();
-		registerService(bc, labelFactory, CyCustomGraphicsFactory.class, labelProps);
+		charts.add(new LabelFactory());
 
-		CyCustomGraphicsFactory lineChartFactory = new LineChartFactory();
-		Properties lineChartProps = new Properties();
-		registerService(bc, lineChartFactory, CyCustomGraphicsFactory.class, lineChartProps);
+		charts.add(new LineChartFactory());
 
-		CyCustomGraphicsFactory stripeChartFactory = new StripeChartFactory();
-		Properties stripeChartProps = new Properties();
-		registerService(bc, stripeChartFactory, CyCustomGraphicsFactory.class, stripeChartProps);
+		charts.add(new StripeChartFactory());
 
-		CyCustomGraphicsFactory heatStripChartFactory = new HeatStripFactory();
-		Properties heatStripChartProps = new Properties();
-		registerService(bc, heatStripChartFactory, CyCustomGraphicsFactory.class, heatStripChartProps);
+		charts.add(new HeatStripFactory());
 
-		CyCustomGraphicsFactory circosChartFactory = new CircosChartFactory();
-		Properties circosChartProps = new Properties();
-		registerService(bc, circosChartFactory, CyCustomGraphicsFactory.class, circosChartProps);
+		charts.add(new CircosChartFactory());
+
+		for (CyCustomGraphicsFactory chart: charts) {
+				Properties chartProps = new Properties();
+				registerService(bc, chart, CyCustomGraphicsFactory.class, chartProps);
+		}
+
+		{
+			ListChartsTaskFactory listFactory = new ListChartsTaskFactory(charts);
+			Properties listChartProps = new Properties();
+			listChartProps.setProperty(COMMAND_NAMESPACE, "enhancedGraphics");
+			listChartProps.setProperty(COMMAND, "list");
+			registerService(bc, listFactory, TaskFactory.class, listChartProps);
+		}
 
 		// CyCustomGraphicsFactory clearFactory = new ClearFactory();
-		// Properties clearProps = new Properties();
-		// registerService(bc, clearFactory, CyCustomGraphicsFactory.class, clearProps);
 
-		// CyCustomGraphicsFactory stripChartFactory = new StripChartCustomGraphicsFactory();
 		logger.info("Enhanced Custom Graphics started");
 	}
 }
