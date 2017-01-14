@@ -28,6 +28,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.line.LineChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.pie.PieChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.stripe.StripeChartFactory;
 import edu.ucsf.rbvi.enhancedGraphics.internal.tasks.ListChartsTaskFactory;
+import edu.ucsf.rbvi.enhancedGraphics.internal.tasks.VersionTaskFactory;
 
 
 public class CyActivator extends AbstractCyActivator {
@@ -39,6 +40,8 @@ public class CyActivator extends AbstractCyActivator {
 	public void start(BundleContext bc) {
 		// We'll eventually need the CyApplicationManager to get current network, etc.
 		CyApplicationManager cyApplicationManagerServiceRef = getService(bc,CyApplicationManager.class);
+
+		String version = bc.getBundle().getVersion().toString();
 
 		List<CyCustomGraphicsFactory> charts = new ArrayList<CyCustomGraphicsFactory>();
 		charts.add(new LinearGradientCGFactory());
@@ -70,6 +73,14 @@ public class CyActivator extends AbstractCyActivator {
 			listChartProps.setProperty(COMMAND_NAMESPACE, "enhancedGraphics");
 			listChartProps.setProperty(COMMAND, "list");
 			registerService(bc, listFactory, TaskFactory.class, listChartProps);
+		}
+		
+		{
+			VersionTaskFactory versionFactory = new VersionTaskFactory(version);
+			Properties versionProps = new Properties();
+			versionProps.setProperty(COMMAND_NAMESPACE, "enhancedGraphics");
+			versionProps.setProperty(COMMAND, "version");
+			registerService(bc, versionFactory, TaskFactory.class, versionProps);
 		}
 
 		// CyCustomGraphicsFactory clearFactory = new ClearFactory();

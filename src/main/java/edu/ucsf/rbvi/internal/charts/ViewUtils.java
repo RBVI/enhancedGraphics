@@ -460,4 +460,25 @@ public class ViewUtils {
 		return new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
 	}
 
+	public static Shape createPossiblyTransformedShape(AffineTransform xform, Shape shape, boolean rescale) {
+		double[] matrix = new double[6];
+		xform.getMatrix(matrix);
+
+		// Make sure the scale factors are equal (no weird stretched text!)
+		if (rescale) {
+			double scale = matrix[0];
+			if (matrix[0] != matrix[3]) {
+				scale = Math.min(matrix[0], matrix[3]);
+			}
+			matrix[0] = scale;
+			matrix[3] = scale;
+		} else {
+			matrix[0] = 1.0;
+			matrix[3] = 1.0;
+		}
+
+		AffineTransform newXform = new AffineTransform(matrix);
+
+		return newXform.createTransformedShape(shape);
+	}
 }

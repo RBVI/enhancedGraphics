@@ -86,24 +86,7 @@ public class ShadowLayer implements PaintedShape {
 
 	public ShadowLayer transform(AffineTransform xform) {
 		bounds = xform.createTransformedShape(bounds).getBounds2D();
-		if (!rescale)
-			return this;
-
-		double[] matrix = new double[6];
-		xform.getMatrix(matrix);
-
-		// Make sure the scale factors are equal (no weird stretched text!)
-		double scale = matrix[0];
-		if (matrix[0] != matrix[3]) {
-			scale = Math.min(matrix[0], matrix[3]);
-		}
-
-		matrix[0] = scale;
-		matrix[3] = scale;
-
-		AffineTransform newXform = new AffineTransform(matrix);
-
-		pShape = newXform.createTransformedShape(pShape);
+		pShape = ViewUtils.createPossiblyTransformedShape(xform, pShape, rescale);
 		return this;
 	}
 }
