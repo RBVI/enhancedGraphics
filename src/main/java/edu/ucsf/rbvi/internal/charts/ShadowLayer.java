@@ -33,9 +33,12 @@
 package edu.ucsf.rbvi.enhancedGraphics.internal.charts;
 
 import java.awt.Color;
+import java.awt.BasicStroke;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
@@ -43,21 +46,84 @@ import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
+
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
+import org.cytoscape.model.CyIdentifiable;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.View;
+import org.cytoscape.view.presentation.customgraphics.Cy2DGraphicLayer;
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 
-public class ShadowLayer implements PaintedShape {
+public class ShadowLayer implements Cy2DGraphicLayer {
 	protected Rectangle2D bounds;
 	protected Shape pShape;
 	protected boolean rescale;
+	protected double radius = 10.0;
+	protected double upscale = 10.0;
+	protected static int fileNumber = 0;
 
 	public ShadowLayer(Shape shape, double offset, boolean rescale) {
-		// Translate the shape (a little)
-		AffineTransform trans = AffineTransform.getTranslateInstance(offset,offset);
-		pShape = trans.createTransformedShape(shape);
+		pShape = shape;
 		bounds = new Rectangle2D.Double(0,0,50,50);
 		this.rescale = rescale;
+	}
+
+	public void draw(Graphics2D g, Shape shape, CyNetworkView networkView, View<? extends CyIdentifiable> view) {
+		// Scale up the shape so we have room to create the gaussian
+		AffineTransform scale = AffineTransform.getScaleInstance(upscale,upscale);
+		Shape lShape = scale.createTransformedShape(pShape);
+		Rectangle2D lShapeBounds = lShape.getBounds2D();
+
+		// Create an image to hold the blur
+		BufferedImage image = new BufferedImage((int)(lShapeBounds.getWidth()+radius*4),
+		                                        (int)(lShapeBounds.getHeight()+radius*4),
+																						BufferedImage.TYPE_INT_ARGB);
+
+		AffineTransform trans = AffineTransform.getTranslateInstance(-lShapeBounds.getX()+radius*2.4,
+		                                                             -lShapeBounds.getY()+radius*2.4);
+		Shape gShape = trans.createTransformedShape(lShape);
+
+		// Draw our shape
+		Graphics2D g2 = image.createGraphics();
+		g2.setPaint(getPaint());
+		g2.draw(gShape);
+		g2.fill(gShape);
+		g2.dispose();
+
+		/*
+		try {
+			ImageIO.write(image, "png", new File("/Users/scooter/beforeImage"+fileNumber+".png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		*/
+
+		// Blur it
+		image = getGaussianBlurFilter((int)radius, true).filter(image, null);
+		image = getGaussianBlurFilter((int)radius, false).filter(image, null);
+
+		/*
+		try {
+			ImageIO.write(image, "png", new File("/Users/scooter/image"+fileNumber+".png"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		fileNumber++;
+		*/
+
+		// Now draw the shape on the canvas.
+		g.drawImage(image, (int)(pShape.getBounds2D().getX()-radius*2/upscale), 
+		                   (int)(pShape.getBounds2D().getY()-radius*2/upscale), 
+		                   (int)(pShape.getBounds2D().getWidth()+(radius*4/upscale)+.5),
+										   (int)(pShape.getBounds2D().getHeight()+(radius*4/upscale)+.5), null);
 	}
 
 	public Paint getPaint() {
@@ -89,4 +155,51 @@ public class ShadowLayer implements PaintedShape {
 		pShape = ViewUtils.createPossiblyTransformedShape(xform, pShape, rescale);
 		return this;
 	}
+
+	private BufferedImage changeImageWidth(BufferedImage image, int width) {
+		float ratio = (float) image.getWidth() / (float) image.getHeight();
+		int height = (int) (width / ratio);
+
+		BufferedImage temp = new BufferedImage(width, height, image.getType());
+		Graphics2D g2 = temp.createGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.drawImage(image, 0, 0, temp.getWidth(), temp.getHeight(), null);
+		g2.dispose();
+
+		return temp;
+	}
+
+	private ConvolveOp getGaussianBlurFilter(int radius, boolean horizontal) {
+		if (radius < 1) {
+			throw new IllegalArgumentException("Radius must be >= 1");
+		}
+
+		int size = radius * 2 + 1;
+		float[] data = new float[size];
+
+		float sigma = radius / 3.0f;
+		float twoSigmaSquare = 2.0f * sigma * sigma;
+		float sigmaRoot = (float) Math.sqrt(twoSigmaSquare * Math.PI);
+		float total = 0.0f;
+
+		for (int i = -radius; i <= radius; i++) {
+			float distance = i * i;
+			int index = i + radius;
+			data[index] = (float) Math.exp(-distance / twoSigmaSquare) / sigmaRoot;
+			total += data[index];
+		}
+
+		for (int i = 0; i < data.length; i++) {
+			data[i] /= total;
+		}
+
+		Kernel kernel = null;
+		if (horizontal) {
+			kernel = new Kernel(size, 1, data);
+		} else {
+			kernel = new Kernel(1, size, data);
+		}
+		return new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
+	}
+
 }

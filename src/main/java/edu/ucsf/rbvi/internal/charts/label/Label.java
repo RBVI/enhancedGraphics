@@ -58,7 +58,9 @@ import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
+import org.cytoscape.view.presentation.customgraphics.CustomGraphicLayer;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
+import org.cytoscape.view.presentation.customgraphics.Cy2DGraphicLayer;
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 
@@ -72,7 +74,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
  * where value is numeric and the color is optional, but if specified, it must be one of
  * the named Java colors, hex RGB values, or hex RGBA values.
  */
-public class Label extends AbstractChartCustomGraphics<PaintedShape> {
+public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 	private static final String COLOR = "color";
 	// TODO
 	private static final String ANGLE = "angle";
@@ -169,7 +171,7 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 
 	// public Image getRenderedImage() { return null; }
 
-	public List<PaintedShape> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
+	public List<CustomGraphicLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
 		if (!(nodeView.getModel() instanceof CyNode))
 				return null;
@@ -188,7 +190,7 @@ public class Label extends AbstractChartCustomGraphics<PaintedShape> {
 		}
 
 		Font font = getFont();
-		List<PaintedShape> labelLayers = new ArrayList<>();
+		List<CustomGraphicLayer> labelLayers = new ArrayList<>();
 		if (label != null && label.length() > 0) {
 			// Create the label (we'll add it at the end)
 			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, 

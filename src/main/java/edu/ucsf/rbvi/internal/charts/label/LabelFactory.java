@@ -13,17 +13,17 @@ public class LabelFactory implements CyCustomGraphicsFactory {
 	public LabelFactory() {
 	}
 
-	public CyCustomGraphics<PaintedShape> getInstance(String input) {
+	public CyCustomGraphics<CustomGraphicLayer> getInstance(String input) {
 		return new Label(input);
 	}
 
-	public CyCustomGraphics<PaintedShape> getInstance(URL input) { return null; }
+	public CyCustomGraphics<CustomGraphicLayer> getInstance(URL input) { return null; }
 
 	public String getPrefix() { return "label"; }
 
 	public Class<? extends CyCustomGraphics> getSupportedClass() { return TARGET_CLASS; }
 
-	public CyCustomGraphics<PaintedShape> parseSerializableString(String string) { return null; }
+	public CyCustomGraphics<CustomGraphicLayer> parseSerializableString(String string) { return null; }
 
 	public boolean supportsMime(String mimeType) { return false; }
 }

@@ -24,6 +24,7 @@ import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
 
 import org.cytoscape.view.presentation.customgraphics.CustomGraphicLayer;
+import org.cytoscape.view.presentation.customgraphics.Cy2DGraphicLayer;
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.AbstractEnhancedCustomGraphics;
@@ -68,7 +69,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected String labelFont = ViewUtils.DEFAULT_FONT;
 	protected int labelStyle = ViewUtils.DEFAULT_STYLE;
 	protected boolean normalized = false;
-	protected List<? extends PaintedShape> shapeLayers = null;
+	protected List<? extends CustomGraphicLayer> shapeLayers = null;
 	protected Object position = null;
 	protected Object anchor = null;
 
@@ -78,9 +79,9 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 		// First, get our bounding box
 		Rectangle2D bounds = new Rectangle2D.Double();
-		for (PaintedShape ps: shapeLayers) {
-			Shape shape = ps.getShape();
-			bounds = bounds.createUnion(shape.getBounds2D());
+		for (CustomGraphicLayer layer: shapeLayers) {
+			// Shape shape = ps.getShape();
+			bounds = bounds.createUnion(layer.getBounds2D());
 		}
 
 		// Now, create the image
@@ -89,17 +90,21 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		Graphics2D g2 = image.createGraphics();
 		g2.translate(-bounds.getX()*4, -bounds.getY()*4);
 		g2.scale(4.0,4.0);
-		for (PaintedShape ps: shapeLayers) {
-			Shape shape = ps.getShape();
-			if (ps.getStroke() != null) {
-				Paint strokePaint = ps.getStrokePaint();
-				if (strokePaint == null) strokePaint = Color.BLACK;
-				g2.setPaint(strokePaint);
-				g2.setStroke(ps.getStroke());
-				g2.draw(shape);
+		for (CustomGraphicLayer layer: shapeLayers) {
+			if (layer instanceof PaintedShape) {
+				PaintedShape ps = (PaintedShape)layer;
+				Shape shape = ps.getShape();
+				if (ps.getStroke() != null) {
+					Paint strokePaint = ps.getStrokePaint();
+					if (strokePaint == null) strokePaint = Color.BLACK;
+					g2.setPaint(strokePaint);
+					g2.setStroke(ps.getStroke());
+					g2.draw(shape);
+				}
+				g2.setPaint(ps.getPaint());
+				g2.fill(shape);
+			} else if (layer instanceof Cy2DGraphicLayer) {
 			}
-			g2.setPaint(ps.getPaint());
-			g2.fill(shape);
 		}
 		return image;
 	}
