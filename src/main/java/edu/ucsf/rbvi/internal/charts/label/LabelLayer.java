@@ -63,7 +63,7 @@ public class LabelLayer implements PaintedShape {
 	private Color outlineColor;
 	private Font font;
 	private boolean shadow,outline,rescale;
-	private double angle;
+	private double angle,outlineWidth;
 	private float strokeSize;
 	protected Rectangle2D bounds;
 	protected Rectangle2D nodeBox;
@@ -72,7 +72,7 @@ public class LabelLayer implements PaintedShape {
 	private Object anchor;
 
 	public LabelLayer(String label, Rectangle2D bbox, Object position, Object anchor,
-	                  Font font, Color labelColor, Color outlineColor,
+	                  Font font, Color labelColor, Color outlineColor, double outlineWidth, 
 	                  boolean shadow, boolean outline, double angle, boolean rescale) {
 		this.label = label;
 		this.font = font;
@@ -81,6 +81,7 @@ public class LabelLayer implements PaintedShape {
 		this.position = position;
 		this.anchor = anchor;
 		this.outlineColor = outlineColor;
+		this.outlineWidth = outlineWidth;
 		this.shadow = shadow;
 		this.rescale = rescale;
 
@@ -91,7 +92,7 @@ public class LabelLayer implements PaintedShape {
 			outlineColor = Color.BLACK;
 
 		if (outline) {
-			strokeSize = font.getSize2D()/20f;
+			strokeSize = (float)outlineWidth*font.getSize2D()/20f;
 		}
 
 		labelShape = labelShape();
@@ -99,7 +100,7 @@ public class LabelLayer implements PaintedShape {
 
 	public LabelLayer copy() {
 		LabelLayer copy = new LabelLayer(label, nodeBox, position, anchor, font, 
-		                                 color, outlineColor, shadow, outline, angle, rescale);
+		                                 color, outlineColor, outlineWidth, shadow, outline, angle, rescale);
 		return copy;
 	}
 
@@ -117,7 +118,7 @@ public class LabelLayer implements PaintedShape {
 
 	public Stroke getStroke() {
 		if (outline) {
-			return new BasicStroke(strokeSize);
+			return new BasicStroke(strokeSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 		}
 		return null;
 	}
