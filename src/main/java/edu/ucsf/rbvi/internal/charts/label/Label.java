@@ -83,7 +83,7 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 	private static final String BGCOLOR = "bgColor";
 	private static final String DROPSHADOW = "dropShadow";
 	private static final String LABEL = "label";
-	private static final String LABELOFFSET = "labeloffset";
+	private static final String LABELALIGNMENT = "labelAlignment";
 	private static final String OUTLINE = "outline";
 	private static final String OUTLINECOLOR = "outlineColor";
 	private static final String OUTLINETRANS = "outlineTransparency";
@@ -94,6 +94,7 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 	private double labelAngle = 0.0;
 	private String labelAttribute = null;
 	private String label = null;
+	private ViewUtils.TextAlignment labelAlignment = ViewUtils.TextAlignment.ALIGN_CENTER;
 	private boolean background = false;
 	private Color bgColor = null;
 	private boolean dropShadow = false;
@@ -132,6 +133,12 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 			label = args.get(LABEL);
 		}
 
+		if (args.containsKey(LABELALIGNMENT)) {
+			String lavelAlignArg = args.get(LABELALIGNMENT);
+			if (ViewUtils.textAlignmentMapping.containsKey(lavelAlignArg)) 
+				labelAlignment = ViewUtils.textAlignmentMapping.get(lavelAlignArg);
+		}
+		
 		if (args.containsKey(DROPSHADOW)) {
 			dropShadow = getBooleanValue(args.get(DROPSHADOW));
 		}
@@ -210,13 +217,13 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 		if (label != null && label.length() > 0) {
 			// Create the label (we'll add it at the end)
 			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, 
-			                                       color, outlineColor, outlineWidth,
+			                                       labelAlignment, color, outlineColor, outlineWidth, 
 			                                       false, outlineLabel, labelAngle, rescale);
 
 			// Create the background
 			if (background) {
 				LabelLayer bgLayer = new LabelLayer(label, initialBox, position, anchor, font, 
-				                                    bgColor, outlineColor, outlineWidth,
+				                                    labelAlignment, bgColor, outlineColor, outlineWidth,
 			                                      true, false, labelAngle, rescale);
 				if (bgLayer != null)
 					labelLayers.add(bgLayer);

@@ -37,22 +37,13 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
-
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import org.cytoscape.view.presentation.customgraphics.Cy2DGraphicLayer;
 import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
@@ -60,6 +51,7 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 public class LabelLayer implements PaintedShape {
 	private String label;
 	private Color color;
+	private ViewUtils.TextAlignment labelAlignment;
 	private Color outlineColor;
 	private Font font;
 	private boolean shadow,outline,rescale;
@@ -72,10 +64,11 @@ public class LabelLayer implements PaintedShape {
 	private Object anchor;
 
 	public LabelLayer(String label, Rectangle2D bbox, Object position, Object anchor,
-	                  Font font, Color labelColor, Color outlineColor, double outlineWidth, 
+	                  Font font, ViewUtils.TextAlignment labelAlignment, Color labelColor, Color outlineColor, double outlineWidth,
 	                  boolean shadow, boolean outline, double angle, boolean rescale) {
 		this.label = label;
 		this.font = font;
+		this.labelAlignment = labelAlignment;
 		this.color = labelColor;
 		this.nodeBox = bbox;
 		this.position = position;
@@ -99,7 +92,7 @@ public class LabelLayer implements PaintedShape {
 	}
 
 	public LabelLayer copy() {
-		LabelLayer copy = new LabelLayer(label, nodeBox, position, anchor, font, 
+		LabelLayer copy = new LabelLayer(label, nodeBox, position, anchor, font, labelAlignment, 
 		                                 color, outlineColor, outlineWidth, shadow, outline, angle, rescale);
 		return copy;
 	}
@@ -141,7 +134,7 @@ public class LabelLayer implements PaintedShape {
 		// System.out.println("labelShape: bounds = "+bounds);
 
 		// System.out.println("Label = "+label);
-		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_MIDDLE;
+		// ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_MIDDLE;
 
 		Shape textShape = ViewUtils.getLabelShape(label, font);
 		Rectangle2D textBounds = textShape.getBounds2D();
@@ -153,7 +146,7 @@ public class LabelLayer implements PaintedShape {
 		if (textBox == null)
 			textBox = new Point2D.Double(0.0,0.0);
 
-		textShape = ViewUtils.positionLabel(textShape, textBox, tAlign, 0.0, 0.0, 0.0);
+		textShape = ViewUtils.positionLabel(textShape, textBox, labelAlignment, 0.0, 0.0, 0.0);
 		if (textShape == null) {
 			return null;
 		}

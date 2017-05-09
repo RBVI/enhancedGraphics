@@ -47,6 +47,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
+import java.util.HashMap;
+import java.util.Map;
 
 // System imports
 import java.util.ArrayList;
@@ -136,6 +138,19 @@ public class ViewUtils {
 
 	public static enum TextAlignment {ALIGN_NONE, ALIGN_LEFT, ALIGN_CENTER, ALIGN_CENTER_TOP, 
 	                                  ALIGN_RIGHT, ALIGN_CENTER_BOTTOM, ALIGN_MIDDLE};
+
+	public static final HashMap<String, ViewUtils.TextAlignment> textAlignmentMapping;
+
+	static {
+		textAlignmentMapping = new HashMap<String, ViewUtils.TextAlignment>(8);
+		textAlignmentMapping.put("none", TextAlignment.ALIGN_NONE);
+		textAlignmentMapping.put("left", TextAlignment.ALIGN_LEFT);
+		textAlignmentMapping.put("center", TextAlignment.ALIGN_CENTER);
+		textAlignmentMapping.put("center_top", TextAlignment.ALIGN_CENTER_TOP);
+		textAlignmentMapping.put("right", TextAlignment.ALIGN_RIGHT);
+		textAlignmentMapping.put("center_bottom", TextAlignment.ALIGN_CENTER_BOTTOM);
+		textAlignmentMapping.put("middle", TextAlignment.ALIGN_MIDDLE);
+	};
 
 	public static Shape getLabelShape(String label, Font font) {
 		// Get the canvas so that we can find the graphics context
