@@ -77,7 +77,8 @@ public class CircosLayer implements PaintedShape {
 	private int nCircles = 0;
 	protected Rectangle2D bounds;
 
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, Color color, double strokeWidth) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, 
+	                   double arc, Color color, double strokeWidth) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
@@ -88,7 +89,8 @@ public class CircosLayer implements PaintedShape {
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, String label, Font font, Color labelColor) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, 
+	                   String label, Font font, Color labelColor) {
 		labelLayer = true;
 		labelSlice = true;
 		this.arcStart = arcStart;
@@ -301,19 +303,28 @@ public class CircosLayer implements PaintedShape {
 	private Shape labelShape() {
 		// System.out.println("labelShape: bounds = "+bounds);
 		double midpointAngle = arcStart + arc/2;
+		// double x = bounds.getX()-bounds.getWidth()*radiusStart/2;
+		// double y = bounds.getY()-bounds.getHeight()*radiusStart/2;
+		// Rectangle2D startPosition = new Rectangle2D.Double(x,y);
+		//
+		double width = bounds.getWidth()*(radiusStart+circleWidth/2);
+		double height = bounds.getHeight()*(radiusStart+circleWidth/2);
+		double x = bounds.getX();
+		double y = bounds.getY();
+		Rectangle2D labelBounds = new Rectangle2D.Double(x, y, width, height);
 
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
 
 		Shape textShape = ViewUtils.getLabelShape(label, font);
 
-		Point2D labelPosition = getLabelPosition(bounds, midpointAngle, 1.7);
+		Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.3);
 
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		if (textShape == null) {
 			return null;
 		}
 
-		labelPosition = getLabelPosition(bounds, midpointAngle, 1.0);
+		labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.0);
 		Shape labelLine = ViewUtils.getLabelLine(textShape.getBounds2D(), labelPosition, tAlign);
 
 		// Combine the shapes
@@ -330,14 +341,14 @@ public class CircosLayer implements PaintedShape {
 		double x, y;
 		// Special case 90 and 270
 		if (angle == 270.0) {
-			x = 0.0;
+			x = bbox.getX();
 			y = h;
 		} else if (angle == 90.0) {
-			x = 0.0;
+			x = bbox.getX();
 			y = -h;
 		} else {
-			x = Math.cos(midpoint)*w;
-			y = Math.sin(midpoint)*h;
+			x = Math.cos(midpoint)*w+bbox.getX();
+			y = Math.sin(midpoint)*h+bbox.getY();
 		}
 
 		return new Point2D.Double(x, y);
