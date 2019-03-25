@@ -84,6 +84,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String ARCWIDTH = "arcwidth";
 	private static final String STROKEWIDTH = "outlineWidth";
 
+	//ML:
+	private List<List<Double>> valueList = null;
 	private List<Color> colors = null;
 	private List<String> circleLabels = null;
 	private boolean labelCircles = false;
@@ -115,15 +117,60 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	//            [valuelist=value]
 	public CircosChart(String input) {
 		Map<String, String> args = parseInput(input);
+		//ML: We want to populate the VALUES ourself
+		String strValues=null;
+		if (args.containsKey(VALUES)) {
+			strValues = args.get(VALUES); // We save it
+			args.remove(VALUES); // And remove it from the Map
+		}
+		// Then we populate: (end of ML)
+		
 		// This will populate the values, attributes, and labels lists
 		populateValues(args);
+		
+		//ML: Now we can infer values
+		//If values is surrounded by [ ] then it is a list
+		if(strValues != null && strValues.startsWith("[") && strValues.endsWith("]")) {
+			valueList = new ArrayList<>();
+			
+			strValues = strValues.substring(1, strValues.length()-1); // We get rid of the first [ and last ]
+			for(String s : strValues.split("\\],\\[")) {
+				List<Double> v = convertInputToDouble(s);
+				if(v == null) {
+					logger.error("Cannot parse "+VALUES+" from input '"+s+"' of the input list '" + strValues +"'");
+					return;
+				}
+				if (rangeMax != 0.0 || rangeMin != 0.0) {
+					v = normalize(v, rangeMin, rangeMax);
+					normalized = true;
+				}
+				valueList.add(v);
+			}
+		} else { // if not it is as before:
+			values = null;
+			if (strValues != null) {
+				// Get our values.  convertData returns an array of values in degrees of arc
+				values = convertInputToDouble(strValues);
+				if (values == null) {
+					logger.error("Cannot parse "+VALUES+" from input '"+strValues+"'");
+					return;
+				}
+				if (rangeMax != 0.0 || rangeMin != 0.0) {
+					values = normalize(values, rangeMin, rangeMax);
+					normalized = true;
+				}
+			}
+		}
+		//(end of ML)
 
+		//ML: We take care of the COLORS later:
 		if (args.containsKey(COLORS)) {
-			if (attributes == null) 
-				colors = convertInputToColor(args.get(COLORS), values);
-			else
+//			if (attributes == null) 
+//				colors = convertInputToColor(args.get(COLORS), values);
+//			else
 				colorString = args.get(COLORS);
 		}
+		//(end of ML)
 
 		// System.out.println("colorString = "+colorString);
 
@@ -168,6 +215,24 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
+	
+	//ML:
+	private List<Color> convertInputToColor(String colorString, List<Double> values, int index) {
+		if(colorString == null || !colorString.startsWith("[") || !colorString.endsWith("]")) {
+			return convertInputToColor(colorString, values);
+		}
+		
+		colorString=colorString.substring(1, colorString.length()-1);
+		
+		String colorsplit[] = colorString.split("\\],\\[");
+		if(index >= colorsplit.length) {
+			return convertInputToColor(colorString, values);
+		}
+		
+		String strcolor = colorsplit[index];
+		return convertInputToColor(strcolor, values);
+		
+	}
 
 	public List<CircosLayer> getLayers(CyNetworkView networkView, View<? extends CyIdentifiable> nodeView) { 
 		CyNetwork network = networkView.getModel();
@@ -176,7 +241,8 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		layers = new ArrayList<>();
 		CyNode node = (CyNode)nodeView.getModel();
 
-		List<List<Double>> valueList = null;
+		//ML:
+//		List<List<Double>> valueList = null;
 		List<List<Color>> colorList = null;
 		List<String> cLabels = circleLabels;
 		int nCircles = 0;
@@ -189,23 +255,33 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				// System.out.println("No values");
 				// OK, the colors are constant, the slice width changes
 				valueList = new ArrayList<List<Double>>();
+				//ML:
+				colorList = new ArrayList<List<Color>>();
+				int index=0;
 				for (String attr: attributes) {
 					values = getDataFromAttributes (network, node, Collections.singletonList(attr), labels);
 					values = convertData(values);
 					valueList.add(values);
+					//ML:
+					colorList.add(convertInputToColor(colorString, values, index++));
 				}
-				colors = convertInputToColor(colorString, values);  // We only do this once
+				//ML
+//				colors = convertInputToColor(colorString, values);  // We only do this once
 				nCircles = valueList.size();
 			} else {
 				// System.out.println("Got values");
 				// If we already have values, we must want to use the attributes to map our colors
 				colorList = new ArrayList<List<Color>>();
+				//ML:
+				int index=0;
 				for (String attr: attributes) {
 					List<Double>attrValues = 
 						getDataFromAttributes (network, node, Collections.singletonList(attr), labels);
 					// System.out.println("Found "+attrValues.size()+" values in '"+attr+"'");
 					// System.out.println("colorString = "+colorString);
-					colors = convertInputToColor(colorString, attrValues);
+					//ML:
+//					colors = convertInputToColor(colorString, attrValues);
+					colors = convertInputToColor(colorString, attrValues, index++);
 					// System.out.println("convertInputToColor returns: "+colors);
 					if (colors == null) {
 						return null;
@@ -216,6 +292,31 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				values = convertData(values);
 				nCircles = colorList.size();
 			}
+		} else {
+			//ML: If there is no attribute, we look at values
+			if(values != null) {
+				// There is only 1 circle
+				nCircles = 1;
+				values = convertData(values);
+				colors = convertInputToColor(colorString, values, 0);
+				// We have to give a name for each ring, because we don't have name we put empty String
+				attributes = Collections.singletonList("");
+			} else if (valueList != null) {
+				colorList = new ArrayList<>();
+				for(int i=0; i<valueList.size(); ++i) {
+					values = convertData(valueList.get(i));
+					valueList.set(i, values);
+					colors = convertInputToColor(colorString, values, i);
+					if (colors == null) {
+						return null;
+					}
+					colorList.add(colors);
+				}
+				nCircles = valueList.size();
+				// We have to give a name for each ring, because we don't have name we put empty String
+				attributes = Collections.nCopies(nCircles, "");
+			}
+			//(end of ML)
 		}
 
 		// System.out.println("nCircles = "+nCircles);

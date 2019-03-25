@@ -559,7 +559,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 
 	private static final String	CONTRASTING = "contrasting";
 	private static final String	DOWN = "down:";
-	private static final String	MISSING = "missing";
+	// ML: added ':' at the end of missing
+	private static final String	MISSING = "missing:";
 	private static final String	MODULATED = "modulated";
 	private static final String	RAINBOW = "rainbow";
 	private static final String RANDOM = "random";
@@ -638,7 +639,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		List<Color> results = new ArrayList<Color>(values.size());
 		for (Double v: values) {
 			// System.out.println("Looking at value "+v);
-			if (v == null) {
+			// ML: A NaN should be treated as missing
+			if (v == null || v.isNaN()) {
 				results.add(missing);
 				continue;
 			}
@@ -664,11 +666,13 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		int b = (int)(c.getBlue()*v + zero.getBlue()*(1-v));
 		int r = (int)(c.getRed()*v + zero.getRed()*(1-v));
 		int g = (int)(c.getGreen()*v + zero.getGreen()*(1-v));
+		//ML: Added alpha
+		int a = (int)(c.getAlpha()*v + zero.getAlpha()*(1-v));
 		//int b = (int)(Math.abs(c.getBlue()-zero.getBlue())*v)+c.getBlue();
 		//int r = (int)(Math.abs(c.getRed()-zero.getRed())*v)+c.getRed();
 		//int g = (int)(Math.abs(c.getGreen()-zero.getGreen())*v)+c.getGreen();
 		// System.out.println("scaleColor: v = "+v+" r="+r+" g="+g+" b="+b);
-		return new Color(r, g, b);
+		return new Color(r, g, b, a);
 	}
 
 	// Zero-centered normalization.  Zero values must remain zero,
@@ -676,6 +680,9 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	// positive.  Note that if the user gives us unbalanced ranges, this
 	// approach to normalization will inflate the smaller of the ranges
 	private double normalize(double v, double rangeMin, double rangeMax) {
+		// ML : a NaN should not be normalized
+		if (Double.isNaN(v)) return v;
+		
 		if (rangeMin == 0.0 && rangeMax == 0.0) return v;
 		double range = rangeMax-rangeMin;
 		double val = 0.0;
@@ -695,7 +702,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		return val;
 	}
 
-	private List<Double> normalize(List<Double> vList, double rangeMin, double rangeMax) {
+	//ML: Change from private to protected
+	protected List<Double> normalize(List<Double> vList, double rangeMin, double rangeMax) {
 		// System.out.println("Normalize list");
 		for (int i = 0; i < vList.size(); i++) {
 			Double v = vList.get(i);
