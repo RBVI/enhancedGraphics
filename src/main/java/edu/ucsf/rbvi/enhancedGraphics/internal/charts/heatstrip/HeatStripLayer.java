@@ -77,13 +77,14 @@ public class HeatStripLayer implements PaintedShape {
 	private boolean showYAxis = false;
 	private boolean normalized = false;
 	double strokeWidth = 0.5f;
+	Color strokeColor = Color.BLACK;
 	float[] dist3 = {0.0f, 0.5f, 1.0f};
 	float[] dist2 = {0.0f, 1.0f};
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public HeatStripLayer(int bar, int nbars, int separation, double value, 
 	                      double minValue, double maxValue, boolean normalized, 
-	                      Color[] colorScale, boolean showAxes, double borderWidth, double scale) {
+	                      Color[] colorScale, boolean showAxes, double borderWidth, double scale, Color borderColor) {
 		labelLayer = false;
 		this.colorScale = colorScale;
 		this.bar = (double)bar;
@@ -94,6 +95,7 @@ public class HeatStripLayer implements PaintedShape {
 		this.rangeMin = minValue;
 		this.normalized = normalized;
 		this.strokeWidth = borderWidth;
+		this.strokeColor = borderColor;
 		this.scale = scale;
 		if (normalized) {
 			this.minValue = -1.0;
@@ -159,7 +161,7 @@ public class HeatStripLayer implements PaintedShape {
 	}
 
 	public Paint getStrokePaint() {
-		return Color.BLACK;
+		return this.strokeColor;
 	}
 
 	public Rectangle2D getBounds2D() {

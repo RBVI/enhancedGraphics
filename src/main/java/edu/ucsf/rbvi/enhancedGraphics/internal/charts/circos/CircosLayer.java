@@ -78,7 +78,7 @@ public class CircosLayer implements PaintedShape {
 	protected Rectangle2D bounds;
 
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, 
-	                   double arc, Color color, double strokeWidth) {
+	                   double arc, Color color, double strokeWidth, Color strokeColor) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
@@ -86,6 +86,7 @@ public class CircosLayer implements PaintedShape {
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
 		this.strokeWidth = strokeWidth;
+		this.strokeColor = strokeColor;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
@@ -184,7 +185,7 @@ public class CircosLayer implements PaintedShape {
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, 
 			                     labelOffset, maxRadius, circle, nCircles);
 		else
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth, strokeColor);
 		pl.bounds = newBounds;
 		return pl;
 	}

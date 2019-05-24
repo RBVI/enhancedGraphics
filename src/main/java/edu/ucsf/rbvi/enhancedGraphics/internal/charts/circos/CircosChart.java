@@ -83,6 +83,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String FIRSTARCWIDTH = "firstarcwidth";
 	private static final String ARCWIDTH = "arcwidth";
 	private static final String STROKEWIDTH = "outlineWidth";
+	private static final String STROKECOLOR = "outlineColor";
 
 	//ML:
 	private List<List<Double>> valueList = null;
@@ -212,6 +213,9 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			outlineWidth = getDoubleValue(args.get(STROKEWIDTH));
 		else if (args.containsKey(BORDERWIDTH))
 			outlineWidth = getDoubleValue(args.get(BORDERWIDTH));
+		
+		if (args.containsKey(STROKECOLOR))
+			borderColor = getColorValue(args.get(STROKECOLOR));
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
@@ -389,7 +393,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				// System.out.println("Value: "+values.get(slice)+" color: "+colors.get(slice));
 	
 				// Create the slice
-				CircosLayer pl = new CircosLayer(rad, circleWidth, arc, values.get(slice), colors.get(slice), outlineWidth);
+				CircosLayer pl = new CircosLayer(rad, circleWidth, arc, values.get(slice), colors.get(slice), outlineWidth, borderColor);
 				if (pl == null) continue;
 				layers.add(pl);
 	
