@@ -61,18 +61,19 @@ public class PieLayer implements PaintedShape {
 	private double arc;
 	private String label;
 	private Color color;
-	private Color strokeColor = Color.BLACK;
+	private Color strokeColor;
 	private Font font;
 	private double borderWidth;
 	protected Rectangle2D bounds;
 
-	public PieLayer(double arcStart, double arc, Color color, double borderWidth) {
+	public PieLayer(double arcStart, double arc, Color color, double borderWidth, Color borderColor) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
 		this.color = color;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 		this.borderWidth = borderWidth;
+		this.strokeColor = borderColor;
 	}
 
 	public PieLayer(double arcStart, double arc, String label, Font font, Color labelColor) {

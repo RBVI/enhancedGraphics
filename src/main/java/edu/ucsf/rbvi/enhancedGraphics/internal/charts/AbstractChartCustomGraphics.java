@@ -36,6 +36,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public static final String ALL = "all";
 	public static final String ATTRIBUTELIST = "attributelist";
 	public static final String BORDERWIDTH = "borderwidth";
+	public static final String BORDERCOLOR = "bordercolor";
 	public static final String CLEAR = "clear";
 	public static final String CURRENT = "current";
 	public static final String LABELCOLOR = "labelcolor";
@@ -65,6 +66,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected	double scale = 1.0;
 	protected	double borderWidth = 0.1;
 	protected Color labelColor = Color.BLACK;
+	protected Color borderColor = Color.BLACK;
 	protected int labelSize = ViewUtils.DEFAULT_SIZE;
 	protected String labelFont = ViewUtils.DEFAULT_FONT;
 	protected int labelStyle = ViewUtils.DEFAULT_STYLE;
@@ -134,6 +136,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			} catch (NumberFormatException e) {
 				logger.warn("Unable to parse border width from '"+args.get(BORDERWIDTH)+"'");	
 			}
+		}
+		
+		if(args.containsKey(BORDERCOLOR)) {
+			borderColor = getColorValue(args.get(BORDERCOLOR));
 		}
 
 		values = null;

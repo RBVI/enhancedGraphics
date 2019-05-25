@@ -75,6 +75,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 	private static final String SORTSLICES = "sortslices";
 	private static final String MINIMUMSLICE = "minimumslice";
 	private static final String ARCSTART = "arcstart";
+	
 
 	private List<Color> colorList = null;
 	private double arcStart = 0.0;
@@ -193,7 +194,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			if (values.get(slice) == 0.0) continue;
 
 			// Create the slice
-			PieLayer pl = new PieLayer(arc, values.get(slice), colorList.get(slice), borderWidth);
+			PieLayer pl = new PieLayer(arc, values.get(slice), colorList.get(slice), borderWidth, borderColor);
 			if (pl == null) continue;
 			layers.add(pl);
 

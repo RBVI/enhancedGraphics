@@ -78,7 +78,7 @@ public class BarLayer implements PaintedShape {
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
 	                double minValue, double maxValue, boolean normalized, double ybase, Color color,
-									boolean showAxes, double borderWidth, double scale) {
+									boolean showAxes, double borderWidth, double scale, Color borderColor) {
 		labelLayer = false;
 		this.color = color;
 		this.bar = (double)bar;
@@ -99,6 +99,7 @@ public class BarLayer implements PaintedShape {
 		this.normalized = normalized;
 		this.strokeWidth = borderWidth;
 		this.scale = scale;
+		this.strokeColor = borderColor;
 		bounds = new Rectangle2D.Double(0, 0, 100, 50);
 		// System.out.println("bar #"+bar+", value: "+value+", color: "+color+", minValue: "+minValue+", maxValue: "+maxValue);
 	}
