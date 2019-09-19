@@ -94,7 +94,9 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 	private double labelAngle = 0.0;
 	private String labelAttribute = null;
 	private String label = null;
-	private ViewUtils.TextAlignment labelAlignment = ViewUtils.TextAlignment.ALIGN_CENTER;
+	// ML: Changed default value from CENTER to MIDDLE
+//	private ViewUtils.TextAlignment labelAlignment = ViewUtils.TextAlignment.ALIGN_CENTER;
+	private ViewUtils.TextAlignment labelAlignment = ViewUtils.TextAlignment.ALIGN_MIDDLE;
 	private boolean background = false;
 	private Color bgColor = null;
 	private boolean dropShadow = false;
@@ -216,15 +218,15 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 		List<CustomGraphicLayer> labelLayers = new ArrayList<>();
 		if (label != null && label.length() > 0) {
 			// Create the label (we'll add it at the end)
-			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, font, 
+			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, labelOffset, font, 
 			                                       labelAlignment, color, outlineColor, outlineWidth, 
-			                                       false, outlineLabel, labelAngle, rescale);
+			                                       false, outlineLabel, labelAngle, rescale, labelWidth, labelSpacing);
 
 			// Create the background
 			if (background) {
-				LabelLayer bgLayer = new LabelLayer(label, initialBox, position, anchor, font, 
+				LabelLayer bgLayer = new LabelLayer(label, initialBox, position, anchor, labelOffset, font, 
 				                                    labelAlignment, bgColor, outlineColor, outlineWidth,
-			                                      true, false, labelAngle, rescale);
+			                                      true, false, labelAngle, rescale, labelWidth, labelSpacing);
 				if (bgLayer != null)
 					labelLayers.add(bgLayer);
 			}
@@ -242,7 +244,7 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 		}
 		shapeLayers = labelLayers;
 
-		return labelLayers; 
+		return labelLayers;
 	}
 
 }

@@ -400,7 +400,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				// Only create the labels for the last circle
 				if (label != null && circle == (nCircles-1)) {
 					// Now, create the label
-					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), label, font, labelColor);
+					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), label, font, labelColor, labelWidth, labelSpacing);
 					if (labelLayer != null)
 						labelList.add(labelLayer);
 				}
@@ -408,7 +408,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			}
 
 			if (labelCircles && labelOffset == null) {
-				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor);
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor, labelWidth, labelSpacing);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}
@@ -433,7 +433,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				circleWidth = firstArcWidth;
 
 			if (labelCircles && labelOffset != null) {
-				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor, 
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor, labelWidth, labelSpacing, 
 				                                         labelOffset, maxRadius, circle, nCircles);
 				if (labelLayer != null)
 					labelList.add(labelLayer);

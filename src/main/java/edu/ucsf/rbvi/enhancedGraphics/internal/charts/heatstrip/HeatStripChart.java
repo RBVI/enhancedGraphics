@@ -173,7 +173,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 			if (label != null) {
 				// Now, create the label
 				HeatStripLayer labelLayer = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, 
-				                                               normalized, labelMin, label, font, showAxes, scale);
+				                                               normalized, labelMin, label, font, labelWidth, labelSpacing, showAxes, scale);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

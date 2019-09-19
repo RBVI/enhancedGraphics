@@ -61,6 +61,8 @@ import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 public class HeatStripLayer implements PaintedShape {
 	private boolean labelLayer = false;
 	private String label;
+	private double labelWidth = ViewUtils.DEFAULT_LABEL_WIDTH;
+	private double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
 	private Color[] colorScale;
 	private Font font;
 	protected Rectangle2D bounds;
@@ -109,13 +111,15 @@ public class HeatStripLayer implements PaintedShape {
 	}
 
 	public HeatStripLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                      boolean normalized, double labelMin, String label, Font font, boolean showAxes, 
+	                      boolean normalized, double labelMin, String label, Font font, double labelWidth, double labelSpacing, boolean showAxes, 
 												double scale) {
 		labelLayer = true;
 		this.bar = bar;
 		this.nBars = nbars;
 		this.separation = separation;
 		this.label = label;
+		this.labelWidth = labelWidth;
+		this.labelSpacing = labelSpacing;
 		this.font = font;
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
@@ -194,7 +198,7 @@ public class HeatStripLayer implements PaintedShape {
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
 		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+font.getSize()/2);
 
-		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
 		double maxHeight = barShape.getWidth();
 
@@ -301,14 +305,14 @@ public class HeatStripLayer implements PaintedShape {
 		Shape textShape = null;
 		if (normalized) {
 			if (value == minValue) {
-				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font);
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font, labelWidth, labelSpacing);
 			} else if (value == maxValue) {
-				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font);
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font, labelWidth, labelSpacing);
 			} else {
-				textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+				textShape = ViewUtils.getLabelShape(Double.toString(value), font, labelWidth, labelSpacing);
 			}
 		} else {
-			textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+			textShape = ViewUtils.getLabelShape(Double.toString(value), font, labelWidth, labelSpacing);
 		}
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		return textShape;

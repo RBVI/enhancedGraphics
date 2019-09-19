@@ -75,6 +75,8 @@ public class BarLayer implements PaintedShape {
 	private boolean showYAxis = false;
 	private boolean normalized = false;
 	double strokeWidth = 0.01f;
+	private double labelWidth = ViewUtils.DEFAULT_LABEL_WIDTH;
+	private double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
 
 	public BarLayer(int bar, int nbars, int separation, double value, 
 	                double minValue, double maxValue, boolean normalized, double ybase, Color color,
@@ -105,7 +107,7 @@ public class BarLayer implements PaintedShape {
 	}
 
 	public BarLayer(int bar, int nbars, int separation, double minValue, double maxValue, boolean normalized, 
-	                double labelMin, double ybase, String label, Font font, Color labelColor, boolean showAxes,
+	                double labelMin, double ybase, String label, Font font, Color labelColor, double labelWidth, double labelSpacing, boolean showAxes,
 									double scale) {
 		labelLayer = true;
 		this.bar = (double)bar;
@@ -114,6 +116,8 @@ public class BarLayer implements PaintedShape {
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
+		this.labelWidth = labelWidth;
+		this.labelSpacing = labelSpacing;
 		this.strokeColor = labelColor;
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
@@ -192,7 +196,7 @@ public class BarLayer implements PaintedShape {
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
 		Point2D labelPosition = new Point2D.Double(barShape.getCenterX(), barShape.getMaxY()+font.getSize()/2);
 
-		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
 		double maxHeight = barShape.getWidth();
 
@@ -222,14 +226,14 @@ public class BarLayer implements PaintedShape {
 		Shape textShape = null;
 		if (normalized) {
 			if (value == minValue) {
-				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font);
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font, labelWidth, labelSpacing);
 			} else if (value == maxValue) {
-				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font);
+				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font, labelWidth, labelSpacing);
 			} else {
-				textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+				textShape = ViewUtils.getLabelShape(Double.toString(value), font, labelWidth, labelSpacing);
 			}
 		} else {
-			textShape = ViewUtils.getLabelShape(Double.toString(value), font);
+			textShape = ViewUtils.getLabelShape(Double.toString(value), font, labelWidth, labelSpacing);
 		}
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		return textShape;

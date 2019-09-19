@@ -63,6 +63,8 @@ public class PieLayer implements PaintedShape {
 	private Color color;
 	private Color strokeColor;
 	private Font font;
+	private double labelWidth = ViewUtils.DEFAULT_LABEL_WIDTH;
+	private double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
 	private double borderWidth;
 	protected Rectangle2D bounds;
 
@@ -76,7 +78,7 @@ public class PieLayer implements PaintedShape {
 		this.strokeColor = borderColor;
 	}
 
-	public PieLayer(double arcStart, double arc, String label, Font font, Color labelColor) {
+	public PieLayer(double arcStart, double arc, String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
 		labelLayer = true;
 		this.arcStart = arcStart;
 		this.arc = arc;
@@ -84,6 +86,8 @@ public class PieLayer implements PaintedShape {
 		this.font = font;
 		this.color = labelColor;
 		this.strokeColor = labelColor;
+		this.labelWidth = labelWidth;
+		this.labelSpacing = labelSpacing;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
@@ -141,7 +145,7 @@ public class PieLayer implements PaintedShape {
 		// System.out.println("Label = "+label);
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
 
-		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
 		Point2D labelPosition = getLabelPosition(bounds, midpointAngle, 1.7);
 
