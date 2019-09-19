@@ -38,6 +38,9 @@ public class CyActivator extends AbstractCyActivator {
 	}
 
 	public void start(BundleContext bc) {
+		// ML
+		System.out.println("\n\n\nenhancedGraphics started\n");
+		
 		// We'll eventually need the CyApplicationManager to get current network, etc.
 		CyApplicationManager cyApplicationManagerServiceRef = getService(bc,CyApplicationManager.class);
 

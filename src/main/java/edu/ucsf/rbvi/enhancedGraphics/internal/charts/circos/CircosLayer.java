@@ -72,6 +72,8 @@ public class CircosLayer implements PaintedShape {
 	private Font font;
 	private boolean labelSlice = true;
 	private Position labelOffset = null;
+	private double labelWidth = ViewUtils.DEFAULT_LABEL_WIDTH;
+	private double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
 	private double maxRadius = 0;
 	private int circle = 0;
 	private int nCircles = 0;
@@ -91,7 +93,7 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, 
-	                   String label, Font font, Color labelColor) {
+	                   String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
 		labelLayer = true;
 		labelSlice = true;
 		this.arcStart = arcStart;
@@ -99,6 +101,8 @@ public class CircosLayer implements PaintedShape {
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
+		this.labelWidth = labelWidth;
+		this.labelSpacing = labelSpacing;
 		this.strokeColor = labelColor;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
@@ -106,7 +110,7 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	// Special version to label circles (not slices)
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, Color labelColor) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
 		labelLayer = true;
 		labelSlice = false;
 		this.arcStart = arcStart;
@@ -114,6 +118,8 @@ public class CircosLayer implements PaintedShape {
 		this.font = font;
 		this.color = labelColor;
 		this.strokeColor = labelColor;
+		this.labelWidth = labelWidth;
+		this.labelSpacing = labelSpacing;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
 		this.labelOffset = null;
@@ -122,7 +128,7 @@ public class CircosLayer implements PaintedShape {
 
 	// Special version to label circles (not slices) but offset the labels to the left or right
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, 
-	                   Color labelColor, Position labelOffset, double maxRadius, int circle, int nCircles) {
+	                   Color labelColor, double labelWidth, double labelSpacing, Position labelOffset, double maxRadius, int circle, int nCircles) {
 		labelLayer = true;
 		labelSlice = false;
 		this.arcStart = arcStart;
@@ -130,6 +136,8 @@ public class CircosLayer implements PaintedShape {
 		this.font = font;
 		this.color = labelColor;
 		this.strokeColor = labelColor;
+		this.labelWidth = labelWidth;
+		this.labelSpacing = labelSpacing;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
 		this.labelOffset = labelOffset;
@@ -180,9 +188,9 @@ public class CircosLayer implements PaintedShape {
 
 		CircosLayer pl;
 		if (labelLayer && labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, font, color);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, font, color, labelWidth, labelSpacing);
 		else if (labelLayer && !labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, 
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, labelWidth, labelSpacing, 
 			                     labelOffset, maxRadius, circle, nCircles);
 		else
 			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth, strokeColor);
@@ -241,7 +249,7 @@ public class CircosLayer implements PaintedShape {
 			tAlign = ViewUtils.TextAlignment.ALIGN_LEFT;
 		}
 
-		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
 		Rectangle2D labelBounds = new Rectangle2D.Double(x, yLabel, width, height);
 		Point2D labelPosition = new Point2D.Double(x,yLabel);
@@ -291,7 +299,7 @@ public class CircosLayer implements PaintedShape {
 
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER;
 
-		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
 		// Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.0);
 		Point2D labelPosition = new Point2D.Double(x,y);
@@ -316,7 +324,7 @@ public class CircosLayer implements PaintedShape {
 
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
 
-		Shape textShape = ViewUtils.getLabelShape(label, font);
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
 		Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.3);
 
