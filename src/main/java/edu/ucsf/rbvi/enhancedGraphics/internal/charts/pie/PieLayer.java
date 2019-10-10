@@ -59,6 +59,7 @@ public class PieLayer implements PaintedShape {
 	private boolean labelLayer = false;
 	private double arcStart;
 	private double arc;
+	private boolean isClockwise;
 	private String label;
 	private Color color;
 	private Color strokeColor;
@@ -68,20 +69,22 @@ public class PieLayer implements PaintedShape {
 	private double borderWidth;
 	protected Rectangle2D bounds;
 
-	public PieLayer(double arcStart, double arc, Color color, double borderWidth, Color borderColor) {
+	public PieLayer(double arcStart, double arc, boolean isClockwise, Color color, double borderWidth, Color borderColor) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
+		this.isClockwise = isClockwise;
 		this.color = color;
 		bounds = new Rectangle2D.Double(0,0,100,100);
 		this.borderWidth = borderWidth;
 		this.strokeColor = borderColor;
 	}
 
-	public PieLayer(double arcStart, double arc, String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
+	public PieLayer(double arcStart, double arc, boolean isClockwise, String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
 		labelLayer = true;
 		this.arcStart = arcStart;
 		this.arc = arc;
+		this.isClockwise = isClockwise;
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
@@ -134,13 +137,21 @@ public class PieLayer implements PaintedShape {
 		double y = bounds.getY()-bounds.getHeight()/2;
 		double width = bounds.getWidth();
 		double height = bounds.getHeight();
-		Arc2D slice = new Arc2D.Double(x, y, width, height, arcStart, arc, Arc2D.PIE);
+		Arc2D slice;
+		if(isClockwise) {
+			slice = new Arc2D.Double(x, y, width, height, arcStart, -arc, Arc2D.PIE);
+		} else {
+			slice = new Arc2D.Double(x, y, width, height, arcStart, arc, Arc2D.PIE);
+		}
 		return slice;
 	}
 
 	private Shape labelShape() {
 		// System.out.println("labelShape: bounds = "+bounds);
 		double midpointAngle = arcStart + arc/2;
+		if(isClockwise) {
+			midpointAngle = arcStart - arc/2;
+		}
 
 		// System.out.println("Label = "+label);
 		ViewUtils.TextAlignment tAlign = getLabelAlignment(midpointAngle);
@@ -185,17 +196,25 @@ public class PieLayer implements PaintedShape {
 	}
 
 	private ViewUtils.TextAlignment getLabelAlignment(double midPointAngle) {
-		if (midPointAngle >= 280.0 && midPointAngle < 80.0)
+		// We make sure angles are in [0;360[
+		while(midPointAngle < 0) {
+			midPointAngle += 360;
+		}
+		while(midPointAngle >= 360) {
+			midPointAngle -= 360;
+		}
+		
+		if (midPointAngle >= 280.0 || midPointAngle < 80.0)
 			return ViewUtils.TextAlignment.ALIGN_LEFT;
 
 		if (midPointAngle >= 80.0 && midPointAngle < 100.0)
-			return ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
+			return ViewUtils.TextAlignment.ALIGN_CENTER_BOTTOM;
 
 		if (midPointAngle >= 100.0 && midPointAngle < 260.0)
 			return ViewUtils.TextAlignment.ALIGN_RIGHT;
 
 		if (midPointAngle >= 260.0 && midPointAngle < 280.0)
-			return ViewUtils.TextAlignment.ALIGN_CENTER_BOTTOM;
+			return ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
 
 		return ViewUtils.TextAlignment.ALIGN_LEFT;
 	}

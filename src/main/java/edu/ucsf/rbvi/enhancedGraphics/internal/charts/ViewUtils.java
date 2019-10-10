@@ -271,12 +271,12 @@ public class ViewUtils {
 			break;
 		case ALIGN_MIDDLE:
 			// System.out.println("  Align = MIDDLE");
-			textStartX = pointX - textWidth/2;;
+			textStartX = pointX - textWidth/2;
 			textStartY = pointY + textHeight/2;
 			break;
 		case ALIGN_CENTER:
 			// System.out.println("  Align = CENTER");
-			textStartX = pointX - textWidth/2;;
+			textStartX = pointX - textWidth/2;
 			break;
 		default:
 			// System.out.println("  Align = "+tAlign);

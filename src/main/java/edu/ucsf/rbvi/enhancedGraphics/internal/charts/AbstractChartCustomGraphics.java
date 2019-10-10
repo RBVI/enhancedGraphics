@@ -344,7 +344,11 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (attributeList.size() == 1 && columnType.equals(List.class)) {
 			Class<?> type = table.getColumn(column).getListElementType();
 			if (type == Double.class) {
-				values.addAll(row.getList(column, Double.class));
+				//values.addAll(row.getList(column, Double.class));
+				List<Double> dList = row.getList(column, Double.class);
+				for(Double d: dList) {
+					values.add(d);
+				}
 			} else if (type == Integer.class) {
 				List<Integer> iList = row.getList(column, Integer.class);
 				for (Integer i: iList) 

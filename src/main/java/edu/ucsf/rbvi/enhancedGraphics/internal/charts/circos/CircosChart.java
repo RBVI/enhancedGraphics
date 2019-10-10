@@ -79,6 +79,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private static final String SORTSLICES = "sortslices";
 	private static final String MINIMUMSLICE = "minimumslice";
 	private static final String ARCSTART = "arcstart";
+	private static final String ARCDIRECTION = "arcdirection";
 	private static final String FIRSTARC = "firstarc";
 	private static final String FIRSTARCWIDTH = "firstarcwidth";
 	private static final String ARCWIDTH = "arcwidth";
@@ -92,6 +93,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 	private boolean labelCircles = false;
 	private Position labelOffset = null;
 	private double arcStart = 0.0;
+	private boolean isClockwise = false;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
 	private double firstArc = 0.2; // 20% out for first inner arc
@@ -181,6 +183,14 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		// Get our angular offset
 		if (args.containsKey(ARCSTART)) {
 			arcStart = getDoubleValue(args.get(ARCSTART));
+		}
+		
+		if(args.containsKey(ARCDIRECTION)) {
+			String direction = args.get(ARCDIRECTION).trim().toLowerCase();
+			
+			// By default it is counterclockwise, so we just look for some "clockwise" keywords
+			// All other values will be considered counterclockwise
+			isClockwise = direction.equals("clockwise") || direction.equals("cw") || direction.equals("clock");
 		}
 
 		if (args.containsKey(FIRSTARC)) {
@@ -350,11 +360,11 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 
 		if (labels != null && labels.size() > 0 &&
-		    (labels.size() != values.size() ||
-			   labels.size() != colors.size())) {
+		    (values != null && labels.size() != values.size() ||
+			   colors != null && labels.size() != colors.size())) {
 			logger.error("circoschart: number of labels (" + labels.size()
-			             + "), values (" + values.size() + "), and colors ("
-			             + colors.size() + ") don't match");
+			             + "), values (" + (values != null ? values.size() : "null") + "), and colors ("
+			             + (colors != null ? colors.size() : "null") + ") don't match");
 			return null;
 		}
 
@@ -393,22 +403,26 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				// System.out.println("Value: "+values.get(slice)+" color: "+colors.get(slice));
 	
 				// Create the slice
-				CircosLayer pl = new CircosLayer(rad, circleWidth, arc, values.get(slice), colors.get(slice), outlineWidth, borderColor);
+				CircosLayer pl = new CircosLayer(rad, circleWidth, arc, values.get(slice), isClockwise, colors.get(slice), outlineWidth, borderColor);
 				if (pl == null) continue;
 				layers.add(pl);
 	
 				// Only create the labels for the last circle
 				if (label != null && circle == (nCircles-1)) {
 					// Now, create the label
-					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), label, font, labelColor, labelWidth, labelSpacing);
+					CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arc, values.get(slice), isClockwise, label, font, labelColor, labelWidth, labelSpacing);
 					if (labelLayer != null)
 						labelList.add(labelLayer);
 				}
-				arc += values.get(slice).doubleValue();
+				if(isClockwise) {
+					arc -= values.get(slice).doubleValue();
+				} else {
+					arc += values.get(slice).doubleValue();
+				}
 			}
 
 			if (labelCircles && labelOffset == null) {
-				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor, labelWidth, labelSpacing);
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, isClockwise, circleLabel, font, labelColor, labelWidth, labelSpacing);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}
@@ -433,7 +447,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				circleWidth = firstArcWidth;
 
 			if (labelCircles && labelOffset != null) {
-				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, circleLabel, font, labelColor, labelWidth, labelSpacing, 
+				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, isClockwise, circleLabel, font, labelColor, labelWidth, labelSpacing, 
 				                                         labelOffset, maxRadius, circle, nCircles);
 				if (labelLayer != null)
 					labelList.add(labelLayer);

@@ -78,12 +78,14 @@ public class CircosLayer implements PaintedShape {
 	private int circle = 0;
 	private int nCircles = 0;
 	protected Rectangle2D bounds;
+	private boolean isClockwise;
 
 	public CircosLayer(double radiusStart, double circleWidth, double arcStart, 
-	                   double arc, Color color, double strokeWidth, Color strokeColor) {
+	                   double arc, boolean isClockwise, Color color, double strokeWidth, Color strokeColor) {
 		labelLayer = false;
 		this.arcStart = arcStart;
 		this.arc = arc;
+		this.isClockwise = isClockwise;
 		this.color = color;
 		this.radiusStart = radiusStart;
 		this.circleWidth = circleWidth;
@@ -92,12 +94,13 @@ public class CircosLayer implements PaintedShape {
 		bounds = new Rectangle2D.Double(0,0,100,100);
 	}
 
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, 
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, double arc, boolean isClockwise, 
 	                   String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
 		labelLayer = true;
 		labelSlice = true;
 		this.arcStart = arcStart;
 		this.arc = arc;
+		this.isClockwise = isClockwise;
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
@@ -110,10 +113,11 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	// Special version to label circles (not slices)
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, boolean isClockwise, String label, Font font, Color labelColor, double labelWidth, double labelSpacing) {
 		labelLayer = true;
 		labelSlice = false;
 		this.arcStart = arcStart;
+		this.isClockwise = isClockwise;
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
@@ -127,11 +131,12 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	// Special version to label circles (not slices) but offset the labels to the left or right
-	public CircosLayer(double radiusStart, double circleWidth, double arcStart, String label, Font font, 
+	public CircosLayer(double radiusStart, double circleWidth, double arcStart, boolean isClockwise, String label, Font font, 
 	                   Color labelColor, double labelWidth, double labelSpacing, Position labelOffset, double maxRadius, int circle, int nCircles) {
 		labelLayer = true;
 		labelSlice = false;
 		this.arcStart = arcStart;
+		this.isClockwise = isClockwise;
 		this.label = label;
 		this.font = font;
 		this.color = labelColor;
@@ -188,12 +193,12 @@ public class CircosLayer implements PaintedShape {
 
 		CircosLayer pl;
 		if (labelLayer && labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, label, font, color, labelWidth, labelSpacing);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, isClockwise, label, font, color, labelWidth, labelSpacing);
 		else if (labelLayer && !labelSlice)
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, label, font, color, labelWidth, labelSpacing, 
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, isClockwise, label, font, color, labelWidth, labelSpacing, 
 			                     labelOffset, maxRadius, circle, nCircles);
 		else
-			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, color, strokeWidth, strokeColor);
+			pl = new CircosLayer(radiusStart, circleWidth, arcStart, arc, isClockwise, color, strokeWidth, strokeColor);
 		pl.bounds = newBounds;
 		return pl;
 	}
@@ -208,14 +213,24 @@ public class CircosLayer implements PaintedShape {
 		Path2D path = new Path2D.Double();
 
 		// Create the inner arc
-		Arc2D innerSlice = new Arc2D.Double(x, y, width*radiusStart, height*radiusStart, arcStart+arc, -arc, Arc2D.OPEN);
+		Arc2D innerSlice;
+		if(isClockwise) {
+			innerSlice = new Arc2D.Double(x, y, width*radiusStart, height*radiusStart, arcStart, -arc, Arc2D.OPEN);
+		} else {
+			innerSlice = new Arc2D.Double(x, y, width*radiusStart, height*radiusStart, arcStart+arc, -arc, Arc2D.OPEN);
+		}
 		Point2D innerStart = innerSlice.getStartPoint();
 		Point2D innerEnd = innerSlice.getEndPoint();
 
 		// Create the outer arc
 		x = bounds.getX()-bounds.getWidth()*radiusEnd/2;
 		y = bounds.getY()-bounds.getHeight()*radiusEnd/2;
-		Arc2D outerSlice = new Arc2D.Double(x, y, width*radiusEnd, height*radiusEnd, arcStart, arc, Arc2D.OPEN);
+		Arc2D outerSlice;
+		if(isClockwise) {
+			outerSlice = new Arc2D.Double(x, y, width*radiusEnd, height*radiusEnd, arcStart-arc, arc, Arc2D.OPEN);
+		} else {
+			outerSlice = new Arc2D.Double(x, y, width*radiusEnd, height*radiusEnd, arcStart, arc, Arc2D.OPEN);
+		}
 		Point2D outerStart = outerSlice.getStartPoint();
 		Point2D outerEnd = outerSlice.getEndPoint();
 
@@ -312,6 +327,9 @@ public class CircosLayer implements PaintedShape {
 	private Shape labelShape() {
 		// System.out.println("labelShape: bounds = "+bounds);
 		double midpointAngle = arcStart + arc/2;
+		if(isClockwise) {
+			midpointAngle = arcStart - arc/2;
+		}
 		// double x = bounds.getX()-bounds.getWidth()*radiusStart/2;
 		// double y = bounds.getY()-bounds.getHeight()*radiusStart/2;
 		// Rectangle2D startPosition = new Rectangle2D.Double(x,y);
@@ -364,17 +382,25 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	private ViewUtils.TextAlignment getLabelAlignment(double midPointAngle) {
-		if (midPointAngle >= 280.0 && midPointAngle < 80.0)
+		// We make sure angles are in [0;360[
+		while(midPointAngle < 0) {
+			midPointAngle += 360;
+		}
+		while(midPointAngle >= 360) {
+			midPointAngle -= 360;
+		}
+		
+		if (midPointAngle >= 280.0 || midPointAngle < 80.0)
 			return ViewUtils.TextAlignment.ALIGN_LEFT;
 
 		if (midPointAngle >= 80.0 && midPointAngle < 100.0)
-			return ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
+			return ViewUtils.TextAlignment.ALIGN_CENTER_BOTTOM;
 
 		if (midPointAngle >= 100.0 && midPointAngle < 260.0)
 			return ViewUtils.TextAlignment.ALIGN_RIGHT;
 
 		if (midPointAngle >= 260.0 && midPointAngle < 280.0)
-			return ViewUtils.TextAlignment.ALIGN_CENTER_BOTTOM;
+			return ViewUtils.TextAlignment.ALIGN_CENTER_TOP;
 
 		return ViewUtils.TextAlignment.ALIGN_LEFT;
 	}

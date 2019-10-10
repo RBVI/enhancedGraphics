@@ -75,10 +75,12 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 	private static final String SORTSLICES = "sortslices";
 	private static final String MINIMUMSLICE = "minimumslice";
 	private static final String ARCSTART = "arcstart";
+	private static final String ARCDIRECTION = "arcdirection";
 	
 
 	private List<Color> colorList = null;
 	private double arcStart = 0.0;
+	private boolean isClockwise = false;
 	private boolean sortSlices = true;
 	private double minimumSlice = 2.0;
 	private String colorString = null;
@@ -116,6 +118,14 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 		// Get our angular offset
 		if (args.containsKey(ARCSTART)) {
 			arcStart = getDoubleValue(args.get(ARCSTART));
+		}
+		
+		if(args.containsKey(ARCDIRECTION)) {
+			String direction = args.get(ARCDIRECTION).trim().toLowerCase();
+			
+			// By default it is counterclockwise, so we just look for some "clockwise" keywords
+			// All other values will be considered counterclockwise
+			isClockwise = direction.equals("clockwise") || direction.equals("cw") || direction.equals("clock");
 		}
 	}
 
@@ -194,17 +204,21 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			if (values.get(slice) == 0.0) continue;
 
 			// Create the slice
-			PieLayer pl = new PieLayer(arc, values.get(slice), colorList.get(slice), borderWidth, borderColor);
+			PieLayer pl = new PieLayer(arc, values.get(slice), isClockwise, colorList.get(slice), borderWidth, borderColor);
 			if (pl == null) continue;
 			layers.add(pl);
 
 			if (label != null && label.length() > 0) {
 				// Now, create the label
-				PieLayer labelLayer = new PieLayer(arc, values.get(slice), label, font, labelColor, labelWidth, labelSpacing);
+				PieLayer labelLayer = new PieLayer(arc, values.get(slice), isClockwise, label, font, labelColor, labelWidth, labelSpacing);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}
-			arc += values.get(slice).doubleValue();
+			if(isClockwise) {
+				arc -= values.get(slice).doubleValue();
+			} else {
+				arc += values.get(slice).doubleValue();
+			}
 		}
 
 		// Now add all of our labels so they will be on top of our slices
