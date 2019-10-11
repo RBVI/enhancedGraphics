@@ -41,6 +41,7 @@ import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -49,6 +50,8 @@ import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // System imports
 import java.util.ArrayList;
@@ -135,6 +138,8 @@ public class ViewUtils {
 	public static final String DEFAULT_FONT=Font.SANS_SERIF;
 	public static final int DEFAULT_STYLE=Font.PLAIN;
 	public static final int DEFAULT_SIZE=8;
+	public static final double DEFAULT_LABEL_WIDTH = Double.MAX_VALUE; // By default there is no restriction
+	public static final double DEFAULT_LABEL_LINE_SPACING = 1.0f;
 
 	public static enum TextAlignment {ALIGN_NONE, ALIGN_LEFT, ALIGN_CENTER, ALIGN_CENTER_TOP, 
 	                                  ALIGN_RIGHT, ALIGN_CENTER_BOTTOM, ALIGN_MIDDLE};
@@ -152,21 +157,57 @@ public class ViewUtils {
 		textAlignmentMapping.put("middle", TextAlignment.ALIGN_MIDDLE);
 	};
 
-	public static Shape getLabelShape(String label, Font font) {
+	// ML: Modified to wrap text
+	// ML TODO: barchart labels are weirdly aligned
+	public static Shape getLabelShape(String label, Font font, double maxWidth, double lineSpacing) {
 		// Get the canvas so that we can find the graphics context
 		FontRenderContext frc = new FontRenderContext(null, false, false);
-		TextLayout tl = new TextLayout(label, font, frc);
-		return tl.getOutline(null);
+
+		// We will try to put the label into the shape character by character
+		char labelChars[] = label.toCharArray();
+		int firstCharNextLine = 0; // offset of the first character of the next line
+		int labelLength = label.length();
+		int lastCharNextLine = labelLength; // offset of the last character of the next line (not included)
+		
+		// TextLayout does not take new lines into account
+		// We have to create the Shape containing all the lines ourselves
+		Area labelShape = new Area();
+		while(firstCharNextLine < labelLength) {
+			String labelLine = new String(labelChars, firstCharNextLine, lastCharNextLine-firstCharNextLine);
+			
+			// We create the TextLayout for the line
+			TextLayout lineTL = new TextLayout(labelLine, font, frc);
+			
+			// We check if the width is OK (1 char per line is always OK)
+			if(labelLine.length() == 1 || lineTL.getBounds().getWidth() <= maxWidth) {
+				// no margin top for the first line, otherwise we add the defined line spacing
+				double marginTop = (labelShape.isEmpty() ? 0.0f : lineSpacing);
+				
+				// We create the Shape for the line by moving down the TextLayout Shape by the current height of the label Shape
+				Shape lineShape = lineTL.getOutline(AffineTransform.getTranslateInstance(0, labelShape.getBounds().getHeight() + marginTop));
+				// We add the text shape to the label shape
+				labelShape.add(new Area(lineShape));
+				
+				// We reset the offsets
+				firstCharNextLine = lastCharNextLine;
+				lastCharNextLine = labelLength;
+			} else {
+				// The shape is too large, we reduce by one char
+				lastCharNextLine--;
+			}
+		}
+		
+		return labelShape;
 	}
 
 	public static Shape getLabelShape(String label, String fontName, 
-	                                  int fontStyle, int fontSize) {
+	                                  int fontStyle, int fontSize, double maxWidth, double lineSpacing) {
 		if (fontName == null) fontName = DEFAULT_FONT;
 		if (fontStyle == 0) fontStyle = DEFAULT_STYLE;
 		if (fontSize == 0) fontSize = DEFAULT_SIZE;
 
 		Font font = new Font(fontName, fontStyle, fontSize);
-		return getLabelShape(label, font);
+		return getLabelShape(label, font, maxWidth, lineSpacing);
 	}
 
 	public static Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign, 
@@ -230,12 +271,12 @@ public class ViewUtils {
 			break;
 		case ALIGN_MIDDLE:
 			// System.out.println("  Align = MIDDLE");
-			textStartX = pointX - textWidth/2;;
+			textStartX = pointX - textWidth/2;
 			textStartY = pointY + textHeight/2;
 			break;
 		case ALIGN_CENTER:
 			// System.out.println("  Align = CENTER");
-			textStartX = pointX - textWidth/2;;
+			textStartX = pointX - textWidth/2;
 			break;
 		default:
 			// System.out.println("  Align = "+tAlign);

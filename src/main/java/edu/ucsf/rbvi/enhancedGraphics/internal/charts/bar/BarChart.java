@@ -177,7 +177,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 				// System.out.println("Creating label for bar #"+bar);
 				// Now, create the label
 				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, normalized,
-			                                     labelMin, ybase, label, font, labelColor, showAxes, scale);
+			                                     labelMin, ybase, label, font, labelColor, labelWidth, labelSpacing, showAxes, scale);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
 			}

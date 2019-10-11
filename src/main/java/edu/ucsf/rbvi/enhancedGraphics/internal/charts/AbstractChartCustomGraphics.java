@@ -44,6 +44,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public static final String LABELOFFSET = "labeloffset"; // TODO
 	public static final String LABELSTYLE = "labelstyle";
 	public static final String LABELSIZE = "labelsize";
+	public static final String LABELWIDTH = "labelwidth";
+	public static final String LABELSPACING = "labelspacing"; // line spacing
 	public static final String LABELS = "labellist";
 	public static final String LIST = "list";
 	public static final String NETWORK = "network";
@@ -70,9 +72,12 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected int labelSize = ViewUtils.DEFAULT_SIZE;
 	protected String labelFont = ViewUtils.DEFAULT_FONT;
 	protected int labelStyle = ViewUtils.DEFAULT_STYLE;
+	protected double labelWidth = ViewUtils.DEFAULT_LABEL_WIDTH;
+	protected double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
 	protected boolean normalized = false;
 	protected List<? extends CustomGraphicLayer> shapeLayers = null;
 	protected Object position = null;
+	protected Point2D labelOffset = null;
 	protected Object anchor = null;
 
 	@Override
@@ -181,6 +186,12 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (args.containsKey(LABELSTYLE))
 			labelStyle = getFontStyle(args.get(LABELSTYLE));
 
+		if (args.containsKey(LABELWIDTH))
+			labelWidth = getDoubleValue(args.get(LABELWIDTH));
+
+		if (args.containsKey(LABELSPACING))
+			labelSpacing = getDoubleValue(args.get(LABELSPACING));
+
 		if (args.containsKey(LABELCOLOR))
 			labelColor = getColorValue(args.get(LABELCOLOR));
 
@@ -209,6 +220,22 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 					logger.warn("Cannot parse "+POSITION+" from input '"+pos+"'");
 					return;
 				}
+			}
+		}
+		
+		if (args.containsKey(LABELOFFSET)) {
+			String offset = args.get(LABELOFFSET);
+			if (offset.indexOf(",") > 0) {
+				String[] point = offset.split(",");
+				if (point.length == 2) {
+					double x = Double.parseDouble(point[0]);
+					double y = Double.parseDouble(point[1]);
+					labelOffset = new Point2D.Double(x, y);
+				}
+			}
+			if (labelOffset == null) {
+				logger.warn("Cannot parse "+LABELOFFSET+" from input '"+offset+"'");
+				return;
 			}
 		}
 
@@ -317,7 +344,11 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (attributeList.size() == 1 && columnType.equals(List.class)) {
 			Class<?> type = table.getColumn(column).getListElementType();
 			if (type == Double.class) {
-				values.addAll(row.getList(column, Double.class));
+				//values.addAll(row.getList(column, Double.class));
+				List<Double> dList = row.getList(column, Double.class);
+				for(Double d: dList) {
+					values.add(d);
+				}
 			} else if (type == Integer.class) {
 				List<Integer> iList = row.getList(column, Integer.class);
 				for (Integer i: iList) 
