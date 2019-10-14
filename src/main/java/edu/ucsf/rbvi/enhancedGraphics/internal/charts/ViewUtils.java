@@ -315,11 +315,11 @@ public class ViewUtils {
 		double lineStartY = 0;
 		switch (tAlign) {
 			case ALIGN_CENTER_TOP:
-				lineStartY = textBounds.getMaxY()+1;
+				lineStartY = textBounds.getMinY()-1;
 				lineStartX = textBounds.getCenterX();
 			break;
 			case ALIGN_CENTER_BOTTOM:
-				lineStartY = textBounds.getMinY()-1;
+				lineStartY = textBounds.getMaxY()+1;
 				lineStartX = textBounds.getCenterX();
 			break;
 			case ALIGN_RIGHT:
