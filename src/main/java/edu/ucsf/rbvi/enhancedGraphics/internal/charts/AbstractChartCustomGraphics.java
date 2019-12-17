@@ -346,8 +346,8 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			if (type == Double.class) {
 				//values.addAll(row.getList(column, Double.class));
 				List<Double> dList = row.getList(column, Double.class);
-				for(Double d: dList) {
-					values.add(d);
+				if(dList != null) {
+					values.addAll(dList);
 				}
 			} else if (type == Integer.class) {
 				List<Integer> iList = row.getList(column, Integer.class);

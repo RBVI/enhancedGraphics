@@ -58,6 +58,7 @@ import org.cytoscape.view.presentation.customgraphics.PaintedShape;
 
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils;
 import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils.Position;
+import edu.ucsf.rbvi.enhancedGraphics.internal.charts.ViewUtils.TextAlignment;
 
 public class CircosLayer implements PaintedShape {
 	private boolean labelLayer = false;
@@ -344,7 +345,7 @@ public class CircosLayer implements PaintedShape {
 
 		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
-		Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, 1.3);
+		Point2D labelPosition = getLabelPosition(labelBounds, midpointAngle, (1+circleWidth));
 
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		if (textShape == null) {
@@ -362,22 +363,14 @@ public class CircosLayer implements PaintedShape {
 
 	// Return a point on the midpoint of the arc
 	private Point2D getLabelPosition(Rectangle2D bbox, double angle, double scale) {
-		double midpoint = Math.toRadians(360.0-angle);
+		double midpoint = Math.toRadians(angle);
 		double w = bbox.getWidth()/2*scale;
 		double h = bbox.getHeight()/2*scale;
 		double x, y;
-		// Special case 90 and 270
-		if (angle == 270.0) {
-			x = bbox.getX();
-			y = h;
-		} else if (angle == 90.0) {
-			x = bbox.getX();
-			y = -h;
-		} else {
-			x = Math.cos(midpoint)*w+bbox.getX();
-			y = Math.sin(midpoint)*h+bbox.getY();
-		}
 
+		x = Math.cos(midpoint)*w+bbox.getX();
+		y = -Math.sin(midpoint)*h+bbox.getY(); // Java Y axis is from up to down, so we take the opposite of sinus
+		
 		return new Point2D.Double(x, y);
 	}
 
