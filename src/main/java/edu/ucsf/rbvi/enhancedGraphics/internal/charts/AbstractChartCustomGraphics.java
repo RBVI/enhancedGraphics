@@ -426,12 +426,37 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		String[] inputArray = input.split(",");
 		return convertStringList(Arrays.asList(inputArray));
 	}
+	
+	private String[] unescape(String strs[]) {
+		String unescaped_strs[] = new String[strs.length];
+		
+		int j=0;
+		for(String str : strs) {
+			StringBuilder sb = new StringBuilder();
+
+			boolean deleted=false;
+			for(int i=0; i<str.length(); ++i) {
+				char curChar = str.charAt(i);
+
+				// If the current char is the escape character, we delete it
+				if(curChar != '\\' || deleted) {
+					sb.append(curChar);
+					deleted=false;
+				} else {
+					deleted=true;
+				}
+			}
+
+			unescaped_strs[j++] = sb.toString();
+		}
+		return unescaped_strs;
+	}
 
 	public List<String> getStringList(String input) {
 		if (input == null || input.length() == 0)
 			return new ArrayList<String>();
 
-		String[] inputArray = input.split(",",-1);
+		String[] inputArray = unescape(input.split("(?<!\\\\),",-1));
 		return Arrays.asList(inputArray);
 	}
 
