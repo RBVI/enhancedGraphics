@@ -246,19 +246,29 @@ public class CircosLayer implements PaintedShape {
 	}
 
 	private Shape labelCircleWithOffset() {
-		double width = bounds.getWidth();
-		double height = circleWidth*bounds.getHeight();
-		double x = bounds.getX();
-		double yCircle = bounds.getY() - bounds.getHeight()*radiusStart/2;
+		// bounds has the width and height of the node
+		// bounds (x,y) is the center of the node
+		
+		// We try to align the labels so that the middle one is on the horizontal axis of the node
 		double offset = nCircles/2-circle;
-		double yLabel = offset*circleWidth*1.5*bounds.getHeight();
-
-		// System.out.println("labelCircleWithOffset ("+label+"): x="+x+", y="+yLabel+" maxRadius="+maxRadius+", radiusStart = "+radiusStart);
-
+		
+		// We assume that each label is on only one line
+		// we compute the size of one line with a dummy label
+		double lineHeight = ViewUtils.getLabelShape("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz-_,:|\"", font, Double.MAX_VALUE, 1).getBounds().getHeight();
+		
+		// the line height of each label is lineHeight
+		// the label spacing is lineHeight*labelSpacing
+		// we multiply it by the offset to know where to position this specific label
+		double yLabel = offset*lineHeight*(1+labelSpacing);
+		double x = bounds.getX();
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_CENTER;
 
+		// x (center of the node)
+		// maxRadius*bounds.getWidth()/2 = distance between the node center and last circle
+		// we add the circleWidth as a margin between the circle and the labels
+		// (circleWidth is a ratio, the real width is circleWidth*bounds.getWidth()/2)
 		if (labelOffset == Position.WEST) {
-			x = x - (maxRadius - circleWidth)*bounds.getWidth()/2;
+			x = x - (maxRadius + circleWidth)*bounds.getWidth()/2;
 			tAlign = ViewUtils.TextAlignment.ALIGN_RIGHT;
 		} else if (labelOffset == Position.EAST) {
 			x = x + (maxRadius + circleWidth)*bounds.getWidth()/2;
@@ -267,31 +277,31 @@ public class CircosLayer implements PaintedShape {
 
 		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 
-		Rectangle2D labelBounds = new Rectangle2D.Double(x, yLabel, width, height);
 		Point2D labelPosition = new Point2D.Double(x,yLabel);
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
-
-		x = bounds.getX()-bounds.getWidth()*(radiusStart-circleWidth)/2;
-		double y = bounds.getY()-bounds.getHeight()*(radiusStart-circleWidth)/2;
-
+		
 		// Draw label lines
 		// We want to draw from the end of the label to the circle we're labeling.  We do this by
 		// calculating the unit vector from the label to the center of the circle and then get
 		// the endpoint of a vector of the desire length
 		Point2D labelLineStart = ViewUtils.getLabelLineStart(textShape.getBounds2D(), tAlign);
 
-		// Calculate the length of the line to the origin
-		double length = Math.sqrt(Math.pow(labelLineStart.getX()-bounds.getX(), 2)+Math.pow(labelLineStart.getY()-bounds.getY(), 2));
-
-		// Calculate the unit vector
-		Point2D unitVector = new Point2D.Double((labelLineStart.getX()-bounds.getX())/length, 
-		                                        (labelLineStart.getY()-bounds.getY())/length);
-
-		// Get the adjusted length
-		length = (radiusStart-circleWidth/2)*bounds.getWidth()/2;
+		// In case of a non-circular node, we have an ellipse
+		// The equation of the ellipse is : x^2/a^2 + y^2/b^2 = 1
+		// where a and b are the width (resp. height) of the ellipse
+		// Here we aim at the middle of the donut
+		// We compute the intersection between this ellipse and the line
+		// passing through (0,0) and (x0, y0)
+		// where (x0, y0) is labelLineStart
+		double a = (radiusStart-circleWidth/2) * bounds.getWidth()/2;
+		double b = (radiusStart-circleWidth/2) * bounds.getHeight()/2;
+		double x0 = labelLineStart.getX();
+		double y0 = labelLineStart.getY();
+		
+		double discriminant = a*b/Math.sqrt(Math.pow(a, 2)*Math.pow(y0, 2) + Math.pow(b, 2)*Math.pow(x0, 2));
 
 		// Get the position of the end or our line
-		Point2D lineEnd = new Point2D.Double(unitVector.getX()*length, unitVector.getY()*length);
+		Point2D lineEnd = new Point2D.Double(x0*discriminant, y0*discriminant);
 
 		// Create the line
 		Shape labelLine = ViewUtils.getLabelLine(textShape.getBounds2D(), lineEnd, tAlign);

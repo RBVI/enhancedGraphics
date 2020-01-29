@@ -176,6 +176,14 @@ public class PieLayer implements PaintedShape {
 
 	// Return a point on the midpoint of the arc
 	private Point2D getLabelPosition(Rectangle2D bbox, double angle, double scale) {
+		// We make sure that the angle is in [0;360[
+		while(angle < 0) {
+			angle += 360;
+		}
+		while(angle >= 360) {
+			angle -= 360;
+		}
+		
 		double midpoint = Math.toRadians(360.0-angle);
 		double w = bbox.getWidth()/2*scale;
 		double h = bbox.getHeight()/2*scale;

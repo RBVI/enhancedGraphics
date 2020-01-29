@@ -213,6 +213,11 @@ public class ViewUtils {
 	public static Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign, 
 	                                  double maxHeight, double maxWidth, double rotation) {
 
+		// First we make sure that the lShape is in (0,0)
+		AffineTransform initTrans = new AffineTransform();
+		initTrans.translate(-lShape.getBounds2D().getX(), -lShape.getBounds2D().getY());
+		lShape = initTrans.createTransformedShape(lShape);
+		
 		// Figure out how to move the text to center it on the bbox
 		double textWidth = lShape.getBounds2D().getWidth(); 
 		double textHeight = lShape.getBounds2D().getHeight();
@@ -262,17 +267,17 @@ public class ViewUtils {
 		case ALIGN_RIGHT:
 			// System.out.println("  Align = RIGHT");
 			textStartX = pointX - textWidth;
-			textStartY = pointY + textHeight/2;
+			textStartY = pointY - textHeight/2;
 			break;
 		case ALIGN_LEFT:
 			// System.out.println("  Align = LEFT");
 			textStartX = pointX;
-			textStartY = pointY + textHeight/2;
+			textStartY = pointY - textHeight/2;
 			break;
 		case ALIGN_MIDDLE:
 			// System.out.println("  Align = MIDDLE");
 			textStartX = pointX - textWidth/2;
-			textStartY = pointY + textHeight/2;
+			textStartY = pointY - textHeight/2;
 			break;
 		case ALIGN_CENTER:
 			// System.out.println("  Align = CENTER");
