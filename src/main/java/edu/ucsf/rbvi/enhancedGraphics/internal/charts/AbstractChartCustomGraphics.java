@@ -753,9 +753,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if (v < rangeMin) v = rangeMin;
 		if (v > rangeMax) v = rangeMax;
 
-		if ((rangeMin > 0.0 && rangeMax > 0.0) ||
-		    (rangeMin < 0.0 && rangeMax < 0.0))
+		if (rangeMin > 0.0 && rangeMax > 0.0)
 			val = (v - rangeMin) / range;
+		else if (rangeMin < 0.0 && rangeMax < 0.0) 
+			val = (v - rangeMax) / range;
 		else if (v < 0.0 && rangeMin < 0.0)
 			val = -(v / rangeMin);
 		else if (v > 0.0 && rangeMax > 0.0)

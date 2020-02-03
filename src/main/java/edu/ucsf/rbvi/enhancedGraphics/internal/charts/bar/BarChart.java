@@ -89,10 +89,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		populateValues(args);
 
 		if (args.containsKey(COLORS)) {
-			if (attributes == null) 
-				colorList = convertInputToColor(args.get(COLORS), values);
-			else
-				colorString = args.get(COLORS);
+			colorString = args.get(COLORS);
 		}
 
 		if (args.containsKey(SEPARATION)) {
@@ -124,11 +121,12 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			// System.out.println("Getting data from attributes for node "+node);
 			values = getDataFromAttributes (network, node, attributes, labels);
 			// System.out.println("Data from attributes returns "+values.size()+" values");
-			colorList = convertInputToColor(colorString, values);
 		}
+		colorList = convertInputToColor(colorString, values);
 
 		// Protect against missing values in the input stream
 		// if (values == null || colorList == null) return layers;
+		
 
 		if (labels != null && labels.size() > 0 &&
 		    (labels.size() != values.size() ||
@@ -142,8 +140,11 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		List<BarLayer> labelList = new ArrayList<BarLayer>();
 
 
-		double minValue = 0.000001;
-		double maxValue = -minValue;
+		// We put min and max at 0
+		// so that if we show Y axis, we will display the 0
+		// (except if the user changes the range)
+		double minValue = 0;
+		double maxValue = 0;
 		for (Double val: values) {
 			if (val == null) continue;
 			minValue = Math.min(minValue, val);
@@ -151,10 +152,10 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 		}
 		double labelMin = minValue;
 
-		if (normalized) {
-			minValue = rangeMin;
-			maxValue = rangeMax;
-		}
+//		if (normalized) {
+//			minValue = rangeMin;
+//			maxValue = rangeMax;
+//		}
 
 		int nBars = values.size();
 		Font font = getFont();
@@ -167,7 +168,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 
 			// System.out.println("Creating bar #"+bar);
 			// Create the slice
-			BarLayer bl = new BarLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, 
+			BarLayer bl = new BarLayer(bar, nBars, separation, values.get(bar), minValue, maxValue, rangeMin, rangeMax, 
 			                           normalized, ybase, colorList.get(bar), showAxes, borderWidth, scale, borderColor);
 			if (bl == null) continue;
 			layers.add(bl);
@@ -176,7 +177,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			if (label != null) {
 				// System.out.println("Creating label for bar #"+bar);
 				// Now, create the label
-				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, normalized,
+				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, rangeMin, rangeMax, normalized,
 			                                     labelMin, ybase, label, font, labelColor, labelWidth, labelSpacing, showAxes, scale);
 				if (labelLayer != null)
 					labelList.add(labelLayer);
