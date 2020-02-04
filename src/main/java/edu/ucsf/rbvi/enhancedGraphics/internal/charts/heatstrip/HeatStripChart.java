@@ -162,7 +162,8 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 			String label = null;
 			if (labels != null && labels.size() > 0)
 				label = labels.get(bar);
-			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
+//			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
+			if (values.get(bar) == null) continue;
 
 			// Create the slice
 			HeatStripLayer bl = new HeatStripLayer(bar, nBars, separation, values.get(bar), minValue, 
@@ -170,7 +171,7 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 			if (bl == null) continue;
 			layers.add(bl);
 
-			if (label != null) {
+			if (label != null || (showAxes && bar==0)) {
 				// Now, create the label
 				HeatStripLayer labelLayer = new HeatStripLayer(bar, nBars, separation, minValue, maxValue, 
 				                                               normalized, labelMin, label, font, labelWidth, labelSpacing, showAxes, scale);

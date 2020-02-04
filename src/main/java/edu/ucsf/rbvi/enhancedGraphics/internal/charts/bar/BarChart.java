@@ -164,7 +164,8 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			String label = null;
 			if (labels != null && labels.size() > 0)
 				label = labels.get(bar);
-			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
+//			if (values.get(bar) == null || values.get(bar) == 0.0) continue;
+			if (values.get(bar) == null) continue;
 
 			// System.out.println("Creating bar #"+bar);
 			// Create the slice
@@ -174,7 +175,7 @@ public class BarChart extends AbstractChartCustomGraphics<BarLayer> {
 			layers.add(bl);
 			// System.out.println("BarLayer: "+bar+" bounds: "+bl.getShape().getBounds2D());
 
-			if (label != null) {
+			if (label != null || (showAxes && bar==0)) {
 				// System.out.println("Creating label for bar #"+bar);
 				// Now, create the label
 				BarLayer labelLayer = new BarLayer(bar, nBars, separation, minValue, maxValue, rangeMin, rangeMax, normalized,

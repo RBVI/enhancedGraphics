@@ -206,10 +206,25 @@ public class HeatStripLayer implements PaintedShape {
 
 		// If we're showing the axis, add the labels
 		if (bar == 0 && showYAxis) {
-			Area a = new Area(axisLabelShape(minValue));
-			a.add(new Area(axisLabelShape(maxValue)));
-			if (minValue < 0.0 && maxValue > 0.0)
-				a.add(new Area(axisLabelShape(0.0)));
+			double minVal = minValue;
+			String minLabel = String.valueOf(minValue);
+			double maxVal = maxValue;
+			String maxLabel = String.valueOf(maxValue);
+
+			if(normalized) { // it means that a range was given
+				// normalized means that the values ranges between -1 and 1
+				// if values are all positive (or negatives), we put the min (or max) at 0
+				minVal = rangeMin < 0 ? -1 : 0;
+				minLabel = String.valueOf(rangeMin);
+				maxVal = rangeMax > 0 ? 1 : 0;
+				maxLabel = String.valueOf(rangeMax);
+			}
+
+			Area a = new Area(axisLabelShape(minVal, minLabel));
+			a.add(new Area(axisLabelShape(maxVal, maxLabel)));
+			if (minVal < 0.0 && maxVal > 0.0) {
+				a.add(new Area(axisLabelShape(0.0, "0.0")));
+			}
 			if (textShape != null)
 				a.add(new Area(textShape));
 			return a;
@@ -295,25 +310,14 @@ public class HeatStripLayer implements PaintedShape {
 
 	}
 
-	private Shape axisLabelShape(double value) {
+	private Shape axisLabelShape(double value, String label) {
 		Rectangle2D bar = getHeatStrip(value);
 		ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_RIGHT;
 		double y = bar.getY();
 		if (value < 0.0)
 			y = bar.getMaxY();
 		Point2D labelPosition = new Point2D.Double(bar.getMinX()-font.getSize(), y);
-		Shape textShape = null;
-		if (normalized) {
-			if (value == minValue) {
-				textShape = ViewUtils.getLabelShape(Double.toString(rangeMin), font, labelWidth, labelSpacing);
-			} else if (value == maxValue) {
-				textShape = ViewUtils.getLabelShape(Double.toString(rangeMax), font, labelWidth, labelSpacing);
-			} else {
-				textShape = ViewUtils.getLabelShape(Double.toString(value), font, labelWidth, labelSpacing);
-			}
-		} else {
-			textShape = ViewUtils.getLabelShape(Double.toString(value), font, labelWidth, labelSpacing);
-		}
+		Shape textShape = ViewUtils.getLabelShape(label, font, labelWidth, labelSpacing);
 		textShape = ViewUtils.positionLabel(textShape, labelPosition, tAlign, 0.0, 0.0, 0.0);
 		return textShape;
 	}

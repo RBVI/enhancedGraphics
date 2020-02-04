@@ -160,6 +160,10 @@ public class ViewUtils {
 	// ML: Modified to wrap text
 	// ML TODO: barchart labels are weirdly aligned
 	public static Shape getLabelShape(String label, Font font, double maxWidth, double lineSpacing) {
+		if(label == null) {
+			return null;
+		}
+		
 		// Get the canvas so that we can find the graphics context
 		FontRenderContext frc = new FontRenderContext(null, false, false);
 
@@ -212,6 +216,10 @@ public class ViewUtils {
 
 	public static Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign, 
 	                                  double maxHeight, double maxWidth, double rotation) {
+		
+		if(lShape == null) {
+			return null;
+		}
 
 		// First we make sure that the lShape is in (0,0)
 		AffineTransform initTrans = new AffineTransform();
