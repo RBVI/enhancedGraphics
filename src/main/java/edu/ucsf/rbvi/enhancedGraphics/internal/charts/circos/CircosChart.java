@@ -131,6 +131,13 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		// This will populate the values, attributes, and labels lists
 		populateValues(args);
 		
+		if(!args.containsKey(LABELS)) {
+			// By default, if no labels are given, we use the attribute
+			// Here with circos, labels are for slices not circles
+			// So no labels means we don't label
+			labels = null;
+		}
+		
 		//ML: Now we can infer values
 		//If values is surrounded by [ ] then it is a list
 		if(strValues != null && strValues.startsWith("[") && strValues.endsWith("]")) {
@@ -138,16 +145,16 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			
 			strValues = strValues.substring(1, strValues.length()-1); // We get rid of the first [ and last ]
 			for(String s : strValues.split("\\],\\[")) {
-				List<Double> v = convertInputToDouble(s);
-				if(v == null) {
+				values = convertInputToDouble(s);
+				if(values == null) {
 					logger.error("Cannot parse "+VALUES+" from input '"+s+"' of the input list '" + strValues +"'");
 					return;
 				}
 				if (rangeMax != 0.0 || rangeMin != 0.0) {
-					v = normalize(v, rangeMin, rangeMax);
+					values = normalize(values, rangeMin, rangeMax);
 					normalized = true;
 				}
-				valueList.add(v);
+				valueList.add(convertData(values));
 			}
 		} else { // if not it is as before:
 			values = null;
@@ -218,6 +225,12 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 
 		if (args.containsKey(CIRCLELABELS))
 			circleLabels = getStringList(args.get(CIRCLELABELS));
+		
+//		// We can only have one type of labels (slices or circles)
+//		if(labelCircles) {
+//			// So if we label the circles, we don't label the slices
+//			labels = null;
+//		}
 
 		if (args.containsKey(STROKEWIDTH))
 			outlineWidth = getDoubleValue(args.get(STROKEWIDTH));
@@ -375,10 +388,10 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		double rad = firstArc;
 		double maxRadius = firstArc + firstArcWidth + arcWidth*(nCircles-1);
 		for (int circle = 0; circle < nCircles; circle++) {
-			String circleLabel = attributes.get(circle);
-
-			if (cLabels != null)
-				circleLabel = cLabels.get(circle);
+//			String circleLabel = attributes.get(circle);
+//
+//			if (cLabels != null)
+//				circleLabel = cLabels.get(circle);
 
 			if (valueList != null)
 				values = valueList.get(circle);
@@ -396,7 +409,10 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				String label = null;
 				if (labels != null && labels.size() > 0)
 					label = labels.get(slice);
-				if (values.get(slice) == 0.0) continue;
+				if (values.get(slice) <= 0.0) {
+					logger.warn("The slice "+slice+" of circle "+circle+" has a negative value: "+values.get(slice)+". This slice is ignored.");
+					continue;
+				}
 
 				// System.out.println("Slice: "+slice+", value: "+values.get(slice));
 				// System.out.println("Slice: "+slice+", color: "+colors.get(slice));
@@ -421,11 +437,11 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				}
 			}
 
-			if (labelCircles && labelOffset == null) {
-				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, isClockwise, circleLabel, font, labelColor, labelWidth, labelSpacing);
-				if (labelLayer != null)
-					labelList.add(labelLayer);
-			}
+//			if (labelCircles && labelOffset == null) {
+//				CircosLayer labelLayer = new CircosLayer(rad, circleWidth, arcStart, isClockwise, circleLabel, font, labelColor, labelWidth, labelSpacing);
+//				if (labelLayer != null)
+//					labelList.add(labelLayer);
+//			}
 
 			rad += circleWidth;
 		}
@@ -468,7 +484,9 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		double totalSize = 0.0;
 		int nValues = values.size();
 		for (Double d: values) {
-			totalSize += d.doubleValue();
+			if(d >= 0) { // We do not draw negative slices
+				totalSize += d.doubleValue();
+			}
 		}
 
 		// Now we have an array of doubles, but we need to convert them

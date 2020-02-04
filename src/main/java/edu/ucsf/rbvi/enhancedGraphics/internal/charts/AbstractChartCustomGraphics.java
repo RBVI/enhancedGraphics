@@ -723,6 +723,13 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	private Color scaleColor(double v, Color zero, Color c) {
 		if (rangeMin == 0.0 && rangeMax == 0.0) return c;
 
+		if(v < 0 || v > 1) {
+			logger.warn("Warning, one color was out-of-range and replaced by the up or down color."
+					+ "\n"
+					+ "Maybe you should not use a scaling color scheme.");
+			return c;
+		}
+		
 		// We want to scale our color to be between "zero" and "c"
 		// v = 1-v;
 		int b = (int)(c.getBlue()*v + zero.getBlue()*(1-v));

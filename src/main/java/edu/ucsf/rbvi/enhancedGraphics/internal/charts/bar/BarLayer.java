@@ -177,7 +177,6 @@ public class BarLayer implements PaintedShape {
 
 	private Shape barShape() {
 		// System.out.println("sliceShape: bounds = "+bounds);
-		System.out.println(value);
 		Shape barShape = getBar(value);
 
 		// If this is our first bar, draw our axes
