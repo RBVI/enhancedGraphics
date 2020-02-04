@@ -66,10 +66,11 @@ public class LabelLayer implements PaintedShape {
 	private Object position;
 	private Object anchor;
 	private Point2D offset;
+	private double paddingScale;
 
 	public LabelLayer(String label, Rectangle2D bbox, Object position, Object anchor, Point2D offset,
 	                  Font font, ViewUtils.TextAlignment labelAlignment, Color labelColor, Color outlineColor, double outlineWidth,
-	                  boolean shadow, boolean outline, double angle, boolean rescale, double maxWidth, double lineSpacing) {
+	                  boolean shadow, boolean outline, double angle, boolean rescale, double maxWidth, double lineSpacing, double padding) {
 		this.label = label;
 		this.font = font;
 		this.labelAlignment = labelAlignment;
@@ -84,6 +85,7 @@ public class LabelLayer implements PaintedShape {
 		this.rescale = rescale;
 		this.maxWidth = maxWidth;
 		this.lineSpacing = lineSpacing;
+		this.paddingScale = padding;
 
 		this.outline = outline;
 		this.angle = angle;
@@ -100,7 +102,7 @@ public class LabelLayer implements PaintedShape {
 
 	public LabelLayer copy() {
 		LabelLayer copy = new LabelLayer(label, nodeBox, position, anchor, offset, font, labelAlignment, 
-		                                 color, outlineColor, outlineWidth, shadow, outline, angle, rescale, maxWidth, lineSpacing);
+		                                 color, outlineColor, outlineWidth, shadow, outline, angle, rescale, maxWidth, lineSpacing, paddingScale);
 		return copy;
 	}
 
@@ -153,7 +155,7 @@ public class LabelLayer implements PaintedShape {
 	//  - - - - - - 
 	// Where 'X' is the position point
 	//
-	private Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign) {
+	private Shape positionLabel(Shape lShape, Point2D position, TextAlignment tAlign, double padding) {
 
 		// Figure out how to move the text to center it on the bbox
 		double textWidth = lShape.getBounds2D().getWidth(); 
@@ -182,7 +184,7 @@ public class LabelLayer implements PaintedShape {
 			
 			// System.out.println("  Align = CENTER_TOP");
 			textStartX = pointX - textWidth/2; // we center horizontally
-			textStartY = pointY; // the text box is already under the point
+			textStartY = pointY + padding; // the text box is already under the point
 			break;
 		case ALIGN_CENTER_BOTTOM:
 			// 	- - - - - -
@@ -195,7 +197,7 @@ public class LabelLayer implements PaintedShape {
 			
 			// System.out.println("  Align = CENTER_BOTTOM");
 			textStartX = pointX - textWidth/2; // we center horizontally
-			textStartY = pointY - textHeight; // initially the position point is on top of the shape
+			textStartY = pointY - textHeight - padding; // initially the position point is on top of the shape
 			break;
 		case ALIGN_RIGHT:
 			// 	- - - - - -
@@ -207,8 +209,8 @@ public class LabelLayer implements PaintedShape {
 			//  - - - - - - 
 			
 			// System.out.println("  Align = RIGHT");
-			textStartX = pointX - textWidth; // initially the position point is on the left of the shape
-			textStartY = pointY;
+			textStartX = pointX - textWidth - padding; // initially the position point is on the left of the shape
+			textStartY = pointY + padding;
 			break;
 		case ALIGN_LEFT:
 			// 	- - - - - -
@@ -220,8 +222,8 @@ public class LabelLayer implements PaintedShape {
 			//  - - - - - - 
 			
 			// System.out.println("  Align = LEFT");
-			textStartX = pointX; // initially the position point is already on the left of the shape
-			textStartY = pointY;
+			textStartX = pointX + padding; // initially the position point is already on the left of the shape
+			textStartY = pointY + padding;
 			break;
 		case ALIGN_MIDDLE:
 			// 	- - - - - -
@@ -265,32 +267,34 @@ public class LabelLayer implements PaintedShape {
 		// System.out.println("Label = "+label);
 		// ViewUtils.TextAlignment tAlign = ViewUtils.TextAlignment.ALIGN_MIDDLE;
 
+		double pad = nodeBox.getWidth()*paddingScale;
+		//double pad=0;
+		
 		// ML: debug
-		Shape textShape = ViewUtils.getLabelShape(label, font, maxWidth, lineSpacing);
+		Shape textShape = ViewUtils.getLabelShape(label, font, maxWidth-2*pad, lineSpacing);
 		// ML We move the shape to be at 0,0
 		AffineTransform replaceTrans = new AffineTransform();
 		replaceTrans.translate(-textShape.getBounds2D().getX(), -textShape.getBounds2D().getY());
 		textShape=replaceTrans.createTransformedShape(textShape);
 		
 		Rectangle2D textBounds = textShape.getBounds2D();
-		double pad = textBounds.getHeight()*.3;
-		Rectangle2D paddedBounds = new Rectangle2D.Double(textBounds.getX()-pad, textBounds.getY()-pad,
-			                                                textBounds.getWidth()+pad*2,textBounds.getHeight()+pad*2);
+//		Rectangle2D paddedBounds = new Rectangle2D.Double(textBounds.getX()-pad, textBounds.getY()-pad,
+//			                                                textBounds.getWidth()+pad*2,textBounds.getHeight()+pad*2);
 
-		Point2D textBox = ViewUtils.positionAdjust(nodeBox, paddedBounds, position, anchor);
+		Point2D textBox = ViewUtils.positionAdjust(nodeBox, textBounds, position, anchor);
 		if (textBox == null)
 			textBox = new Point2D.Double(0.0,0.0);
 
 		// ML: Do not use the Utils method anymore
 //		textShape = ViewUtils.positionLabel(textShape, textBox, labelAlignment, 0.0, 0.0, 0.0);
-		textShape = positionLabel(textShape, textBox, labelAlignment);
+		textShape = positionLabel(textShape, textBox, labelAlignment, pad);
 		if (textShape == null) {
 			return null;
 		}
 
 		if (shadow) {
 			textBounds = textShape.getBounds2D();
-			pad = textBounds.getHeight()*.3;
+			//pad = textBounds.getHeight()*.3;
 			RoundRectangle2D shadow = new RoundRectangle2D.Double(textBounds.getX()-pad, 
 			                                                      textBounds.getY()-pad,
 			                                                      textBounds.getWidth()+pad*2,

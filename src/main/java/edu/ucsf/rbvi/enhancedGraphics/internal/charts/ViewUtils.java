@@ -416,32 +416,32 @@ public class ViewUtils {
 
 			switch (p) {
 			case EAST:
-				x = -textWidth/2;
+				x -= textWidth/2;
 				break;
 			case WEST:
-				x = textWidth/2;
+				x += textWidth/2;
 				break;
 			case NORTH:
-				y = textHeight/2;
+				y += textHeight/2;
 				break;
 			case SOUTH:
-				y = -textHeight/2;
+				y -= textHeight/2;
 				break;
 			case NORTHEAST:
-				x = -textWidth/2;
-				y = textHeight/2;
+				x -= textWidth/2;
+				y += textHeight/2;
 				break;
 			case NORTHWEST:
-				x = textWidth/2;
-				y = textHeight/2;
+				x += textWidth/2;
+				y += textHeight/2;
 				break;
 			case SOUTHEAST:
-				x = -textWidth/2;
-				y = -textHeight/2;
+				x -= textWidth/2;
+				y -= textHeight/2;
 				break;
 			case SOUTHWEST:
-				x = textWidth/2;
-				y = -textHeight/2;
+				x += textWidth/2;
+				y -= textHeight/2;
 				break;
 			case CENTER:
 			default:
@@ -460,7 +460,7 @@ public class ViewUtils {
 
 	public static BufferedImage getShadow(Shape shape, int size) {
 		Rectangle2D shapeBounds = shape.getBounds2D();
-		System.out.println("Shape bounds = "+shapeBounds);
+//		System.out.println("Shape bounds = "+shapeBounds);
 
 		BufferedImage image = new BufferedImage((int)shapeBounds.getWidth(),
 		                                        (int)shapeBounds.getHeight(),

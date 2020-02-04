@@ -76,9 +76,9 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	protected double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
 	protected boolean normalized = false;
 	protected List<? extends CustomGraphicLayer> shapeLayers = null;
-	protected Object position = null;
+	protected Object position = ViewUtils.Position.CENTER;
 	protected Point2D labelOffset = null;
-	protected Object anchor = null;
+	protected Object anchor = ViewUtils.Position.CENTER;
 
 	@Override
 	public Image getRenderedImage() {

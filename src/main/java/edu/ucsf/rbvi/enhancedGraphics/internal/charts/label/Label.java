@@ -88,6 +88,7 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 	private static final String OUTLINECOLOR = "outlineColor";
 	private static final String OUTLINETRANS = "outlineTransparency";
 	private static final String OUTLINEWIDTH = "outlineWidth";
+	private static final String PADDING = "padding";
 	private static final String RESCALE = "rescale";
 
 	private Color color = null;
@@ -104,6 +105,7 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 	private Color outlineColor = null;
 	private double outlineWidth = 0.0;
 	private boolean rescale = false;
+	private double padding = 0.0;
 
 	// Parse the input string, which is always of the form:
 	// label:
@@ -190,6 +192,10 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 			labelAngle = getDoubleValue(args.get(ANGLE));
 		}
 
+		if (args.containsKey(PADDING)) {
+			padding = getDoubleValue(args.get(PADDING));
+		}
+
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
@@ -220,13 +226,13 @@ public class Label extends AbstractChartCustomGraphics<CustomGraphicLayer> {
 			// Create the label (we'll add it at the end)
 			LabelLayer labelLayer = new LabelLayer(label, initialBox, position, anchor, labelOffset, font, 
 			                                       labelAlignment, color, outlineColor, outlineWidth, 
-			                                       false, outlineLabel, labelAngle, rescale, labelWidth, labelSpacing);
+			                                       false, outlineLabel, labelAngle, rescale, labelWidth, labelSpacing, padding);
 
 			// Create the background
 			if (background) {
 				LabelLayer bgLayer = new LabelLayer(label, initialBox, position, anchor, labelOffset, font, 
 				                                    labelAlignment, bgColor, outlineColor, outlineWidth,
-			                                      true, false, labelAngle, rescale, labelWidth, labelSpacing);
+			                                      true, false, labelAngle, rescale, labelWidth, labelSpacing, padding);
 				if (bgLayer != null)
 					labelLayers.add(bgLayer);
 			}
