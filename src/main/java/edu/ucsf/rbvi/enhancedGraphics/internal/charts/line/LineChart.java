@@ -89,10 +89,10 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 		populateValues(args);
 
 		if (args.containsKey(COLORS)) {
-			if (attributes == null) 
-				colorList = convertInputToColor(args.get(COLORS), values);
-			else
-				colorString = args.get(COLORS);
+			colorString = args.get(COLORS);
+			
+			if (attributes == null)
+				colorList = convertInputToColor(colorString, values);
 		}
 
 		if (args.containsKey(LINEWIDTH)) {
@@ -126,16 +126,56 @@ public class LineChart extends AbstractChartCustomGraphics<LineLayer> {
 			minValue = Math.min(minValue, val);
 			maxValue = Math.max(maxValue, val);
 		}
-			
+		
+		boolean scalingColor = false;
+		String [] colorArray = colorString.split(",");
+		// Look for up/down special case
+		if (colorArray.length == 2 &&
+		    (colorArray[0].toLowerCase().startsWith(UP) ||
+		     colorArray[0].toLowerCase().startsWith(DOWN))) {
+			scalingColor=true;
+		} else if (colorArray.length == 3 &&
+		    (colorArray[0].toLowerCase().startsWith(UP) ||
+		     colorArray[0].toLowerCase().startsWith(DOWN) ||
+	     colorArray[0].toLowerCase().startsWith(ZERO))) {
+			scalingColor=true;
+		} else if (colorArray.length == 4 &&
+		    (colorArray[0].toLowerCase().startsWith(UP) ||
+		     colorArray[0].toLowerCase().startsWith(DOWN) ||
+	       colorArray[0].toLowerCase().startsWith(ZERO) ||
+			   colorArray[0].toLowerCase().startsWith(MISSING))) {
+			scalingColor=true;
+		}
+		
 		int nPoints = values.size();
+		
+		if(scalingColor) {
+			// We have to compute the colors again with the values being the difference between two points
+			List<Double> scalingValues = new ArrayList<>();
+			for (int point = 0; point < nPoints-1; point++) {
+				scalingValues.add(values.get(point+1) - values.get(point));
+			}
+			
+			// we don't want to scale the colors
+			// so we have to put rangeMin=rangeMax=0
+			double saved_rangeMin = rangeMin;
+			double saved_rangeMax = rangeMax;
+			rangeMin = 0;
+			rangeMax = 0;
+			colorList = convertInputToColor(colorString, scalingValues);
+			rangeMin = saved_rangeMin;
+			rangeMax = saved_rangeMax;
+		}
+		
 		for (int point = 0; point < nPoints-1; point++) {
 			// String label = null;
 			// if (labels != null && labels.size() > 0)
 			// 	label = labels.get(point);
 			// if (values.get(point) == 0.0) continue;
 			Color color = colorList.get(0);
-			if (colorList.size() == values.size())
+			if (point<colorList.size()) {
 				color = colorList.get(point);
+			}
 
 			// Create the line
 			LineLayer bl = new LineLayer(point, nPoints, 

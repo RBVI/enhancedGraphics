@@ -620,14 +620,14 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	}
 
 	private static final String	CONTRASTING = "contrasting";
-	private static final String	DOWN = "down:";
+	protected static final String	DOWN = "down:";
 	// ML: added ':' at the end of missing
-	private static final String	MISSING = "missing:";
+	protected static final String	MISSING = "missing:";
 	private static final String	MODULATED = "modulated";
 	private static final String	RAINBOW = "rainbow";
 	private static final String RANDOM = "random";
-	private static final String	UP = "up:";
-	private static final String	ZERO = "zero:";
+	protected static final String	UP = "up:";
+	protected static final String	ZERO = "zero:";
 	private static final double EPSILON = 1E-8f;
 
 	public List<Color> convertInputToColor(String input, List<Double>values)  {
