@@ -127,6 +127,12 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			// All other values will be considered counterclockwise
 			isClockwise = direction.equals("clockwise") || direction.equals("cw") || direction.equals("clock");
 		}
+		
+		// We only consider one attribute !
+		if(attributes != null && attributes.size()>1) {
+			attributes = Collections.singletonList(attributes.get(0));
+			logger.warn("piechart: Too many attributes, only the first one will be used.");
+		}
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
@@ -139,6 +145,8 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				return null;
 		layers = new ArrayList<>();
 		CyNode node = (CyNode)nodeView.getModel();
+		
+		boolean noLabels = ((labels==null) || labels.isEmpty());
 
 		// Create all of our pie slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
@@ -150,7 +158,7 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				// System.out.println("Have both attributes and values");
 				// If we already have values, we must want to use the attributes to map our colors
 				List<Double>attrValues = getDataFromAttributes (network, node, attributes, labels);
-				if (colorString.indexOf(';') > 0) {
+				if (colorString != null && colorString.indexOf(';') > 0) {
 					// System.out.println("Found semi-separated colors");
 					colorList = new ArrayList<Color>();
 					String[] colors = colorString.split(";");
@@ -174,11 +182,22 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				} else {
 					colorList = convertInputToColor(colorString, attrValues);
 				}
-				if (colorList == null) {
-					logger.error("piechart: no colors found");
-					return null;
-				}
 			}
+			
+			if(noLabels) {
+				// When we get data from attribute,
+				// the labels are inferred with the name of the attributes
+				// Here we don't want it
+				labels = null;
+			}
+		} else {
+			logger.error("piechart: no attribute found");
+			return null;
+		}
+		
+		if (colorList == null || colorList.isEmpty()) {
+			logger.error("piechart: no colors found");
+			return null;
 		}
 
 		values = convertData(values);
