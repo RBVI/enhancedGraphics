@@ -142,8 +142,8 @@ public class HeatStripChart extends AbstractChartCustomGraphics<HeatStripLayer> 
 
 		List<HeatStripLayer> labelList = new ArrayList<HeatStripLayer>();
 
-		double minValue = 0.000001;
-		double maxValue = -minValue;
+		double minValue = 0;
+		double maxValue = 0;
 		for (Double val: values) {
 			if (val == null) continue;
 			minValue = Math.min(minValue, val);

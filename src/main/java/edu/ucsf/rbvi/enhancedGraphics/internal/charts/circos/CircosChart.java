@@ -326,8 +326,6 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 				nCircles = 1;
 				values = convertData(values);
 				colors = convertInputToColor(colorString, values, 0);
-				// We have to give a name for each ring, because we don't have name we put empty String
-				attributes = Collections.singletonList("");
 			} else if (valueList != null) {
 				colorList = new ArrayList<>();
 				for(int i=0; i<valueList.size(); ++i) {
@@ -340,8 +338,6 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 					colorList.add(colors);
 				}
 				nCircles = valueList.size();
-				// We have to give a name for each ring, because we don't have name we put empty String
-				attributes = Collections.nCopies(nCircles, "");
 			}
 			//(end of ML)
 		}
@@ -453,7 +449,11 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 		// System.out.println("Drawing circles");
 		rad = maxRadius;
 		for (int circle = nCircles-1; circle >= 0; circle--) {
-			String circleLabel = attributes.get(circle);
+			String circleLabel = "";
+			
+			if(attributes != null && circle < attributes.size()) {
+				circleLabel = attributes.get(circle);
+			}
 
 			if (cLabels != null)
 				circleLabel = cLabels.get(circle);
