@@ -1,7 +1,7 @@
 # enhancedGraphics
 App to add enhanced node graphics to [Cytoscape 3](https://cytoscape.org).
 
-This documentation is valid for enhancedGraphics version **1.5.1**.
+This documentation is valid for enhancedGraphics version **1.5.2**.
 
 ## Presentation
 
@@ -131,7 +131,15 @@ Paints a bar chart onto the node, according to the arguments provided.
 
 - `barchart: attributelist="a,b,c,d" colorlist="up:yellow,down:green"`
 
+  In this example, the values of `a`,`b`,`c`, and `d` are `2.0`, `0.5`, `4.0`, and `-1.0`.
+  Because no range is given, a positive values are yellow and the negative value is green.
+
 - `barchart: valuelist="4,5,3" labellist="A,B,C"  ybase="bottom" showyaxis=true separation=4 range="2.5,5"`
+  
+  In this example, the values are all positives, so we place the chart at the bottom of the node.
+  To emphasize on the difference between the bars, we zoom on the area \[2.5,5\] of the chart and display the Y axis.
+
+![barchart screenshot](screenshots/barchart.png)
 
 ---
 
@@ -165,7 +173,7 @@ This chart type displays the values passed as arguments as a concentric circles 
     `[circle1_slice1,circle1_slice2,circle1_slice3],[circle2_slice1,circle2_slice2,circle2_slice3]`
     where `circleX_sliceY` is a **positive** floating point value representing the size of the given slice from the given circle.
     
-    *Note*: The values of each circle are independant, they represent a proportion of the slice in the circle.
+    *Note*: The values of each circle are independent, they represent a proportion of the slice in the circle.
     For example, `[2,2,2],[3,3,3]` is equivalent to `1,1,1` even if the values are different, they represent the same proportion.
     
     The first circle is the inner circle, the last circle is the outer circle.
@@ -195,7 +203,7 @@ This chart type displays the values passed as arguments as a concentric circles 
   The direction in which the slices are drawn.
   Must be one of:
   - `clockwise`, `clock`, `cw`: the slices are drawn clockwise.
-  - `counterclockwise`, `anticlockwise`, `ccw`, `acw`: the slices are drawn anticlockwise.
+  - `counterclockwise`, `anticlockwise`, `ccw`, `acw`: the slices are drawn anti-clockwise.
 
 - `firstarc` *Double* - *Default: `0.2`*
   
@@ -213,11 +221,11 @@ This chart type displays the values passed as arguments as a concentric circles 
   The width of the first circle, as a proportion of the entire node.
   The default value `0.1` means that the arc width is equals to 10% of the node width.
 
-- `outlineColor` *String* - *Default: `black`*
+- `bordercolor` *String* - *Default: `black`*
 
   The [single color](#colors) of the slice borders.
 
-- `outlineWidth` *Double* - *Default: `0.1`*
+- `borderwidth` *Double* - *Default: `0.1`*
 
   Width of the slice borders.
   
@@ -280,11 +288,37 @@ This chart type displays the values passed as arguments as a concentric circles 
 
 - `circoschart: attributelist="list_a,list_b,list_c" colorlist="up:yellow,down:green" labellist="node 1\\\, slice 1,node 1\\\, slice 2,node 1\\\, slice 3,node 1\\\, slice 4" firstarc=1 arcwidth=.3 valuelist="1,1,1,1"`
 
+  In this example, the values of `list_a`, `list_b`, and `list_c` are `[1.0,2.0,3.0,4.0]`, `[-5.0,3.0,-2.0,1.0]`, and `[-1.0,-2.0,-3.0,-4.0]`.
+  Because the values are equals, the circles will be split into four same-sized slices.
+  No range given, so the positive values will be yellow and the negative values will be green.
+  The slices are labelled, the labels will point to the outer circle.
+  The chart will be around the node (`firstarc=1`) and the width of the circles is increased compared to the default value.
+  
+  We can note that the chart fits to the node, even if it is not square (or round).
+  In this configuration the chart is an ellipse.
+
 - `circoschart: attributelist="list_a,list_b,list_c" colorlist="up:yellow,zero:white,down:green,missing:black" labellist="slice 1,slice 2,slice 3,slice 4" firstarc=1 arcwidth=.3 valuelist="1,1,1,1" range="-5,5" arcdirection="clockwise"`
 
+  In this example, the values of `list_a`, `list_b`, and `list_c` are `[1.0,2.0,3.0,4.0]`, `[-5.0,NaN,-2.0,1.0]`, and `[-1.0,-2.0,-3.0,-4.0]`.
+  Because the values are equals, the circles will be split into four same-sized slices.
+  With the range, the colors will scale from green to white or white to yellow depending of the sign of the value, and a missing value will be painted black.
+  Here the slices are drawn clockwise (starting at 3 o'clock by default).
+
 - `circoschart: attributelist="list_a,list_b,list_c"  circlelabels="a,b,c" labelcircles="east" firstarc=.1 arcwidth=.3 arcstart=90`
+  
+  In this example, the values of `list_a`, `list_b`, and `list_c` are `[1.0,2.0,3.0,4.0]`, `[5.0,3.0,2.0,1.0]`, and `[10.0,6.0,3.0,1.0]`.
+  Because there is no value, the attributes are used as values.
+  The default colors are `contrasting`, in this case the colors are, in order: red, purple, cyan and lime.
+  Here the labels are not for the slices but for the circles, they will be drawn on the right side of the node.
+  The starting point of the slice will be 12 o'clock (`arcstart=90`) and drawn counterclockwise by default.
+  The widths (`firstarc` and `arcwidth`) are calculated so that the chart is inside the node that was previously shaped as a circle.
 
 - `circoschart: valuelist="[1,2,3],[2,1,4]" colorlist="[red,red,darkgreen],[darkgreen,red,black]" firstarc=.7 arcwidth=.3 bordercolor=white borderwidth=1`
+
+  In this example we manually give the values and colors for each slice of each circle.
+  We have chosen dark colors, so we use a bright border color, and increased its width compared to default.
+
+![circoschart screenshot](screenshots/circoschart.png)
 
 ---
 
@@ -394,9 +428,18 @@ This chart type displays the values passed as arguments as a bar chart with the 
 
 #### Examples
 
+In the following examples, the values of the attributes `a`, `b`, `c`, and `d` are `1.0`, `2.0`, `3.0`, `-3.0` respectively.
+
 - `heatstripchart: attributelist="a,b,c,d" showyaxis=true`
 
-- `heatstripchart: attributelist="a,b,c,d" colorlist="yellowcyan" showyaxis=true showyaxis=true separation=2 showlabels=false`
+  In this example we use the default values, except that we add the Y axis to see the limits of the values.
+
+- `heatstripchart: attributelist="a,b,c,d" colorlist="yellowcyan" showyaxis=true separation=2 showlabels=false`
+  
+  In this example we change the color scheme, the only difference is the `zero` color which by default is black and here is not used, meaning that the `zero` color is the mix between `up` and `down`, here lime is the mix between yellow and cyan.
+  We get rid of the labels and we add some space between the bars.
+
+![heatstripchart screenshot](screenshots/heatstripchart.png)
 
 ---
 
@@ -434,13 +477,13 @@ This chart type provides a mechanism to add text labels to nodes that have more 
   Where the label position should be calculated from.
   The string can be formatted as `x,y` or one of the following keyword:
   - `center`: the middle of the node
-  - `north`: the top border of the node, centerred horizontally
+  - `north`: the top border of the node, centered horizontally
   - `northeast`: the top-right corner of the node
-  - `east`: the right border of the node, centerred vertically
+  - `east`: the right border of the node, centered vertically
   - `southeast`: the bottom-right corner of the node
-  - `south`: the bottom border of the node, centerred horizontally
+  - `south`: the bottom border of the node, centered horizontally
   - `southwest`: the bottom-left corner of the node
-  - `west`: the left border of the node, centerred vertically
+  - `west`: the left border of the node, centered vertically
   - `northwest`: the top-left corner of the node
 
 - `anchor` *String* - *Default: `center`*
@@ -448,13 +491,13 @@ This chart type provides a mechanism to add text labels to nodes that have more 
   Where the label text should be anchored.
   The string can be formatted as `x,y` or one of the following keyword:
   - `center`: the middle of the text
-  - `north`: the top border of the text, centerred horizontally
+  - `north`: the top border of the text, centered horizontally
   - `northeast`: the top-right corner of the text
-  - `east`: the right border of the text, centerred vertically
+  - `east`: the right border of the text, centered vertically
   - `southeast`: the bottom-right corner of the text
-  - `south`: the bottom border of the text, centerred horizontally
+  - `south`: the bottom border of the text, centered horizontally
   - `southwest`: the bottom-left corner of the text
-  - `west`: the left border of the text, centerred vertically
+  - `west`: the left border of the text, centered vertically
   - `northwest`: the top-left corner of the text
   
 - `labeloffset` *String* - *Default: `0,0`*
@@ -531,12 +574,27 @@ This chart type provides a mechanism to add text labels to nodes that have more 
 #### Examples
 
 - `label: label="This is text"`
+  
+  Default values are used: the text is centered in the middle of the node.
 
 - `label: attribute="long_text" labelwidth=75 background=true bgColor=red padding=0.05`
 
+  In this example, the text of the label is read from the attribute `long_text`, which value is `This is a text on several lines`.
+  To make the label on several lines, we put a maximum width (the node width is 75).
+  To emphasize the label we put a red background.
+  To increase readability, we add a padding so that letters are not too close to the node borders.
+
 - `label: label="This is text is on several lines" labelwidth=75 position="northwest" labelAlignment="left" padding=0.05`
+  
+  In this example we show how to put a text which is not centered.
+  We put the text on the top-left corner and we align the text with the right border.
 
 - `label: label="This is text" position="south" labelAlignment="center_top" anchor="north"`
+
+  In this example the label leaves the node.
+  We want it to be below the node, so we want the north of the label to be at the south of the node.
+
+![label screenshot](screenshots/label.png)
 
 ---
 
@@ -576,8 +634,15 @@ This chart type displays the values passed as arguments as a line chart on the n
 #### Examples
 
 - `linechart: attributelist="a,b,c,d" colorlist="up:red,down:blue"`
+  
+  In this example, the attribute values of `a`, `b`, `c` and `d` are `2.0`, `0.5`, `4.0`, and `-1.0` respectively.
+  The colors of the line will depend on the difference between the two points: if it decreases it will be blue, if it increases it will be red.
 
 - `linechart: valuelist="1,4,2,3,0" colorlist="green"`
+
+  In this example, the values are manually given and the line will have only one color.
+
+![linechart screenshot](screenshots/linechart.png)
 
 ---
 
@@ -614,7 +679,7 @@ This chart type displays a linear gradient on the node.
   
   List of stops separated with a vertical bar `|`.
   A stop is a comma-separated list of a color and the proportional distance, formatted as follows:
-  `r,g,b,a,s` where
+  `r,g,b,a,s` or `r,g,b,s` where
   - `r` is the red-component of the color (*Integer* in the range [0,255]);
   - `g` is the green-component of the color (*Integer* in the range [0,255]);
   - `b` is the blue-component of the color (*Integer* in the range [0,255]);
@@ -625,7 +690,15 @@ This chart type displays a linear gradient on the node.
 
 - `lingrad: start="0,1" end="1,0" stoplist="0,0,255,255,0.0|255,255,255,255,0.5|255,0,0,255,1.0"`
 
+  In this example, we want a linear gradient that follows the diagonal from the bottom-left corner to the top-right corner.
+  We want the starting color to be blue, then in the middle it will be white and at the end it is red.
+
 - `lingrad: start="0,0" end="1,0" stoplist="0,0,255,255,0.0|0,255,255,255,0.25|255,255,0,255,0.75|255,0,0,255,1.0"`
+
+  In this example, the gradient follows the horizontal line.
+  We have four colors in the gradient.
+
+![lingrad screenshot](screenshots/lingrad.png)
 
 ---
 
@@ -671,7 +744,7 @@ This chart type displays the values passed as arguments as a pie chart on the no
   The direction in which the slices are drawn.
   Must be one of:
   - `clockwise`, `clock`, `cw`: the slices are drawn clockwise.
-  - `counterclockwise`, `anticlockwise`, `ccw`, `acw`: the slices are drawn anticlockwise.
+  - `counterclockwise`, `anticlockwise`, `ccw`, `acw`: the slices are drawn anti-clockwise.
 
 - `firstarc` *Double* - *Default: `0.2`*
   
@@ -755,8 +828,17 @@ This chart type displays the values passed as arguments as a pie chart on the no
 #### Examples
 
 - `piechart: attributelist="list_a" labellist="slice 1,slice 2, sclie 3, sclie 4, slice 5"`
+  
+  In this example, the value of the attribute `list_a` is `[5.0,2.0,3.0,4.0,1.0]`.
+  Each slice is labelled and the colors are the default contrasting colors.
 
 - `piechart: attributelist="list_b" valuelist="1,1,1" colorlist="up:red,down:blue,zero:white" range="-3,3"`
+  
+  In this example, the three slices have the same sizes and the colors depends on the values of the attribute `list_b` which value is `[2.0,-1,4.0]`.
+  Here because some values are not in the range defined, the color assigned is the same as the limit one, in this case, `4.0` is assigned the `up` color because it is greater than the max range.
+  The other colors scale from blue to white or white to red.
+
+![piechart screenshot](screenshots/piechart.png)
 
 ---
 
@@ -773,7 +855,7 @@ This chart type displays a radial gradient on the node.
   
   List of stops separated with a vertical bar `|`.
   A stop is a comma-separated list of a color and the proportional distance, formatted as follows:
-  `r,g,b,a,s` where
+  `r,g,b,a,s` or `r,g,b,s` where
   - `r` is the red-component of the color (*Integer* in the range [0,255]);
   - `g` is the green-component of the color (*Integer* in the range [0,255]);
   - `b` is the blue-component of the color (*Integer* in the range [0,255]);
@@ -798,8 +880,17 @@ This chart type displays a radial gradient on the node.
 #### Examples
 
 - `radgrad: stoplist="0,0,255,255,0.0|255,255,255,255,0.5|255,0,0,255,1.0"`
+  
+  In this example, we want a radial gradient from blue to white and white to red.
+  The default center is the center of the node.
+  The default value here is the height of the node because the height is smaller than the width.
 
 - `radgrad: center="0,1" radius=2 stoplist="255,255,0,255,0.2|255,127,0,255,0.75|255,0,0,0.9|55,65,170,255,1.0"`
+  
+  In this example, we want a radial gradient from the bottom-left corner of the node, with a radius twice as large as the height of the node.
+  In this gradient we define four colors with different distances.
+
+![radgrad screenshot](screenshots/radgrad.png)
 
 ---
 
@@ -821,8 +912,14 @@ This simple chart type displays the values passed as arguments as a series of st
 #### Examples
 
 - `stripechart: colorlist="#051440,white,#EC1920 "`
+  
+  In this example we define the French flag.
 
 - `stripechart: colorlist="black,#ffe936,#ff0f21"`
+
+  In this example we define the Belgian flag.
+
+![stripechart screenshot](screenshots/stripechart.png)
 
 ---
 
@@ -850,7 +947,7 @@ A user-defined list is a comma-separated string of single colors.
 The number of colors in the list must fit the number of chart elements to draw.
 
 The app also gives access to four predefined color lists, defined thanks to the following keywords:
-- `random`: the colors change everytime the chart are drawned (everytime the view is changed).
+- `random`: the colors change every time the chart are drawn (every time the view is changed).
 - `rainbow`: the colors from the rainbow, the first element of the list is red, the last is turquoise.
 The other elements ranges from red to turquoise so that the number of colors matches the number of chart elements.
 - `contrasting`: two consecutive colors will be from opposite sides of the color wheel.
