@@ -321,12 +321,7 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 			}
 		} else {
 			//ML: If there is no attribute, we look at values
-			if(values != null) {
-				// There is only 1 circle
-				nCircles = 1;
-				values = convertData(values);
-				colors = convertInputToColor(colorString, values, 0);
-			} else if (valueList != null) {
+			if (valueList != null) {
 				colorList = new ArrayList<>();
 				for(int i=0; i<valueList.size(); ++i) {
 					values = convertData(valueList.get(i));
@@ -338,6 +333,11 @@ public class CircosChart extends AbstractChartCustomGraphics<CircosLayer> {
 					colorList.add(colors);
 				}
 				nCircles = valueList.size();
+			} else if(values != null) {
+				// There is only 1 circle
+				nCircles = 1;
+				values = convertData(values);
+				colors = convertInputToColor(colorString, values, 0);
 			}
 			//(end of ML)
 		}
