@@ -522,7 +522,7 @@ This chart type provides a mechanism to add text labels to nodes that have more 
   - `bold`
   - `bolditalic`
 
-- `labelcolor` *String* - *Default: `black`*
+- `color` *String* - *Default: `black`*
 
   The [single color](#colors) of the labels.
 
