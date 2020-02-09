@@ -63,6 +63,7 @@ public class HeatStripLayer implements PaintedShape {
 	private String label;
 	private double labelWidth = ViewUtils.DEFAULT_LABEL_WIDTH;
 	private double labelSpacing = ViewUtils.DEFAULT_LABEL_LINE_SPACING;
+	private Color labelColor = Color.BLACK;
 	private Color[] colorScale;
 	private Font font;
 	protected Rectangle2D bounds;
@@ -111,7 +112,7 @@ public class HeatStripLayer implements PaintedShape {
 	}
 
 	public HeatStripLayer(int bar, int nbars, int separation, double minValue, double maxValue,
-	                      boolean normalized, double labelMin, String label, Font font, double labelWidth, double labelSpacing, boolean showAxes, 
+	                      boolean normalized, double labelMin, String label, Font font, Color labelColor, double labelWidth, double labelSpacing, boolean showAxes, 
 												double scale) {
 		labelLayer = true;
 		this.bar = bar;
@@ -121,6 +122,7 @@ public class HeatStripLayer implements PaintedShape {
 		this.labelWidth = labelWidth;
 		this.labelSpacing = labelSpacing;
 		this.font = font;
+		this.labelColor = labelColor;
 		this.rangeMax = maxValue;
 		this.rangeMin = minValue;
 		this.normalized = normalized;
@@ -139,13 +141,13 @@ public class HeatStripLayer implements PaintedShape {
 
 	public Paint getPaint() {
 		if (labelLayer)
-			return Color.BLACK;
+			return labelColor;
 		return createGradPaint();
 	}
 
 	public Paint getPaint(Rectangle2D bounds) {
 		if (labelLayer)
-			return Color.BLACK;
+			return labelColor;
 		return createGradPaint();
 	}
 
