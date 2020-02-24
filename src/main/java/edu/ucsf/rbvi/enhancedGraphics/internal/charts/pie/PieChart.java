@@ -190,8 +190,10 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				// Here we don't want it
 				labels = null;
 			}
-		} else {
-			logger.error("piechart: no attribute found");
+		}
+		
+		if (attributes == null && values == null) {
+			logger.error("piechart: no attribute nor values found");
 			return null;
 		}
 		
