@@ -132,7 +132,7 @@ Paints a bar chart onto the node, according to the arguments provided.
 - `barchart: attributelist="a,b,c,d" colorlist="up:yellow,down:green"`
 
   In this example, the values of `a`,`b`,`c`, and `d` are `2.0`, `0.5`, `4.0`, and `-1.0`.
-  Because no range is given, a positive values are yellow and the negative value is green.
+  Because no range is given, the positive values are yellow and the negative value is green.
 
 - `barchart: valuelist="4,5,3" labellist="A,B,C"  ybase="bottom" showyaxis=true separation=4 range="2.5,5"`
   
@@ -153,7 +153,7 @@ This chart type displays the values passed as arguments as a concentric circles 
 
 #### Arguments
 
-- `attributelist` *String* **(required)**
+- `attributelist` *String*  **(required[*](#req-circos))**
 
   Comma-separated list of node table columns that contain the values for the slices.
   The type of the table columns should be `List of Double`.
@@ -163,7 +163,7 @@ This chart type displays the values passed as arguments as a concentric circles 
   If no `valuelist` is given, an attribute will be considered as a value.
   In this case, the attributes will represent the size of a slice and thus must be **positive**.
 
-- `valuelist` *String*
+- `valuelist` *String* **(required[*](#req-circos))**
   
   Represent the size of slices. The values should be **positive**.
   
@@ -283,6 +283,9 @@ This chart type displays the values passed as arguments as a concentric circles 
 
   In case the label is on several lines, this is the size of the space between two lines.
   The unit is the same as node sizes.
+
+<a name="req-circos"></a>
+**[*](#circos)** at least one of the arguments is required.
 
 #### Examples
 
