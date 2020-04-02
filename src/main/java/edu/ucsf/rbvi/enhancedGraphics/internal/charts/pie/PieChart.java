@@ -128,11 +128,15 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 			isClockwise = direction.equals("clockwise") || direction.equals("cw") || direction.equals("clock");
 		}
 		
-		// We only consider one attribute !
+		/* We only consider one attribute !
+		 * Actually, we need to be able to consider more than one attribute.  We have a use case where we use
+		 * the attributes to provide the gradient value, but the values option to provide the number of
+		 * slices.  In this case colors, attributes, and values must all have the same number of elements.
 		if(attributes != null && attributes.size()>1) {
 			attributes = Collections.singletonList(attributes.get(0));
 			logger.warn("piechart: Too many attributes, only the first one will be used.");
 		}
+		*/
 	}
 
 	public String toSerializableString() { return this.getIdentifier().toString()+","+displayName; }
