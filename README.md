@@ -196,7 +196,7 @@ This chart type displays the values passed as arguments as a concentric circles 
 
 - `arcstart` *Double* - *Default: `0.0`*
   
-  The angle in degrees to start the slices. `0` points east, `90` points south, etc.
+  The angle in degrees to start the slices. `0` points east, `90` points north, etc.
   
 - `arcdirection` *String* - *Default: `counterclockwise`*
   
@@ -744,7 +744,7 @@ This chart type displays the values passed as arguments as a pie chart on the no
 
 - `arcstart` *Double* - *Default: `0.0`*
   
-  The angle in degrees to start the slices. `0` points east, `90` points south, etc.
+  The angle in degrees to start the slices. `0` points east, `90` points north, etc.
   
 - `arcdirection` *String* - *Default: `counterclockwise`*
   
