@@ -718,11 +718,11 @@ This chart type displays the values passed as arguments as a pie chart on the no
 - `attributelist` *String* **(required)**
 
   `attributelist` can be two different things:
-      - A node table columns that contain the values for the slices.
-      The type of the table column should be `List of Double`.
+  - A node table column that contain the values for the slices.
+    The type of the table column should be `List of Double`.
       
-      - Comma-separated list of node table columns that contain the values for the points.
-      The type of the table columns should be `Double`.
+  - Comma-separated list of node table columns that contain the values for the slices.
+    The type of the table columns should be `Double`.
   
   If no `valuelist` is given, an attribute will be considered as a value.
   In this case, the attributes will represent the size of a slice and thus must be **positive**.
