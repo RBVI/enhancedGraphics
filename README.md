@@ -717,8 +717,12 @@ This chart type displays the values passed as arguments as a pie chart on the no
 
 - `attributelist` *String* **(required)**
 
-  Node table columns that contain the values for the slices.
-  The type of the table column should be `List of Double`.
+  `attributelist` can be two different things:
+      - A node table columns that contain the values for the slices.
+      The type of the table column should be `List of Double`.
+      
+      - Comma-separated list of node table columns that contain the values for the points.
+      The type of the table columns should be `Double`.
   
   If no `valuelist` is given, an attribute will be considered as a value.
   In this case, the attributes will represent the size of a slice and thus must be **positive**.
@@ -835,9 +839,9 @@ This chart type displays the values passed as arguments as a pie chart on the no
   In this example, the value of the attribute `list_a` is `[5.0,2.0,3.0,4.0,1.0]`.
   Each slice is labelled and the colors are the default contrasting colors.
 
-- `piechart: attributelist="list_b" valuelist="1,1,1" colorlist="up:red,down:blue,zero:white" range="-3,3"`
+- `piechart: attributelist="a,b,c" valuelist="1,1,1" colorlist="up:red,down:blue,zero:white" range="-3,3"`
   
-  In this example, the three slices have the same sizes and the colors depends on the values of the attribute `list_b` which value is `[2.0,-1,4.0]`.
+  In this example, the three slices have the same sizes and the colors depends on the values of the attributes `a`, `b` and `c` which values are respectively `2.0`, `-1` and `4.0`.
   Here because some values are not in the range defined, the color assigned is the same as the limit one, in this case, `4.0` is assigned the `up` color because it is greater than the max range.
   The other colors scale from blue to white or white to red.
 

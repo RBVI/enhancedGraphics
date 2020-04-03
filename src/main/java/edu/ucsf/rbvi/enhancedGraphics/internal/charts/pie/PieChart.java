@@ -56,6 +56,8 @@ import java.awt.geom.Rectangle2D;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
 import org.cytoscape.view.presentation.customgraphics.CyCustomGraphics;
@@ -149,11 +151,14 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				return null;
 		layers = new ArrayList<>();
 		CyNode node = (CyNode)nodeView.getModel();
-		
-		boolean noLabels = ((labels==null) || labels.isEmpty());
 
 		// Create all of our pie slices. Each slice becomes a layer
 		if (attributes != null && attributes.size() > 0) {
+			// We save if the user did not set any labels
+			// if the user do not give labels,
+			// the labels are inferred from the attributes
+			boolean noLabels = ((labels==null) || labels.isEmpty());
+			
 			if (values == null || values.size() == 0) {
 				values = getDataFromAttributes (network, node, attributes, labels);
 				colorList = convertInputToColor(colorString, values);
@@ -188,11 +193,21 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 				}
 			}
 			
-			if(noLabels) {
-				// When we get data from attribute,
-				// the labels are inferred with the name of the attributes
-				// Here we don't want it
-				labels = null;
+			if(noLabels && attributes.size()==1) {
+				// one attribute, it is a List (we don't want labels) or a single Double (we want labels)
+				CyRow nodeRow = network.getRow(node);
+				CyTable nodeTable = nodeRow.getTable();
+				
+				if(nodeTable.getColumn(attributes.get(0)) != null
+						&& nodeTable.getColumn(attributes.get(0)).getType().equals(List.class)) {
+					// in that case:
+					// - no labels given by the user
+					// - no values given by the user
+					// - only one attribute which is a list
+					// => we don't want inferred labels from the data,
+					// so we "forget" the inferred labels
+					labels = null;
+				}
 			}
 		}
 		
