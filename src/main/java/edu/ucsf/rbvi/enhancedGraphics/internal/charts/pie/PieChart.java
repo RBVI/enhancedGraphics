@@ -202,7 +202,6 @@ public class PieChart extends AbstractChartCustomGraphics<PieLayer> {
 						&& nodeTable.getColumn(attributes.get(0)).getType().equals(List.class)) {
 					// in that case:
 					// - no labels given by the user
-					// - no values given by the user
 					// - only one attribute which is a list
 					// => we don't want inferred labels from the data,
 					// so we "forget" the inferred labels
