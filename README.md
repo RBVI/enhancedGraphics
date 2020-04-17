@@ -1,7 +1,7 @@
 # enhancedGraphics
 App to add enhanced node graphics to [Cytoscape 3](https://cytoscape.org).
 
-This documentation is valid for enhancedGraphics version **1.5.3**.
+This documentation is valid for enhancedGraphics version **1.5.4**.
 
 ## Presentation
 
