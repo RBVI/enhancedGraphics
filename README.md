@@ -735,7 +735,8 @@ This chart type displays the values passed as arguments as a pie chart on the no
 
 - `colorlist` *String* - *Default: `contrasting`*
   
-  A [color list](#colors).
+  A [color list](#colors) or a semicolon separated list of [scaling colors](#colors).
+  One can define a color list for the pie, or one can define a scaling color for each attribute of the pie.
 
 - `range` *String*
 
