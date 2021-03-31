@@ -49,6 +49,7 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 	public static final String LABELS = "labellist";
 	public static final String LIST = "list";
 	public static final String NETWORK = "network";
+	public static final String NORMALIZE = "normalize";
 	public static final String POSITION = "position";
 	public static final String RANGE = "range";
 	public static final String SCALE = "scale";
@@ -146,6 +147,10 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 		if(args.containsKey(BORDERCOLOR)) {
 			borderColor = getColorValue(args.get(BORDERCOLOR));
 		}
+
+    if(args.containsKey(NORMALIZE)) {
+      normalized = !getBooleanValue(args.get(NORMALIZE));
+    }
 
 		values = null;
 		if (args.containsKey(VALUES)) {
@@ -709,12 +714,13 @@ abstract public class AbstractChartCustomGraphics<T extends CustomGraphicLayer>
 			double vn = v;
 			if (!normalized)
 				vn = normalize(v, rangeMin, rangeMax);
-			// System.out.println("Value = "+v+", Normalized value = "+vn);
-			if (vn < (-EPSILON)) 
+			if (vn < (-EPSILON))  {
+			  // System.out.println("Value = "+v+", Normalized value = "+vn+", Scaled value = "+scaleColor(-vn, zero, down));
 				results.add(scaleColor(-vn, zero, down));
-			else if (vn > EPSILON)
+      } else if (vn > EPSILON) {
 				results.add(scaleColor(vn, zero, up));
-			else
+			  // System.out.println("Value = "+v+", Normalized value = "+vn+", Scaled value = "+scaleColor(vn, zero, up));
+      } else
 				results.add(zero);
 		}
 		return results;
